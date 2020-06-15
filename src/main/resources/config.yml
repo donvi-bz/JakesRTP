@@ -1,0 +1,74 @@
+# → JakesRTP Config! Have fun configuring! ←
+# - - - - - - - - - - - - - - -  - - - - - - - - - - - - - -
+# NOTE: Anything that starts with a //: is an inline
+#       comment, NOT a configurable item. (The YAML parser
+#       that I use does not support comments everywhere)
+# - - - - - - - - - - - - - - -  - - - - - - - - - - - - - -
+# Old configs may not run correctly.
+# Please don't edit config-version.
+config-version: 1.4
+run-old-configs: false #TODO - Make this work
+random-teleport-settings default:
+  enabled: true
+  //: "Nether and end worlds are not currently supported."
+  enabled-worlds:
+    - world
+    - yer #You can remove this one
+  shape:
+    allowed-values:
+      a: 'Square (radius & center)'
+      b: 'Circle (radius & center)'
+#      c: 'Rectangle (bounding corners) NOT CURRENTLY SUPPORTED'
+    value: a
+  defining-points:
+    radius-center:
+      radius:
+        max: 2000
+        min: 1000
+      center:
+        allowed-values:
+          a: "World spawn"
+          b: "Player's current location"
+          c: "The x and z as set in config"
+        value: a
+        x: 0
+        z: 0
+  low-bound:
+    //: 'The lowest point a player can be RTPed to'
+    value: 50
+  small-hops:
+    //0: 'If the first rtp spot is unsafe, a few more attempts will be made nearby.'
+    //1: 'This functions by RTPing the player [attempts] times with between [max] and [min] blocks away.'
+    //2: 'Having these attempts improves performance as less chunks need to be loaded or generated, '
+    //3: 'though, unfortunately, it does make the true "randomness" worse'
+    attempts: 3
+    max: 16
+    min: 8
+  cooldown:
+    seconds: 30
+
+//: 'You can keep copying and pasting these for more configs, just change the word(s) at the end'
+
+random-teleport-settings example:
+  enabled: false
+  enabled-worlds:
+    - world_the_end
+  shape:
+    value: b
+  defining-points:
+    radius-center:
+      radius:
+        max: 5000
+        min: 3000
+      center:
+        value: c
+        x: 1000000
+        z: 1000000
+  low-bound:
+    value: 50
+  small-hops:
+    attempts: 3
+    max: 16
+    min: 8
+  cooldown:
+    seconds: 4000

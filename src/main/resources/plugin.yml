@@ -1,0 +1,46 @@
+name: JakesRTP
+author: JakeTS
+main: biz.donvi.jakesRTP.PluginMain
+prefix: 'J-RTP'
+version: '0.2.5'
+api-version: '1.15'
+
+commands:
+  jrtpdebug:
+    description: 'Used for debugging, no practical purpose'
+  rtp:
+    description: 'Teleports you to a random location'
+    aliases:
+      - 'wild'
+    permission: 'jakesrtp.use'
+    permission-message: 'Could not run command. Missing permission node: jakesrtp.use'
+    usage: '/rtp'
+  rtp-admin:
+    description: 'All the admin functionality (of J-RTP) in its own place'
+    permission: 'jakesrtp.admin'
+    permission-message: 'Could not run command. Missing permission node: jakesrtp.admin'
+    useage: '/rtp-admin [reload]'
+
+permissions:
+  jakesrtp.use:
+    description: 'Allows the use of the base "/rtp" command'
+    default: true
+  jakesrtp.nocooldown:
+    description: 'Allows the user to ignore the cool-down timer'
+    default: op
+  jakesrtp.others:
+    description: 'Allows the use of "/rtp" on other players'
+    default: op
+  jakesrtp.admin:
+    description: 'Allows the usage of the "/rtp-admin" command.'
+    default: op
+  # Permission packs
+  jakesrtp.permpack.admin:
+    description: 'A collection of permissions that are *not* intended for players'
+    children:
+      jakesrtp.nocooldown: true
+      jakesrtp.others: true
+
+command-tree:
+  rtp-admin:
+    reload:

@@ -1,0 +1,4 @@
+# Project exclude paths
+/plot/
+/target/
+/testServer/
