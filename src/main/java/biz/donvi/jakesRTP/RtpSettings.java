@@ -24,6 +24,8 @@ public class RtpSettings {
     private final int centerX;
     private final int centerZ;
     private final int lowBound;
+    public final int checkRadiusXZ;
+    public final int checkRadiusVert;
     final CoolDownTracker coolDown;
 
     /**
@@ -94,22 +96,33 @@ public class RtpSettings {
         StringBuilder stringBuilder = new StringBuilder();
         for (World world : configWorlds)
             stringBuilder.append(' ').append(world.getName());
-        infoLog("[" + name + "] " + "Rtp enabled in the following worlds:" + stringBuilder.toString());
+        infoLog("[" + name + "] " +
+                "Rtp enabled in the following worlds:" + stringBuilder.toString());
 
 
         // RTP CENTER X & Z
         centerX = config.getInt("defining-points.radius-center.center.x");
         centerZ = config.getInt("defining-points.radius-center.center.z");
 
-        infoLog("[" + name + "] " + "RTP Center x & z are " + centerX + " and " + centerZ);
+        infoLog("[" + name + "] " +
+                "RTP Center x & z are " + centerX + " and " + centerZ);
 
         // LOW BOUND
         lowBound = config.getInt("low-bound.value");
-        infoLog("[" + name + "] " + "Set low bound to " + lowBound);
+        infoLog("[" + name + "] " +
+                "Set low bound to " + lowBound);
+
+        // CHECK RADIUS
+        checkRadiusXZ = config.getInt("check-radius.x-z");
+        checkRadiusVert = config.getInt("check-radius.vert");
+        infoLog("[" + name + "] " +
+                "Check radius x and z set to " + checkRadiusXZ +
+                " and vert set to " + checkRadiusVert);
 
         // COOL-DOWN TRACKER
         coolDown = new CoolDownTracker(config.getInt("cooldown.seconds"));
-        infoLog("[" + name + "] " + "Cooldown time: " + coolDown.coolDownTime/1000 + " seconds.");
+        infoLog("[" + name + "] " +
+                "Cooldown time: " + coolDown.coolDownTime/1000 + " seconds.");
     }
 
 
@@ -185,6 +198,8 @@ public class RtpSettings {
     public ArrayList<World> getConfigWorlds() {
         return configWorlds;
     }
+
+
 }
 
 

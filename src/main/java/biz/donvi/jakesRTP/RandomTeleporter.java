@@ -237,21 +237,16 @@ public class RandomTeleporter implements CommandExecutor {
      * @return True if the location is or has become safe, false if it was not made safe.
      */
     private boolean tryMakeLocationSafe(Location potentialLoc, RtpSettings rtpSettings) {
-        //TODO - Make rtpSettings contain the hard coded settings for:
-        // max spiral amount (not specifically defined yet, but in nextInSpiral())
-        // avm (as used in checkSafety())
-        int spiralRadius = 2;
-        int spiralArea = (int) Math.pow(spiralRadius * 2 + 1, 2);
-        int avm = 2;
+        int spiralArea = (int) Math.pow(rtpSettings.checkRadiusXZ * 2 + 1, 2);
 
-        SafeLocationFinder.dropToGround(potentialLoc);
+        SafeLocationFinder.dropToGround(potentialLoc, rtpSettings.getLowBound());
 
         /* Internally, this method creates and manages a SafeLocationFinder *|
         |* object using the given setting in rtpSettings as the constraints */
         SafeLocationFinder slf = new SafeLocationFinder(potentialLoc);
         long startTime = System.currentTimeMillis();
         for (int i = 0; i < spiralArea; i++) {
-            if (slf.checkSafety(avm) && !SafeLocationFinder.isInATree(potentialLoc)) {
+            if (slf.checkSafety(rtpSettings.checkRadiusVert) && !SafeLocationFinder.isInATree(potentialLoc)) {
                 infoLog("Checked " + (i + 1) + " individual spaces in " +
                         (System.currentTimeMillis() - startTime) + " milliseconds");
                 //Centering the player on the block, and teleporting them on TOP of the safe landing spot

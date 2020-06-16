@@ -32,10 +32,12 @@ public final class PluginMain extends JavaPlugin {
             if (!Files.exists(Paths.get(this.getDataFolder().getPath(), "config.yml")))
                 saveDefaultConfig();
             else if (!getCurrentConfigVersion().equals(getDefaultConfigVersion())
-                     && getConfig().getBoolean("run-old-configs")) {
+                     && !getConfig().getBoolean("run-old-configs")) {
+                logger.log(Level.WARNING, "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
                 logger.log(Level.WARNING, "A new plugin-level config file is available.");
                 logger.log(Level.WARNING, "Automatically backing up the old config file, and using the new default one.");
-                logger.log(Level.WARNING, "You may want to copy any values from the old config to the new one if you had did not use the defaults before.");
+                logger.log(Level.WARNING, "You may want to copy any values from the old config to the new one if you customized it at all.");
+                logger.log(Level.WARNING, "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
                 Files.move(
                         Paths.get(getDataFolder().getPath() + "\\config.yml"),
                         Paths.get(getDataFolder().getPath() + "\\config-" + getCurrentConfigVersion() + "-old.yml")

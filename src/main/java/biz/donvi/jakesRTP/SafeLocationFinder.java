@@ -196,9 +196,23 @@ public class SafeLocationFinder {
      * Takes the given location, and moves it downwards until it is no longer inside something that is
      * considered safe to be in by {@code isSafeToBeIn()}
      *
-     * @param loc
+     * @param loc The location to modify
      */
     static void dropToGround(Location loc) {
-        while (isSafeToBeIn(loc.getBlock().getType())) loc.add(0, -1, 0);
+        while (isSafeToBeIn(loc.getBlock().getType()))
+            loc.add(0, -1, 0);
+    }
+
+    /**
+     * Takes the given location, and moves it downwards until it is no longer inside something that is
+     * considered safe to be in by {@code isSafeToBeIn()}
+     *
+     * @param loc      The location to modify
+     * @param lowBound The lowest the location can go
+     */
+    static void dropToGround(Location loc, int lowBound) {
+        while (loc.getBlockY() > lowBound &&
+               isSafeToBeIn(loc.getBlock().getType())
+        ) loc.add(0, -1, 0);
     }
 }
