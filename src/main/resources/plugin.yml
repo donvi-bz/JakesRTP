@@ -2,7 +2,7 @@ name: JakesRTP
 author: JakeTS
 main: biz.donvi.jakesRTP.PluginMain
 prefix: 'J-RTP'
-version: '0.2.5'
+version: '0.3.0'
 api-version: '1.15'
 
 commands:

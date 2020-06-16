@@ -36,14 +36,6 @@ random-teleport-settings default:
   low-bound:
     //: 'The lowest point a player can be RTPed to'
     value: 50
-  small-hops:
-    //0: 'If the first rtp spot is unsafe, a few more attempts will be made nearby.'
-    //1: 'This functions by RTPing the player [attempts] times with between [max] and [min] blocks away.'
-    //2: 'Having these attempts improves performance as less chunks need to be loaded or generated, '
-    //3: 'though, unfortunately, it does make the true "randomness" worse'
-    attempts: 3
-    max: 16
-    min: 8
   cooldown:
     seconds: 30
 
@@ -66,9 +58,5 @@ random-teleport-settings example:
         z: 1000000
   low-bound:
     value: 50
-  small-hops:
-    attempts: 3
-    max: 16
-    min: 8
   cooldown:
     seconds: 4000

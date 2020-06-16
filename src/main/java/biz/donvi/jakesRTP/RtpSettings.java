@@ -24,7 +24,6 @@ public class RtpSettings {
     private final int centerX;
     private final int centerZ;
     private final int lowBound;
-    private final int[] smallHops;
     final CoolDownTracker coolDown;
 
     /**
@@ -108,14 +107,6 @@ public class RtpSettings {
         lowBound = config.getInt("low-bound.value");
         infoLog("[" + name + "] " + "Set low bound to " + lowBound);
 
-        // SMALL HOPS
-        smallHops = new int[]{
-                config.getInt("small-hops.attempts"),
-                config.getInt("small-hops.max"),
-                config.getInt("small-hops.min")
-        };
-        infoLog("[" + name + "] " + "Small hops: " + Arrays.toString(smallHops));
-
         // COOL-DOWN TRACKER
         coolDown = new CoolDownTracker(config.getInt("cooldown.seconds"));
         infoLog("[" + name + "] " + "Cooldown time: " + coolDown.coolDownTime/1000 + " seconds.");
@@ -189,10 +180,6 @@ public class RtpSettings {
 
     public CenterAllowedValues getCenterLocation() {
         return centerLocation;
-    }
-
-    public int[] getSmallHops() {
-        return smallHops.clone();
     }
 
     public ArrayList<World> getConfigWorlds() {

@@ -1,7 +1,6 @@
 package biz.donvi.jakesRTP;
 
 import biz.donvi.evenDistribution.RandomCords;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -13,11 +12,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
-import java.util.Vector;
 import java.util.logging.Level;
 
 import static biz.donvi.jakesRTP.PluginMain.infoLog;
-import static biz.donvi.jakesRTP.RtpRegionShape.*;
 
 public class RandomTeleporter implements CommandExecutor {
 
@@ -140,9 +137,18 @@ public class RandomTeleporter implements CommandExecutor {
                     xz[1] + xzOffset[1]
             );
 
-            randAttemptCount++;
+            //TODO - make this value configurable in config.yml
+            if (randAttemptCount++ > 5) throw new Exception("Too many failed attempts.");
+
+
             playerWorld.removePluginChunkTickets(PluginMain.plugin);
         } while (!tryMakeLocationSafe(potentialRtpLocation, rtpSettings));
+
+        infoLog("Location chosen:" +
+                " (" + potentialRtpLocation.getX() +
+                ", " + potentialRtpLocation.getY() +
+                ", " + potentialRtpLocation.getZ() +
+                ") in world " + potentialRtpLocation.getWorld().getName());
 
         long timeElapsed = System.currentTimeMillis() - timeStart;
         infoLog("Location found in " + timeElapsed + " milliseconds after " + randAttemptCount + " attempt(s).");
@@ -156,13 +162,17 @@ public class RandomTeleporter implements CommandExecutor {
      * If it can not be made safe under the constraints given, it will return false.
      * THIS SHOULD NOT BE USED FOR ANY TELEPORT, ONLY RTP.
      * This method can, by default, move the player up to 32 blocks away to find a safe location.
+     * <p>
+     * This method is being rewritten to actually go through the local area in search of a safe spot
+     * instead of doing small random teleports
      *
      * @param potentialLoc Location to try and make safe.
-     * @param rtpSettings  The worlds rtp settings
+     * @param rtpSettings  The worlds rtp settings.
      * @return True if or when the location is safe, False if it can not be made safe under the given constraints.
      */
-    private boolean tryMakeLocationSafe(Location potentialLoc, RtpSettings rtpSettings) {
-        int[] smallHops = rtpSettings.getSmallHops();
+    @Deprecated
+    private boolean tryMakeLocationSafeOld(Location potentialLoc, RtpSettings rtpSettings) {
+        int[] smallHops = {16,8,3}; //No longer supports small hops in config
         boolean safe = false;
         int tryCount = 0;
         while (tryCount < smallHops[0] && !safe) {
@@ -197,23 +207,17 @@ public class RandomTeleporter implements CommandExecutor {
                             ")"
                     )
             );
-//            //Unused
-//            World w = potentialLoc.getWorld();
-//            int x = (int) potentialLoc.getX();
-//            int y = (int) potentialLoc.getY();
-//            int z = (int) potentialLoc.getZ();
-
 
             safe = true;
             tryCount++;
 
-            while (isSafeToBeIn(potentialLoc.getBlock().getType()) &&
+            while (SafeLocationFinder.isSafeToBeIn(potentialLoc.getBlock().getType()) &&
                    potentialLoc.getY() > rtpSettings.getLowBound()
             ) potentialLoc.add(0, -1, 0);
 
-            if (!isSafeToBeOn(potentialLoc.getBlock().getType()) ||
+            if (!SafeLocationFinder.isSafeToBeOn(potentialLoc.getBlock().getType()) ||
                 potentialLoc.getY() <= rtpSettings.getLowBound() ||
-                isInATree(potentialLoc)
+                SafeLocationFinder.isInATree(potentialLoc)
             ) safe = false;
 
         }
@@ -223,89 +227,41 @@ public class RandomTeleporter implements CommandExecutor {
     }
 
     /**
-     * Checks the given material against a <u>whitelist</u> of materials deemed to be "safe to be in"
+     * Checks the safety of a given location for teleportation, and if it is not safe, will try
+     * and make it safe. If / when the location becomes safe, this method will return true, and
+     * if it can not make / find a safe location under the constraints in rtpSettings, it will
+     * return false
      *
-     * @param mat The material to check
-     * @return Whether it is safe or not to be there
+     * @param potentialLoc Location to try and make safe.
+     * @param rtpSettings  The worlds rtp settings.
+     * @return True if the location is or has become safe, false if it was not made safe.
      */
-    private boolean isSafeToBeIn(Material mat) {
-        switch (mat) {
-            case AIR:
-            case ACACIA_LEAVES:
-            case BIRCH_LEAVES:
-            case DARK_OAK_LEAVES:
-            case JUNGLE_LEAVES:
-            case OAK_LEAVES:
-            case SPRUCE_LEAVES:
-            case SNOW:
-            case FERN:
-            case LARGE_FERN:
-            case VINE:
-            case GRASS:
-            case TALL_GRASS:
-                return true;
-            case WATER:
-            case LAVA:
-            case CAVE_AIR:
-            default:
-                return false;
-        }
-    }
+    private boolean tryMakeLocationSafe(Location potentialLoc, RtpSettings rtpSettings) {
+        //TODO - Make rtpSettings contain the hard coded settings for:
+        // max spiral amount (not specifically defined yet, but in nextInSpiral())
+        // avm (as used in checkSafety())
+        int spiralRadius = 2;
+        int spiralArea = (int) Math.pow(spiralRadius * 2 + 1, 2);
+        int avm = 2;
 
-    /**
-     * Checks the given material against a <u>blacklist</u> of materials deemed to be "safe to be on"
-     *
-     * @param mat The material to check
-     * @return Whether it is safe or not to be there
-     */
-    private boolean isSafeToBeOn(Material mat) {
-        switch (mat) {
-            case LAVA:
-            case WATER:
-            case AIR:
-            case CAVE_AIR:
-            case VOID_AIR:
-            case CACTUS:
-                return false;
-            case GRASS:
-            case STONE:
-            case DIRT:
-            default:
-                return true;
-        }
-    }
+        SafeLocationFinder.dropToGround(potentialLoc);
 
-    /**
-     * Checks if the location is in a tree. To be in a tree, you must both be on a log, and in leaves.
-     *
-     * @param loc The location to check.
-     * @return True if the location is in a tree.
-     */
-    private boolean isInATree(Location loc) {
-        boolean onLog = false;
-        boolean inLeaves = false;
-        switch (loc.getBlock().getType()) {
-            case ACACIA_LOG:
-            case BIRCH_LOG:
-            case DARK_OAK_LOG:
-            case JUNGLE_LOG:
-            case OAK_LOG:
-            case SPRUCE_LOG:
-            case RED_MUSHROOM_BLOCK:   // Giant mushrooms are basically trees, right?
-            case BROWN_MUSHROOM_BLOCK: // Giant mushrooms are basically trees, right?
-                onLog = true;
+        /* Internally, this method creates and manages a SafeLocationFinder *|
+        |* object using the given setting in rtpSettings as the constraints */
+        SafeLocationFinder slf = new SafeLocationFinder(potentialLoc);
+        long startTime = System.currentTimeMillis();
+        for (int i = 0; i < spiralArea; i++) {
+            if (slf.checkSafety(avm) && !SafeLocationFinder.isInATree(potentialLoc)) {
+                infoLog("Checked " + (i + 1) + " individual spaces in " +
+                        (System.currentTimeMillis() - startTime) + " milliseconds");
+                //Centering the player on the block, and teleporting them on TOP of the safe landing spot
+                potentialLoc.add(0.5, 1, 0.5);
+                return true;
+            } else slf.nextInSpiral();
         }
-        switch (loc.clone().add(0, 1, 0).getBlock().getType()) {
-            case ACACIA_LEAVES:
-            case BIRCH_LEAVES:
-            case DARK_OAK_LEAVES:
-            case JUNGLE_LEAVES:
-            case OAK_LEAVES:
-            case SPRUCE_LEAVES:
-            case MUSHROOM_STEM: // Giant mushrooms are basically trees, right?
-                inLeaves = true;
-        }
-        return onLog && inLeaves;
+        infoLog("Checked " + spiralArea + " individual spaces in " +
+                (System.currentTimeMillis() - startTime) + " milliseconds, but no safe place was found.");
+        return false;
     }
 
     /**
