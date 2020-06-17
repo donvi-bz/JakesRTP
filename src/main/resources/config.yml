@@ -3,7 +3,7 @@
 # - - - - - - - - - - - - - - - - - - - - - -
 # Old configs may not run correctly.
 # Please don't edit config-version.
-config-version: 1.5
+config-version: 1.5.1
 # Should the plugin try and load an old config? Whenever a change is made to the structure of the config, the
 #   version is increased. On startup, the plugin compares the version of the existing config to the version
 #   that it is expecting, and will either (a) attempt to load the older version of the config regardless of

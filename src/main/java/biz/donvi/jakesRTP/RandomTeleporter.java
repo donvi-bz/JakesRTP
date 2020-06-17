@@ -59,7 +59,7 @@ public class RandomTeleporter implements CommandExecutor {
      */
     public RtpSettings getWorldRtpSettings(World world) throws Exception {
         for (RtpSettings settings : rtpSettings)
-            for (World settingWorld : settings.getConfigWorlds())
+            for (World settingWorld : settings.configWorlds)
                 if (world.equals(settingWorld))
                     return settings;
         throw new NotPermittedException("RTP is not enabled in this world.");
@@ -76,9 +76,9 @@ public class RandomTeleporter implements CommandExecutor {
      *                   though realistic error checking beforehand should prevent this issue
      */
     private int[] getRtpXZ(RtpSettings rtpSettings) throws Exception {
-        int maxRadius = rtpSettings.getMaxRadius();
-        int minRadius = rtpSettings.getMinRadius();
-        switch (rtpSettings.getRtpRegionShape()) {
+        int maxRadius = rtpSettings.maxRadius;
+        int minRadius = rtpSettings.minRadius;
+        switch (rtpSettings.rtpRegionShape) {
             case SQUARE:
                 return RandomCords.getRandXySquare(maxRadius, minRadius);
             case CIRCLE:
@@ -114,7 +114,7 @@ public class RandomTeleporter implements CommandExecutor {
 
             int[] xz = getRtpXZ(rtpSettings);
             int[] xzOffset;
-            switch (rtpSettings.getCenterLocation()) {
+            switch (rtpSettings.centerLocation) {
                 case PLAYER_LOCATION:
                     xzOffset = new int[]{
                             (int) player.getLocation().getX(),
@@ -127,7 +127,10 @@ public class RandomTeleporter implements CommandExecutor {
                     break;
                 case PRESET_VALUE:
                 default:
-                    xzOffset = rtpSettings.getCenterXz();
+                    xzOffset = new int[]{
+                            rtpSettings.centerX,
+                            rtpSettings.centerZ
+                    };
             }
 
             potentialRtpLocation = new Location(
@@ -137,7 +140,8 @@ public class RandomTeleporter implements CommandExecutor {
                     xz[1] + xzOffset[1]
             );
 
-            if (randAttemptCount++ > rtpSettings.maxAttempts) throw new Exception("Too many failed attempts.");
+            if (randAttemptCount++ > rtpSettings.maxAttempts)
+                throw new NotPermittedException("Too many failed attempts.");
 
 
             playerWorld.removePluginChunkTickets(PluginMain.plugin);
@@ -211,11 +215,11 @@ public class RandomTeleporter implements CommandExecutor {
             tryCount++;
 
             while (SafeLocationFinder.isSafeToBeIn(potentialLoc.getBlock().getType()) &&
-                   potentialLoc.getY() > rtpSettings.getLowBound()
+                   potentialLoc.getY() > rtpSettings.lowBound
             ) potentialLoc.add(0, -1, 0);
 
             if (!SafeLocationFinder.isSafeToBeOn(potentialLoc.getBlock().getType()) ||
-                potentialLoc.getY() <= rtpSettings.getLowBound() ||
+                potentialLoc.getY() <= rtpSettings.lowBound ||
                 SafeLocationFinder.isInATree(potentialLoc)
             ) safe = false;
 
@@ -238,7 +242,7 @@ public class RandomTeleporter implements CommandExecutor {
     private boolean tryMakeLocationSafe(Location potentialLoc, RtpSettings rtpSettings) {
         int spiralArea = (int) Math.pow(rtpSettings.checkRadiusXZ * 2 + 1, 2);
 
-        SafeLocationFinder.dropToGround(potentialLoc, rtpSettings.getLowBound());
+        SafeLocationFinder.dropToGround(potentialLoc, rtpSettings.lowBound);
 
         /* Internally, this method creates and manages a SafeLocationFinder *|
         |* object using the given setting in rtpSettings as the constraints */
@@ -275,7 +279,10 @@ public class RandomTeleporter implements CommandExecutor {
                 CoolDownTracker coolDownTracker = getWorldRtpSettings(player.getWorld()).coolDown;
 
                 if (player.hasPermission("jakesRtp.noCooldown") || coolDownTracker.check(player.getName())) {
-                    player.teleport(getRtpLocation(player));
+                    Location location = getRtpLocation(player);
+
+                    player.teleport(location);
+                    System.out.println(location);
                     coolDownTracker.log(player.getName(), callTime);
                 } else {
                     player.sendMessage("Need to wait for cooldown: " + coolDownTracker.timeLeftWords(player.getName()));

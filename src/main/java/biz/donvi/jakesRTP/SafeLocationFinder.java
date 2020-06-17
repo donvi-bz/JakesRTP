@@ -191,7 +191,8 @@ public class SafeLocationFinder {
             case BROWN_MUSHROOM_BLOCK: // Giant mushrooms are basically trees, right?
                 inLeaves = true;
         }
-        return onLog && inLeaves;
+        //TODO - Decide how I want this method to end up.
+        return inLeaves;
     }
 
     /**
