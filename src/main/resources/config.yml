@@ -37,13 +37,16 @@ random-teleport-settings default: # The word 'default' here is the name of this 
         value: a
         x: 0
         z: 0
-  cooldown:      # Cooldown between uses
+  cooldown:      # Cooldown between uses. Can be bypassed with permission node jakesrtp.nocooldown
     seconds: 30  # Default: 30
+  ############## # Everything past this point in the config probably does not need to get changed
   low-bound:     # The lowest point a player can be RTP'd to.
     value: 48    # Default: 48
-  check-radius:  # How many blocks away from the initial spot to check
-    x-z: 2       # Default: 2
-    vert: 2      # Default: 2
+  check-radius:  # How many blocks away from the initial spot to check.
+    x-z: 2       # Default: 2    | Max spots to check per attempt is equal to:
+    vert: 2      # Default: 2    | (2*vert+1)*(2*(x-z)+1)^2
+  max-attempts:  # If the random location, and all (by default 125) close spots are found to be unsafe,
+    value: 5     # how many attempts can we make? Minimum: 1; Default: 5
 
 # You can keep copying and pasting these for more configs, just change the word(s) at the end
 random-teleport-settings example:
@@ -68,3 +71,5 @@ random-teleport-settings example:
   check-radius:
     x-z: 2
     vert: 2
+  max-attempts:
+    value: 8

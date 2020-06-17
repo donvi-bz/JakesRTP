@@ -150,6 +150,8 @@ public class SafeLocationFinder {
             case VOID_AIR:
             case CACTUS:
             case SEAGRASS:
+            case TALL_SEAGRASS:
+            case LILY_PAD:
                 return false;
             case GRASS:
             case STONE:

@@ -26,6 +26,7 @@ public class RtpSettings {
     private final int lowBound;
     public final int checkRadiusXZ;
     public final int checkRadiusVert;
+    public final int maxAttempts;
     final CoolDownTracker coolDown;
 
     /**
@@ -107,6 +108,11 @@ public class RtpSettings {
         infoLog("[" + name + "] " +
                 "RTP Center x & z are " + centerX + " and " + centerZ);
 
+        // COOL-DOWN TRACKER
+        coolDown = new CoolDownTracker(config.getInt("cooldown.seconds"));
+        infoLog("[" + name + "] " +
+                "Cooldown time: " + coolDown.coolDownTime/1000 + " seconds.");
+
         // LOW BOUND
         lowBound = config.getInt("low-bound.value");
         infoLog("[" + name + "] " +
@@ -119,10 +125,10 @@ public class RtpSettings {
                 "Check radius x and z set to " + checkRadiusXZ +
                 " and vert set to " + checkRadiusVert);
 
-        // COOL-DOWN TRACKER
-        coolDown = new CoolDownTracker(config.getInt("cooldown.seconds"));
+        // MAX ATTEMPTS
+        maxAttempts = config.getInt("max-attempts.value");
         infoLog("[" + name + "] " +
-                "Cooldown time: " + coolDown.coolDownTime/1000 + " seconds.");
+                "Max attempts set to " + maxAttempts);
     }
 
 

@@ -137,8 +137,7 @@ public class RandomTeleporter implements CommandExecutor {
                     xz[1] + xzOffset[1]
             );
 
-            //TODO - make this value configurable in config.yml
-            if (randAttemptCount++ > 5) throw new Exception("Too many failed attempts.");
+            if (randAttemptCount++ > rtpSettings.maxAttempts) throw new Exception("Too many failed attempts.");
 
 
             playerWorld.removePluginChunkTickets(PluginMain.plugin);
@@ -247,14 +246,14 @@ public class RandomTeleporter implements CommandExecutor {
         long startTime = System.currentTimeMillis();
         for (int i = 0; i < spiralArea; i++) {
             if (slf.checkSafety(rtpSettings.checkRadiusVert) && !SafeLocationFinder.isInATree(potentialLoc)) {
-                infoLog("Checked " + (i + 1) + " individual spaces in " +
+                infoLog("Checked " + (i + 1) + " columns in " +
                         (System.currentTimeMillis() - startTime) + " milliseconds");
                 //Centering the player on the block, and teleporting them on TOP of the safe landing spot
                 potentialLoc.add(0.5, 1, 0.5);
                 return true;
             } else slf.nextInSpiral();
         }
-        infoLog("Checked " + spiralArea + " individual spaces in " +
+        infoLog("Checked " + spiralArea + " columns in " +
                 (System.currentTimeMillis() - startTime) + " milliseconds, but no safe place was found.");
         return false;
     }
