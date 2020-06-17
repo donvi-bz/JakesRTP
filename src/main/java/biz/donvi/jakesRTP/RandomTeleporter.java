@@ -279,10 +279,7 @@ public class RandomTeleporter implements CommandExecutor {
                 CoolDownTracker coolDownTracker = getWorldRtpSettings(player.getWorld()).coolDown;
 
                 if (player.hasPermission("jakesRtp.noCooldown") || coolDownTracker.check(player.getName())) {
-                    Location location = getRtpLocation(player);
-
-                    player.teleport(location);
-                    System.out.println(location);
+                    player.teleport(getRtpLocation(player));
                     coolDownTracker.log(player.getName(), callTime);
                 } else {
                     player.sendMessage("Need to wait for cooldown: " + coolDownTracker.timeLeftWords(player.getName()));
