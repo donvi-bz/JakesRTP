@@ -16,7 +16,7 @@ public class RtpSettings {
 
     public final ArrayList<World> configWorlds = new ArrayList<>();
 
-    private final String name;
+    public final String name;
     public final RtpRegionShape rtpRegionShape;
     public final int maxRadius;
     public final int minRadius;
@@ -152,10 +152,6 @@ public class RtpSettings {
 /**
  * Small enum to define the types of shapes that this plugin can RTP in
  */
-enum RtpRegionShape {
-    SQUARE, CIRCLE, RECTANGLE
-}
+enum RtpRegionShape {SQUARE, CIRCLE, RECTANGLE}
 
-enum CenterAllowedValues {
-    WORLD_SPAWN, PLAYER_LOCATION, PRESET_VALUE
-}
+enum CenterAllowedValues {WORLD_SPAWN, PLAYER_LOCATION, PRESET_VALUE}
