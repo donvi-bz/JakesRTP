@@ -10,7 +10,7 @@ public class test {
 
     public static void main(String[] args) throws IOException, InterruptedException {
         int radiusMax = 1000;
-        int radiusMin = 250;
+        int radiusMin = 500;
 
         File randPointDataFile = new File("plot/random.txt");
         if (!randPointDataFile.exists()) {
@@ -20,7 +20,7 @@ public class test {
         FileWriter randPointDataFileWriter = new FileWriter(randPointDataFile);
 
         for (int i = 0; i < 20000; i++) {
-            int[] randomCord = getRandXyCircle(radiusMax, radiusMin,4,.25);
+            int[] randomCord = getRandXySquare(radiusMax, radiusMin,3,0);
             randPointDataFileWriter.write(randomCord[0] + " " + randomCord[1] + '\n');
         }
 

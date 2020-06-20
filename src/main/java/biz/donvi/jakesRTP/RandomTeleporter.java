@@ -76,13 +76,22 @@ public class RandomTeleporter implements CommandExecutor {
      *                   though realistic error checking beforehand should prevent this issue
      */
     private int[] getRtpXZ(RtpSettings rtpSettings) throws Exception {
-        int maxRadius = rtpSettings.maxRadius;
-        int minRadius = rtpSettings.minRadius;
         switch (rtpSettings.rtpRegionShape) {
             case SQUARE:
-                return RandomCords.getRandXySquare(maxRadius, minRadius);
+                if (rtpSettings.gaussianShrink == 0) return RandomCords.getRandXySquare(
+                        rtpSettings.maxRadius,
+                        rtpSettings.minRadius);
+                else return RandomCords.getRandXySquare(
+                        rtpSettings.maxRadius,
+                        rtpSettings.minRadius,
+                        rtpSettings.gaussianShrink,
+                        rtpSettings.gaussianCenter);
             case CIRCLE:
-                return RandomCords.getRandXyCircle(maxRadius, minRadius);
+                return RandomCords.getRandXyCircle(
+                        rtpSettings.maxRadius,
+                        rtpSettings.minRadius,
+                        rtpSettings.gaussianShrink,
+                        rtpSettings.gaussianCenter);
             case RECTANGLE:
                 //return getRtpXzRectangle(); //This will get un-commented once I write a method for rectangles
             default:
@@ -129,8 +138,7 @@ public class RandomTeleporter implements CommandExecutor {
                 default:
                     xzOffset = new int[]{
                             rtpSettings.centerX,
-                            rtpSettings.centerZ
-                    };
+                            rtpSettings.centerZ};
             }
 
             potentialRtpLocation = new Location(
@@ -175,7 +183,7 @@ public class RandomTeleporter implements CommandExecutor {
      */
     @Deprecated
     private boolean tryMakeLocationSafeOld(Location potentialLoc, RtpSettings rtpSettings) {
-        int[] smallHops = {16,8,3}; //No longer supports small hops in config
+        int[] smallHops = {16, 8, 3}; //No longer supports small hops in config
         boolean safe = false;
         int tryCount = 0;
         while (tryCount < smallHops[0] && !safe) {
@@ -269,9 +277,9 @@ public class RandomTeleporter implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         try {
-            // - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // - - - - If a player tries to RTP themselves - - - -
-            // - - - - - - - - - - - - - - - - - - - - - - - - - -
+            /* - - - - - - - - - - - - - - - - - - - - - - - - - - *|
+            |* - - - - If a player tries to RTP themselves - - - - *|
+            |* - - - - - - - - - - - - - - - - - - - - - - - - - - */
             if (args.length == 0 && sender instanceof Player) {
                 Player player = (Player) sender;
                 long callTime = System.currentTimeMillis();
@@ -285,9 +293,9 @@ public class RandomTeleporter implements CommandExecutor {
                     player.sendMessage("Need to wait for cooldown: " + coolDownTracker.timeLeftWords(player.getName()));
                 }
             }
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // - - - - If a player tries to RTP someone else - - - -
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            /* - - - - - - - - - - - - - - - - - - - - - - - - - - *|
+            |* - - - - If a player tries to RTP someone else - - - *|
+            |* - - - - - - - - - - - - - - - - - - - - - - - - - - */
             else if (args.length == 1 && sender.hasPermission("jakesRtp.others")) {
                 Player playerToTp = sender.getServer().getPlayerExact(args[0]);
                 if (playerToTp == null)

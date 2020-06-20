@@ -79,15 +79,14 @@ public class RandomCords {
         double r0 = random();
         double r1 = randomG(gShrink, gCenter);
         r1 = r1 * s0 + sqrt(r1) * s1;
-        double x = s0 + s1 * r1;
-        double y = s0 * r0 + r0 * r1 * s1;
-        if (random() * 2 > 1) y *= -1;
-        double[] temp = multiplyMatrixVector(ROTATIONS_0_90_180_270[(int) (random() * 4)], new double[]{x, y});
-        x = temp[0];
-        y = temp[1];
+        double[] xy = {
+                s0 + s1 * r1,
+                s0 * r0 + r0 * r1 * s1};
+        if (random() * 2 > 1) xy[1] *= -1;
+        xy = multiplyMatrixVector(ROTATIONS_0_90_180_270[(int) (random() * 4)], xy);
         return new int[]{
-                (int) (x * radiusMax),
-                (int) (y * radiusMax)};
+                (int) (xy[0] * radiusMax),
+                (int) (xy[1] * radiusMax)};
 
     }
 

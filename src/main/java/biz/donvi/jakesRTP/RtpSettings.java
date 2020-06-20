@@ -23,6 +23,8 @@ public class RtpSettings {
     public final CenterAllowedValues centerLocation;
     public final int centerX;
     public final int centerZ;
+    public final double gaussianShrink;
+    public final double gaussianCenter;
     public final int lowBound;
     public final int checkRadiusXZ;
     public final int checkRadiusVert;
@@ -45,7 +47,7 @@ public class RtpSettings {
             try {
                 configWorlds.add(Objects.requireNonNull(PluginMain.plugin.getServer().getWorld(worldName)));
             } catch (NullPointerException e) {
-                PluginMain.logger.log(Level.WARNING, "World " + worldName + " not recognised.");
+                PluginMain.logger.log(Level.WARNING, name + "World " + worldName + " not recognised.");
             }
 
         // SHAPE
@@ -99,6 +101,17 @@ public class RtpSettings {
         centerX = config.getInt("defining-points.radius-center.center.x");
         centerZ = config.getInt("defining-points.radius-center.center.z");
         infoLog(name + "RTP Center x & z are " + centerX + " and " + centerZ);
+
+        // GAUSSIAN DISTRIBUTION
+        if (config.getBoolean("defining-points.radius-center.gaussian-distribution.enabled")) {
+            gaussianShrink = config.getDouble("defining-points.radius-center.gaussian-distribution.shrink");
+            gaussianCenter = config.getDouble("defining-points.radius-center.gaussian-distribution.center");
+            infoLog(name + "Gaussian distribution enabled. " +
+                    "Shrink: " + gaussianShrink + " Center: " + gaussianCenter);
+        } else {
+            gaussianShrink = gaussianCenter = 0;
+            infoLog(name + "Using even distribution.");
+        }
 
         // COOL-DOWN TRACKER
         coolDown = new CoolDownTracker(config.getInt("cooldown.seconds"));

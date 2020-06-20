@@ -3,7 +3,7 @@
 # - - - - - - - - - - - - - - - - - - - - - -
 # Old configs may not run correctly.
 # Please don't edit config-version.
-config-version: 1.5.1
+config-version: 1.6
 # Should the plugin try and load an old config? Whenever a change is made to the structure of the config, the
 #   version is increased. On startup, the plugin compares the version of the existing config to the version
 #   that it is expecting, and will either (a) attempt to load the older version of the config regardless of
@@ -37,6 +37,10 @@ random-teleport-settings default: # The word 'default' here is the name of this 
         value: a
         x: 0
         z: 0
+      gaussian-distribution:  # Enabling this will make the points no longer evenly distributed, but instead follow
+        enabled: false        # a gaussian centered between the min and max radius (represented by setting center to
+        shrink: 4             # 0 for min, 1 for max, or anything in between). Shrink makes the distribution denser,
+        center: 0.25          # my preference is to keep it near 3 for a center of 0 or 1, and 6 for a center of 0.5
   cooldown:      # Cooldown between uses. Can be bypassed with permission node jakesrtp.nocooldown
     seconds: 30  # Default: 30
   ############## # Everything past this point in the config probably does not need to get changed
@@ -64,6 +68,10 @@ random-teleport-settings example:
         value: c
         x: 1000000
         z: 1000000
+      gaussian-distribution:
+        enabled: true
+        shrink: 6
+        center: 0.5
   cooldown:
     seconds: 4000
   low-bound:
