@@ -1,8 +1,6 @@
 package biz.donvi.jakesRTP;
 
 import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 public class CoolDownTracker {
 
@@ -100,6 +98,12 @@ public class CoolDownTracker {
         return coolDownTime - timeDifference(playerName);
     }
 
+    /**
+     * Returns the amount of time that the given player must wait, formatted in a reasonable manor.
+     *
+     * @param playerName The player to check.
+     * @return A string describing the time left until the cooldown is over. Human readable.
+     */
     String timeLeftWords(String playerName) {
         int days, hours, minutes, seconds;
         long millis = timeLeft(playerName);
