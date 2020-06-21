@@ -14,15 +14,15 @@ config-version: 1.6
 #   still apply can be copied over.
 run-old-configs: false
 # ↑ IMPORTANT SETTING ↑
-random-teleport-settings default: # The word 'default' here is the name of this config section
+random-teleport-settings default: # The name of this config section is 'default', each section must have a unique name
   enabled: true   # Should we load this config?
   enabled-worlds: # Nether and End worlds are not currently supported, so please don't list them here
     - world
-    - yer  # You can remove this one, its here as an example
+    - yer  # You can remove this one, it's here as an example
   shape:
     allowed-values:
-      a: 'Square (radius & center)'
-      b: 'Circle (radius & center)'
+      a: "Square (radius & center)"
+      b: "Circle (radius & center)"
     value: a
   defining-points:
     radius-center:

@@ -27,8 +27,8 @@ public final class PluginMain extends JavaPlugin {
         logger = plugin.getLogger();
 
 
-        //If there is no config file, save the default one
         try {
+            //If there is no config file, save the default one
             if (!Files.exists(Paths.get(this.getDataFolder().getPath(), "config.yml")))
                 saveDefaultConfig();
             else if (!getCurrentConfigVersion().equals(getDefaultConfigVersion())

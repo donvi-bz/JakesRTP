@@ -78,7 +78,7 @@ public class RandomCords {
         double s1 = 1 - s0;
         double r0 = random();
         double r1 = randomG(gShrink, gCenter);
-        r1 = r1 * s0 + sqrt(r1) * s1;
+        r1 = r1 * s0 + sqrt(r1) * s1; //This is not a perfect solution
         double[] xy = {
                 s0 + s1 * r1,
                 s0 * r0 + r0 * r1 * s1};
