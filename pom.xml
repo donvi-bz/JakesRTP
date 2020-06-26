@@ -6,7 +6,7 @@
 
     <groupId>biz.donvi</groupId>
     <artifactId>JakesRtp</artifactId>
-    <version>0.4</version>
+    <version>0.4.1</version>
     <build>
         <plugins>
             <plugin>
@@ -23,21 +23,35 @@
 
 
     <repositories>
-        <!-- This adds the Spigot Maven repository to the build -->
         <repository>
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
+<!--        <repository>-->
+<!--            <id>minecraft-libraries</id>-->
+<!--            <name>Minecraft Libraries</name>-->
+<!--            <url>https://libraries.minecraft.net</url>-->
+<!--        </repository>-->
     </repositories>
 
     <dependencies>
-        <!--This adds the Spigot API artifact to the build -->
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.15.1-R0.1-SNAPSHOT</version>
+            <version>1.16.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>me.lucko</groupId>-->
+<!--            <artifactId>commodore</artifactId>-->
+<!--            <version>1.5</version>-->
+<!--            <scope>compile</scope>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>com.mojang</groupId>-->
+<!--            <artifactId>brigadier</artifactId>-->
+<!--            <version>1.0.17</version>-->
+<!--        </dependency>-->
     </dependencies>
 
 

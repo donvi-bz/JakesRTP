@@ -87,7 +87,6 @@ public class RandomCords {
         return new int[]{
                 (int) (xy[0] * radiusMax),
                 (int) (xy[1] * radiusMax)};
-
     }
 
 
