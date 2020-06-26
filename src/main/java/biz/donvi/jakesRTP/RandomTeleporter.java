@@ -21,6 +21,10 @@ public class RandomTeleporter implements CommandExecutor {
 
     private final ArrayList<RtpSettings> rtpSettings;
 
+    public ArrayList<RtpSettings> getRtpSettings() {
+        return rtpSettings;
+    }
+
 
     /**
      * Creating an instance of the RandomTeleporter object is required to be able to use the command.

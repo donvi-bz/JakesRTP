@@ -1,14 +1,15 @@
 package biz.donvi.jakesRTP;
 
-import biz.donvi.jakesRTP.commands.CmdDebug;
-import biz.donvi.jakesRTP.commands.CmdRtpAdmin;
+import biz.donvi.argsChecker.Util;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.yaml.snakeyaml.Yaml;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -17,6 +18,7 @@ public final class PluginMain extends JavaPlugin {
 
     public static PluginMain plugin;
     static Logger logger;
+    static Map<String, Object> cmdMap;
 
     private String defaultConfigVersion = null;
 
@@ -25,6 +27,7 @@ public final class PluginMain extends JavaPlugin {
         //Set up the reference for some objects
         plugin = this;
         logger = plugin.getLogger();
+        cmdMap = new Yaml().load(this.getClassLoader().getResourceAsStream("commandTree.yaml"));
 
 
         try {
@@ -48,9 +51,9 @@ public final class PluginMain extends JavaPlugin {
             e.printStackTrace();
         }
 
+
         //Register commands
-        getCommand("jrtpdebug").setExecutor(new CmdDebug());
-        getCommand("rtp-admin").setExecutor(new CmdRtpAdmin());
+        getCommand("rtp-admin").setExecutor(new CmdRtpAdmin(Util.getImpliedMap(cmdMap,"rtp-admin")));
         loadRandomTeleporter(); //DON'T REMOVE THIS LINE, THE MAJORITY OF THE FUNCTIONALITY COMES FROM IT
 
 
@@ -98,4 +101,7 @@ public final class PluginMain extends JavaPlugin {
         return getConfig().getString("config-version");
     }
 
+    public RandomTeleporter getRandomTeleporter() {
+        return (RandomTeleporter) getCommand("rtp").getExecutor();
+    }
 }

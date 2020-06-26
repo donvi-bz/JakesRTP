@@ -1,0 +1,6 @@
+rtp:
+  playerName !dynamic:
+rtp-admin:
+  reload:
+  status:
+    configName !dynamic:
