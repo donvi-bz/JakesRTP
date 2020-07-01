@@ -103,6 +103,46 @@ public class RandomTeleporter implements CommandExecutor {
         }
     }
 
+    /**
+     * Creates the potential RTP location. If this location happens to be safe, is will be the exact location that
+     * the player gets teleported to (though that is unlikely as the {@code y} is {@code 255} by default). <p>
+     * This method differs from {@code getRtpXZ()} because it includes the offset and returns a {@code Location}
+     * whereas {@code getRtpZX()} only gets the initial {@code x} and {@code z}, and returns a coordinate pair.
+     *
+     * @param player      The player that is getting teleported (used for world and offset)
+     * @param rtpSettings The relevant settings for RTP
+     * @return The first location to check the safety of, which may end up being the final teleport location
+     * @throws Exception Unlikely, but still possible.
+     */
+    private Location getPotentialRtpLocation(Player player, RtpSettings rtpSettings) throws Exception {
+        int[] xz = getRtpXZ(rtpSettings);
+        int[] xzOffset;
+        switch (rtpSettings.centerLocation) {
+            case PLAYER_LOCATION:
+                xzOffset = new int[]{
+                        (int) player.getLocation().getX(),
+                        (int) player.getLocation().getZ()};
+                break;
+            case WORLD_SPAWN:
+                xzOffset = new int[]{
+                        (int) player.getWorld().getSpawnLocation().getX(),
+                        (int) player.getWorld().getSpawnLocation().getZ()};
+                break;
+            case PRESET_VALUE:
+            default:
+                xzOffset = new int[]{
+                        rtpSettings.centerX,
+                        rtpSettings.centerZ};
+        }
+
+        return new Location(
+                player.getWorld(),
+                xz[0] + xzOffset[0],
+                255,
+                xz[1] + xzOffset[1]
+        );
+    }
+
 
     /**
      * Keeps getting potential teleport locations until one has been found.
@@ -124,37 +164,10 @@ public class RandomTeleporter implements CommandExecutor {
         Location potentialRtpLocation;
         int randAttemptCount = 0;
         do {
-
-            int[] xz = getRtpXZ(rtpSettings);
-            int[] xzOffset;
-            switch (rtpSettings.centerLocation) {
-                case PLAYER_LOCATION:
-                    xzOffset = new int[]{
-                            (int) player.getLocation().getX(),
-                            (int) player.getLocation().getZ()};
-                    break;
-                case WORLD_SPAWN:
-                    xzOffset = new int[]{
-                            (int) playerWorld.getSpawnLocation().getX(),
-                            (int) playerWorld.getSpawnLocation().getZ()};
-                    break;
-                case PRESET_VALUE:
-                default:
-                    xzOffset = new int[]{
-                            rtpSettings.centerX,
-                            rtpSettings.centerZ};
-            }
-
-            potentialRtpLocation = new Location(
-                    playerWorld,
-                    xz[0] + xzOffset[0],
-                    255,
-                    xz[1] + xzOffset[1]
-            );
+            potentialRtpLocation = getPotentialRtpLocation(player, rtpSettings);
 
             if (randAttemptCount++ > rtpSettings.maxAttempts)
                 throw new NotPermittedException("Too many failed attempts.");
-
 
             playerWorld.removePluginChunkTickets(PluginMain.plugin);
         } while (!tryMakeLocationSafe(potentialRtpLocation, rtpSettings));
@@ -236,6 +249,7 @@ public class RandomTeleporter implements CommandExecutor {
             ) safe = false;
 
         }
+
         //Centering the player on the block, and teleporting them on TOP of the safe landing spot
         potentialLoc.add(0.5, 1, 0.5);
         return safe;

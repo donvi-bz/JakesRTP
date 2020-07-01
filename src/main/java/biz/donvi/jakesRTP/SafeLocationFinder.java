@@ -168,18 +168,6 @@ public class SafeLocationFinder {
      * @return True if the location is in a tree.
      */
     static boolean isInATree(Location loc) {
-        boolean onLog = false;
-        boolean inLeaves = false;
-        switch (loc.getBlock().getType()) {
-            case ACACIA_LOG:
-            case BIRCH_LOG:
-            case DARK_OAK_LOG:
-            case JUNGLE_LOG:
-            case OAK_LOG:
-            case SPRUCE_LOG:
-            case MUSHROOM_STEM: // Giant mushrooms are basically trees, right?
-                onLog = true;
-        }
         switch (loc.clone().add(0, 1, 0).getBlock().getType()) {
             case ACACIA_LEAVES:
             case BIRCH_LEAVES:
@@ -187,12 +175,10 @@ public class SafeLocationFinder {
             case JUNGLE_LEAVES:
             case OAK_LEAVES:
             case SPRUCE_LEAVES:
-            case RED_MUSHROOM_BLOCK:   // Giant mushrooms are basically trees, right?
-            case BROWN_MUSHROOM_BLOCK: // Giant mushrooms are basically trees, right?
-                inLeaves = true;
+                return true;
+            default:
+                return false;
         }
-        //TODO - Decide how I want this method to end up.
-        return inLeaves;
     }
 
     /**
