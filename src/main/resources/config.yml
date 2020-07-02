@@ -3,7 +3,7 @@
 # - - - - - - - - - - - - - - - - - - - - - -
 # Old configs may not run correctly.
 # Please don't edit config-version.
-config-version: 1.6
+config-version: 1.7
 # Should the plugin try and load an old config? Whenever a change is made to the structure of the config, the
 #   version is increased. On startup, the plugin compares the version of the existing config to the version
 #   that it is expecting, and will either (a) attempt to load the older version of the config regardless of
@@ -14,6 +14,13 @@ config-version: 1.6
 #   still apply can be copied over.
 run-old-configs: false
 # ↑ IMPORTANT SETTING ↑
+rtp-on-first-join:    # Should new players get randomly teleported when they first join?
+  enabled: false      # If this is false, they will not, and the values of 'world' and 'settings' will not be read.
+  settings: default   # The rtp settings by name to teleport the player with.
+  world: world        # The world the player will land in. This world MUST be included in the settings enabled worlds.
+# End of static settings. All settings below are modular
+# To use the modular rtp settings, simply copy and paste the 'random-teleport-settings default' section (including all
+#   child elements), change the name of the settings (ie, change 'default' to 'potato' or something), and your done!
 random-teleport-settings default: # The name of this config section is 'default', each section must have a unique name
   enabled: true   # Should we load this config?
   enabled-worlds: # Nether and End worlds are not currently supported, so please don't list them here
@@ -51,33 +58,3 @@ random-teleport-settings default: # The name of this config section is 'default'
     vert: 2      # Default: 2    | (2*vert+1)*(2*(x-z)+1)^2
   max-attempts:  # If the random location, and all (by default 125) close spots are found to be unsafe,
     value: 5     # how many attempts can we make? Minimum: 1; Default: 5
-
-# You can keep copying and pasting these for more configs, just change the word(s) at the end
-random-teleport-settings example:
-  enabled: false
-  enabled-worlds:
-    - world_the_end
-  shape:
-    value: b
-  defining-points:
-    radius-center:
-      radius:
-        max: 5000
-        min: 3000
-      center:
-        value: c
-        x: 1000000
-        z: 1000000
-      gaussian-distribution:
-        enabled: true
-        shrink: 6
-        center: 0.5
-  cooldown:
-    seconds: 4000
-  low-bound:
-    value: 48
-  check-radius:
-    x-z: 2
-    vert: 2
-  max-attempts:
-    value: 8

@@ -72,7 +72,9 @@ public final class PluginMain extends JavaPlugin {
     public void loadRandomTeleporter() {
         this.reloadConfig();
         try {
-            getCommand("rtp").setExecutor(new RandomTeleporter(this.getConfig()));
+            RandomTeleporter theRandomTeleporter = new RandomTeleporter(this.getConfig());
+            getCommand("rtp").setExecutor(theRandomTeleporter);
+            getServer().getPluginManager().registerEvents(theRandomTeleporter,this);
         } catch (Exception e) {
             plugin.getLogger().log(Level.WARNING, "RTP Command could not be loaded!");
             e.printStackTrace();

@@ -2,24 +2,30 @@ package biz.donvi.jakesRTP;
 
 import biz.donvi.evenDistribution.RandomCords;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.spigotmc.event.player.PlayerSpawnLocationEvent;
 
 import java.util.ArrayList;
-import java.util.logging.Level;
 
 import static biz.donvi.jakesRTP.PluginMain.infoLog;
 
-public class RandomTeleporter implements CommandExecutor {
+public class RandomTeleporter implements CommandExecutor, Listener {
 
 
     private final ArrayList<RtpSettings> rtpSettings;
+    private final boolean firstJoinRtp;
+    private final RtpSettings firstJoinSettings;
+    private final World firstJoinWorld;
 
     public ArrayList<RtpSettings> getRtpSettings() {
         return rtpSettings;
@@ -35,6 +41,7 @@ public class RandomTeleporter implements CommandExecutor {
      *                   I have NOT made my own exceptions, but instead have written different messages.
      */
     public RandomTeleporter(ConfigurationSection config) throws Exception {
+        // Modular settings:
         rtpSettings = new ArrayList<>();
         for (String key : config.getKeys(false))
             if (key.startsWith("random-teleport-settings"))
@@ -51,6 +58,17 @@ public class RandomTeleporter implements CommandExecutor {
                             "Whoops! Something in the config wasn't right, " +
                             rtpSettings.size() + " configs have been loaded thus far.");
                 }
+        // Static settings:
+        if (firstJoinRtp = config.getBoolean("rtp-on-first-join.enabled")) {
+            firstJoinSettings = getRtpSettingsByName(config.getString("rtp-on-first-join.settings"));
+            World world = PluginMain.plugin.getServer().getWorld(config.getString("rtp-on-first-join.world"));
+            if (firstJoinSettings.configWorlds.contains(world))
+                firstJoinWorld = world;
+            else throw new Exception("The RTP first join world is not an enabled world in the config's settings!");
+        } else {
+            firstJoinSettings = null;
+            firstJoinWorld = null;
+        }
     }
 
 
@@ -61,7 +79,7 @@ public class RandomTeleporter implements CommandExecutor {
      * @return The RtpSettings of that world
      * @throws Exception If the world does not exist.
      */
-    public RtpSettings getWorldRtpSettings(World world) throws Exception {
+    public RtpSettings getRtpSettingsByWorld(World world) throws NotPermittedException {
         for (RtpSettings settings : rtpSettings)
             for (World settingWorld : settings.configWorlds)
                 if (world.equals(settingWorld))
@@ -69,6 +87,12 @@ public class RandomTeleporter implements CommandExecutor {
         throw new NotPermittedException("RTP is not enabled in this world.");
     }
 
+    public RtpSettings getRtpSettingsByName(String name) throws Exception {
+        for (RtpSettings settings : rtpSettings)
+            if (settings.name.equals(name))
+                return settings;
+        throw new Exception("No RTP settings found with name " + name);
+    }
 
     /**
      * This method acts as a bridge between this Minecraft specific class and my evenDistribution package
@@ -155,11 +179,15 @@ public class RandomTeleporter implements CommandExecutor {
      *                   getRtpXZ() will throw an exception if the rtp shape is not defined.
      */
     public Location getRtpLocation(Player player) throws Exception {
-        long timeStart = System.currentTimeMillis();
         World playerWorld = player.getWorld();
         //Note: RtpSettings.getWorldRtpSettings() provides a potential exist point as it can throw an exception.
-        RtpSettings rtpSettings = getWorldRtpSettings(playerWorld);
-        PluginMain.plugin.getLogger().log(Level.INFO, "Player used RTP. Finding location...");
+        return getRtpLocation(getRtpSettingsByWorld(playerWorld), playerWorld, player);
+    }
+
+
+    public Location getRtpLocation(RtpSettings rtpSettings, World world, Player player) throws Exception {
+        long timeStart = System.currentTimeMillis();
+        infoLog("Player used RTP. Finding location...");
 
         Location potentialRtpLocation;
         int randAttemptCount = 0;
@@ -169,7 +197,7 @@ public class RandomTeleporter implements CommandExecutor {
             if (randAttemptCount++ > rtpSettings.maxAttempts)
                 throw new NotPermittedException("Too many failed attempts.");
 
-            playerWorld.removePluginChunkTickets(PluginMain.plugin);
+            world.removePluginChunkTickets(PluginMain.plugin);
         } while (!tryMakeLocationSafe(potentialRtpLocation, rtpSettings));
 
         infoLog("Location chosen:" +
@@ -183,7 +211,9 @@ public class RandomTeleporter implements CommandExecutor {
         if (timeElapsed > 1000)
             infoLog("Note: long search times are mostly caused by the server generating and loading new areas.");
         return potentialRtpLocation;
+
     }
+
 
     /**
      * Checks the safety of a point for teleporting, and if it is not safe, will try to make it safe.
@@ -302,7 +332,7 @@ public class RandomTeleporter implements CommandExecutor {
                 Player player = (Player) sender;
                 long callTime = System.currentTimeMillis();
 
-                CoolDownTracker coolDownTracker = getWorldRtpSettings(player.getWorld()).coolDown;
+                CoolDownTracker coolDownTracker = getRtpSettingsByWorld(player.getWorld()).coolDown;
 
                 if (player.hasPermission("jakesRtp.noCooldown") || coolDownTracker.check(player.getName())) {
                     player.teleport(getRtpLocation(player));
@@ -331,6 +361,25 @@ public class RandomTeleporter implements CommandExecutor {
         }
         return true;
     }
+
+
+    @EventHandler
+    public void playerJoin(PlayerJoinEvent event) {
+        if (!firstJoinRtp || event.getPlayer().hasPlayedBefore()) return;
+        try {
+            event.getPlayer().teleport(
+                    getRtpLocation(
+                            firstJoinSettings,
+                            firstJoinWorld,
+                            event.getPlayer()
+                    ));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
 }
 
 
