@@ -11,9 +11,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import static biz.donvi.jakesRTP.PluginMain.infoLog;
 
@@ -46,7 +46,7 @@ public class RandomTeleporter implements CommandExecutor, Listener {
                 try {
                     ConfigurationSection configSection = config.getConfigurationSection(key);
                     String configName = key.substring("random-teleport-settings".length() + 1);
-                    if (configSection.getBoolean("enabled"))
+                    if (configSection != null && configSection.getBoolean("enabled"))
                         rtpSettings.add(new RtpSettings(
                                 configSection,
                                 configName));
@@ -59,7 +59,8 @@ public class RandomTeleporter implements CommandExecutor, Listener {
         // Static settings:
         if (firstJoinRtp = config.getBoolean("rtp-on-first-join.enabled")) {
             firstJoinSettings = getRtpSettingsByName(config.getString("rtp-on-first-join.settings"));
-            World world = PluginMain.plugin.getServer().getWorld(config.getString("rtp-on-first-join.world"));
+            World world = PluginMain.plugin.getServer().getWorld(
+                    Objects.requireNonNull(config.getString("rtp-on-first-join.world")));
             if (firstJoinSettings.configWorlds.contains(world))
                 firstJoinWorld = world;
             else throw new Exception("The RTP first join world is not an enabled world in the config's settings!");
@@ -75,7 +76,7 @@ public class RandomTeleporter implements CommandExecutor, Listener {
      *
      * @param world World to get RTP settings for
      * @return The RtpSettings of that world
-     * @throws Exception If the world does not exist.
+     * @throws NotPermittedException If the world does not exist.
      */
     public RtpSettings getRtpSettingsByWorld(World world) throws NotPermittedException {
         for (RtpSettings settings : rtpSettings)
@@ -146,6 +147,7 @@ public class RandomTeleporter implements CommandExecutor, Listener {
      * @return The first location to check the safety of, which may end up being the final teleport location
      * @throws Exception Unlikely, but still possible.
      */
+    @SuppressWarnings("ConstantConditions")
     private Location getPotentialRtpLocation(Location callFromLoc, RtpSettings rtpSettings) throws Exception {
         int[] xz = getRtpXZ(rtpSettings);
         int[] xzOffset;
@@ -214,6 +216,7 @@ public class RandomTeleporter implements CommandExecutor, Listener {
             if (randAttemptCount++ > rtpSettings.maxAttempts)
                 throw new NotPermittedException("Too many failed attempts.");
 
+            assert callFromLoc.getWorld() != null;
             callFromLoc.getWorld().removePluginChunkTickets(PluginMain.plugin);
         } while (!tryMakeLocationSafe(potentialRtpLocation, rtpSettings));
 
@@ -221,7 +224,7 @@ public class RandomTeleporter implements CommandExecutor, Listener {
                 " (" + potentialRtpLocation.getX() +
                 ", " + potentialRtpLocation.getY() +
                 ", " + potentialRtpLocation.getZ() +
-                ") in world " + potentialRtpLocation.getWorld().getName());
+                ") in world " + Objects.requireNonNull(potentialRtpLocation.getWorld()).getName());
 
         long timeElapsed = System.currentTimeMillis() - timeStart;
         infoLog("Location found in " + timeElapsed + " milliseconds after " + randAttemptCount + " attempt(s).");
@@ -231,76 +234,6 @@ public class RandomTeleporter implements CommandExecutor, Listener {
 
     }
 
-
-    /**
-     * Checks the safety of a point for teleporting, and if it is not safe, will try to make it safe.
-     * If it can not be made safe under the constraints given, it will return false.
-     * THIS SHOULD NOT BE USED FOR ANY TELEPORT, ONLY RTP.
-     * This method can, by default, move the player up to 32 blocks away to find a safe location.
-     * <p>
-     * This method is being rewritten to actually go through the local area in search of a safe spot
-     * instead of doing small random teleports
-     *
-     * @param potentialLoc Location to try and make safe.
-     * @param rtpSettings  The worlds rtp settings.
-     * @return True if or when the location is safe, False if it can not be made safe under the given constraints.
-     */
-    @Deprecated
-    private boolean tryMakeLocationSafeOld(Location potentialLoc, RtpSettings rtpSettings) {
-        int[] smallHops = {16, 8, 3}; //No longer supports small hops in config
-        boolean safe = false;
-        int tryCount = 0;
-        while (tryCount < smallHops[0] && !safe) {
-            if (tryCount > 0) {
-                int[] newPos = RandomCords.getRandXyCircle(smallHops[1], smallHops[2]);
-                newPos[0] += potentialLoc.getX();
-                newPos[1] += potentialLoc.getZ();
-                potentialLoc.setX(newPos[0]);
-                potentialLoc.setY(potentialLoc.getY() + 10);
-                potentialLoc.setZ(newPos[1]);
-            }
-
-            int chunkX = potentialLoc.getChunk().getX();
-            int chunkZ = potentialLoc.getChunk().getX();
-            potentialLoc.getWorld().addPluginChunkTicket(chunkX, chunkZ, PluginMain.plugin);
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    potentialLoc.getWorld().removePluginChunkTicket(chunkX, chunkZ, PluginMain.plugin);
-                }
-            }.runTaskLater(PluginMain.plugin, 60);
-
-
-            infoLog("Checking safety of location" +
-                    " (" + potentialLoc.getX() +
-                    ", " + potentialLoc.getY() +
-                    ", " + potentialLoc.getZ() +
-                    ") in world " + potentialLoc.getWorld().getName() +
-                    (tryCount == 0 ? "" :
-                            " (Sub attempt " +
-                            tryCount +
-                            ")"
-                    )
-            );
-
-            safe = true;
-            tryCount++;
-
-            while (SafeLocationFinder.isSafeToBeIn(potentialLoc.getBlock().getType()) &&
-                   potentialLoc.getY() > rtpSettings.lowBound
-            ) potentialLoc.add(0, -1, 0);
-
-            if (!SafeLocationFinder.isSafeToBeOn(potentialLoc.getBlock().getType()) ||
-                potentialLoc.getY() <= rtpSettings.lowBound ||
-                SafeLocationFinder.isInATree(potentialLoc)
-            ) safe = false;
-
-        }
-
-        //Centering the player on the block, and teleporting them on TOP of the safe landing spot
-        potentialLoc.add(0.5, 1, 0.5);
-        return safe;
-    }
 
     /**
      * Checks the safety of a given location for teleportation, and if it is not safe, will try
