@@ -11,9 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.spigotmc.event.player.PlayerSpawnLocationEvent;
 
 import java.util.ArrayList;
 
@@ -87,6 +85,14 @@ public class RandomTeleporter implements CommandExecutor, Listener {
         throw new NotPermittedException("RTP is not enabled in this world.");
     }
 
+
+    /**
+     * Gets the RtpSettings object that has the given name (as defined in the config).
+     *
+     * @param name The name of the settings
+     * @return The Rtp settings object with the given name
+     * @throws Exception If no settings have the given name
+     */
     public RtpSettings getRtpSettingsByName(String name) throws Exception {
         for (RtpSettings settings : rtpSettings)
             if (settings.name.equals(name))
@@ -99,6 +105,7 @@ public class RandomTeleporter implements CommandExecutor, Listener {
      * by calling the appropriate method from the package, and forwarding the relevant configuration
      * settings that have been saved in memory.
      *
+     * @param rtpSettings The Rtp settings to use to get the random points
      * @return A random X and Z coordinate pair.
      * @throws Exception if a shape is not properly defined,
      *                   though realistic error checking beforehand should prevent this issue
@@ -133,24 +140,25 @@ public class RandomTeleporter implements CommandExecutor, Listener {
      * This method differs from {@code getRtpXZ()} because it includes the offset and returns a {@code Location}
      * whereas {@code getRtpZX()} only gets the initial {@code x} and {@code z}, and returns a coordinate pair.
      *
-     * @param player      The player that is getting teleported (used for world and offset)
+     * @param callFromLoc A location representing where the call originated from. This is used to get either the world
+     *                    spawn, or player location for the position offset
      * @param rtpSettings The relevant settings for RTP
      * @return The first location to check the safety of, which may end up being the final teleport location
      * @throws Exception Unlikely, but still possible.
      */
-    private Location getPotentialRtpLocation(Player player, RtpSettings rtpSettings) throws Exception {
+    private Location getPotentialRtpLocation(Location callFromLoc, RtpSettings rtpSettings) throws Exception {
         int[] xz = getRtpXZ(rtpSettings);
         int[] xzOffset;
         switch (rtpSettings.centerLocation) {
             case PLAYER_LOCATION:
                 xzOffset = new int[]{
-                        (int) player.getLocation().getX(),
-                        (int) player.getLocation().getZ()};
+                        (int) callFromLoc.getX(),
+                        (int) callFromLoc.getZ()};
                 break;
             case WORLD_SPAWN:
                 xzOffset = new int[]{
-                        (int) player.getWorld().getSpawnLocation().getX(),
-                        (int) player.getWorld().getSpawnLocation().getZ()};
+                        (int) callFromLoc.getWorld().getSpawnLocation().getX(),
+                        (int) callFromLoc.getWorld().getSpawnLocation().getZ()};
                 break;
             case PRESET_VALUE:
             default:
@@ -160,13 +168,12 @@ public class RandomTeleporter implements CommandExecutor, Listener {
         }
 
         return new Location(
-                player.getWorld(),
+                callFromLoc.getWorld(),
                 xz[0] + xzOffset[0],
                 255,
                 xz[1] + xzOffset[1]
         );
     }
-
 
     /**
      * Keeps getting potential teleport locations until one has been found.
@@ -179,25 +186,35 @@ public class RandomTeleporter implements CommandExecutor, Listener {
      *                   getRtpXZ() will throw an exception if the rtp shape is not defined.
      */
     public Location getRtpLocation(Player player) throws Exception {
-        World playerWorld = player.getWorld();
         //Note: RtpSettings.getWorldRtpSettings() provides a potential exist point as it can throw an exception.
-        return getRtpLocation(getRtpSettingsByWorld(playerWorld), playerWorld, player);
+        return getRtpLocation(getRtpSettingsByWorld(player.getWorld()), player.getLocation());
     }
 
-
-    public Location getRtpLocation(RtpSettings rtpSettings, World world, Player player) throws Exception {
+    /**
+     * Keeps getting potential teleport locations until one has been found.
+     * A fail-safe is included to throw an exception if too many unsuccessful attempts have been made.
+     *
+     * @param rtpSettings The specific RtpSettings to get the location with.
+     * @param callFromLoc The location that the call originated from. Used to find the world spawn,
+     *                    or player's current location.
+     * @return A random location that can be safely teleported to by a player.
+     * @throws Exception Only two points of this code are expected to be able to throw an exception:
+     *                   getWorldRtpSettings() will throw an exception if the world is not RTP enabled.
+     *                   getRtpXZ() will throw an exception if the rtp shape is not defined.
+     */
+    public Location getRtpLocation(RtpSettings rtpSettings, Location callFromLoc) throws Exception {
         long timeStart = System.currentTimeMillis();
         infoLog("Player used RTP. Finding location...");
 
         Location potentialRtpLocation;
         int randAttemptCount = 0;
         do {
-            potentialRtpLocation = getPotentialRtpLocation(player, rtpSettings);
+            potentialRtpLocation = getPotentialRtpLocation(callFromLoc, rtpSettings);
 
             if (randAttemptCount++ > rtpSettings.maxAttempts)
                 throw new NotPermittedException("Too many failed attempts.");
 
-            world.removePluginChunkTickets(PluginMain.plugin);
+            callFromLoc.getWorld().removePluginChunkTickets(PluginMain.plugin);
         } while (!tryMakeLocationSafe(potentialRtpLocation, rtpSettings));
 
         infoLog("Location chosen:" +
@@ -362,7 +379,12 @@ public class RandomTeleporter implements CommandExecutor, Listener {
         return true;
     }
 
-
+    /**
+     * When {@code firstJoinRtp} is enabled (set to true), this will RTP a player when they join the server
+     * for the first time.
+     *
+     * @param event The PlayerJoinEvent
+     */
     @EventHandler
     public void playerJoin(PlayerJoinEvent event) {
         if (!firstJoinRtp || event.getPlayer().hasPlayedBefore()) return;
@@ -370,14 +392,12 @@ public class RandomTeleporter implements CommandExecutor, Listener {
             event.getPlayer().teleport(
                     getRtpLocation(
                             firstJoinSettings,
-                            firstJoinWorld,
-                            event.getPlayer()
+                            firstJoinWorld.getSpawnLocation()
                     ));
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 
 
 }
