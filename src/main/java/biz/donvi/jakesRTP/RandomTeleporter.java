@@ -212,14 +212,16 @@ public class RandomTeleporter implements CommandExecutor, Listener {
         int randAttemptCount = 0;
         do {
             potentialRtpLocation = getPotentialRtpLocation(callFromLoc, rtpSettings);
-
             if (randAttemptCount++ > rtpSettings.maxAttempts)
                 throw new NotPermittedException("Too many failed attempts.");
-
-            assert callFromLoc.getWorld() != null;
-            callFromLoc.getWorld().removePluginChunkTickets(PluginMain.plugin);
-        } while (!tryMakeLocationSafe(potentialRtpLocation, rtpSettings));
-
+        } while (
+                !new SafeLocationFinder(
+                        potentialRtpLocation,
+                        rtpSettings.checkRadiusXZ,
+                        rtpSettings.checkRadiusVert,
+                        rtpSettings.lowBound
+                ).tryAndMakeSafe()
+        );
         infoLog("Location chosen:" +
                 " (" + potentialRtpLocation.getX() +
                 ", " + potentialRtpLocation.getY() +
@@ -232,40 +234,6 @@ public class RandomTeleporter implements CommandExecutor, Listener {
             infoLog("Note: long search times are mostly caused by the server generating and loading new areas.");
         return potentialRtpLocation;
 
-    }
-
-
-    /**
-     * Checks the safety of a given location for teleportation, and if it is not safe, will try
-     * and make it safe. If / when the location becomes safe, this method will return true, and
-     * if it can not make / find a safe location under the constraints in rtpSettings, it will
-     * return false
-     *
-     * @param potentialLoc Location to try and make safe.
-     * @param rtpSettings  The worlds rtp settings.
-     * @return True if the location is or has become safe, false if it was not made safe.
-     */
-    private boolean tryMakeLocationSafe(Location potentialLoc, RtpSettings rtpSettings) {
-        int spiralArea = (int) Math.pow(rtpSettings.checkRadiusXZ * 2 + 1, 2);
-
-        SafeLocationFinder.dropToGround(potentialLoc, rtpSettings.lowBound);
-
-        /* Internally, this method creates and manages a SafeLocationFinder *|
-        |* object using the given setting in rtpSettings as the constraints */
-        SafeLocationFinder slf = new SafeLocationFinder(potentialLoc);
-        long startTime = System.currentTimeMillis();
-        for (int i = 0; i < spiralArea; i++) {
-            if (slf.checkSafety(rtpSettings.checkRadiusVert) && !SafeLocationFinder.isInATree(potentialLoc)) {
-                infoLog("Checked " + (i + 1) + " columns in " +
-                        (System.currentTimeMillis() - startTime) + " milliseconds");
-                //Centering the player on the block, and teleporting them on TOP of the safe landing spot
-                potentialLoc.add(0.5, 1, 0.5);
-                return true;
-            } else slf.nextInSpiral();
-        }
-        infoLog("Checked " + spiralArea + " columns in " +
-                (System.currentTimeMillis() - startTime) + " milliseconds, but no safe place was found.");
-        return false;
     }
 
     /**

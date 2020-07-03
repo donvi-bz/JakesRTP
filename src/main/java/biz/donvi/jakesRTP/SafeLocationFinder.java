@@ -6,21 +6,28 @@ import org.bukkit.World;
 
 import java.util.logging.Level;
 
+import static biz.donvi.jakesRTP.PluginMain.infoLog;
+
 /**
  * An object that can be given a location in a spigot world, and will try
  * and move around until it finds a spot that a player can safely stand on.
  */
 public class SafeLocationFinder {
 
-    private final Location initialLoc;
-    private Location loc;
+    public Location loc;
+    private final boolean enableSelfChecking;
+    private final int
+            checkRadiusXZ,
+            checkRadiusVert,
+            lowBound;
 
     /* Small set of variables just for nextInSpiral */
     private boolean xNotY = true;
-    private int flip = 1;
-    private int count = 0;
-    private int subCount = 0;
-    private int stretch = 1;
+    private int
+            flip = 1,
+            count = 0,
+            subCount = 0,
+            stretch = 1;
 
     /**
      * Just constructs the {@code SafeLocationFinder}, use {@code checkSafety} to check if
@@ -29,9 +36,53 @@ public class SafeLocationFinder {
      * @param loc The location that will be checked for safety, and potentially modified.
      */
     public SafeLocationFinder(Location loc) {
-        initialLoc = this.loc = loc;
+        this.loc = loc;
+        enableSelfChecking = false;
+        checkRadiusXZ = checkRadiusVert = lowBound = 0;
     }
 
+    /**
+     * This constructs a fully managed {@code SafeLocationFinder}. Because the bounds for the check operations are
+     * supplied, this object can check the safety of the location itself by calling instance method
+     * {@code tryAndMakeSafe()}. The given location <b>will</b> be modified.
+     *
+     * @param loc             The location to try and make safe. This <b>will</b> be modified.
+     * @param checkRadiusXZ   The distance out from the center that the location cam move.
+     * @param checkRadiusVert The distance up and down that the location can move.
+     * @param lowBound        The lowest Y value the location can have.
+     */
+    public SafeLocationFinder(Location loc, int checkRadiusXZ, int checkRadiusVert, int lowBound) {
+        this.loc = loc;
+        enableSelfChecking = true;
+        this.checkRadiusXZ = checkRadiusXZ;
+        this.checkRadiusVert = checkRadiusVert;
+        this.lowBound = lowBound;
+    }
+
+    /**
+     * Attempts to make the location safe using the given bounds: {@code checkRadiusXZ}, {@code checkRadiusVert}, and
+     * {@code lowBound}. If the location can be made safe, this method will return true. If not, it will return false.
+     * Regardless of whether the method returns true or false, the location <b>will</b> be modified.<p>
+     * Node: Trying to run this method on a {@code SafeLocationFinder} that was <em>not</em> passed the bounds on
+     * construction will cause an Exception to be thrown.
+     *
+     * @return True if the location is now safe, false if it could not be made safe.
+     * @throws Exception if this method was called from an object with no checking bounds.
+     */
+    public boolean tryAndMakeSafe() throws Exception {
+        if (!enableSelfChecking)
+            throw new Exception("Tried to use self checking on an object that can not self check.");
+
+        dropToGround(loc, lowBound);
+
+        for (int i = 0, spiralArea = (int) Math.pow(checkRadiusXZ * 2 + 1, 2); i < spiralArea; i++)
+            if (checkSafety(checkRadiusVert)) {
+                loc.add(0.5, 1, 0.5);
+                loc.setYaw((float) (360f * Math.random()));
+                return true;
+            } else nextInSpiral();
+        return false;
+    }
 
     /**
      * Checks the safety of the current location. If a location at a different height is safe,
@@ -65,7 +116,9 @@ public class SafeLocationFinder {
                 else safe = 0;
             else if (safe == 2)
                 if (isSafeToBeOn(mat)) {
-                    loc = tempLoc.add(0, 1, 0);
+                    loc.setX(tempLoc.getX());
+                    loc.setY(tempLoc.getY());
+                    loc.setZ(tempLoc.getZ());
                     return true;
                 } else if (!isSafeToBeIn(mat)) {
                     safe = 0;
@@ -113,12 +166,6 @@ public class SafeLocationFinder {
     static boolean isSafeToBeIn(Material mat) {
         switch (mat) {
             case AIR:
-            case ACACIA_LEAVES:
-            case BIRCH_LEAVES:
-            case DARK_OAK_LEAVES:
-            case JUNGLE_LEAVES:
-            case OAK_LEAVES:
-            case SPRUCE_LEAVES:
             case SNOW:
             case FERN:
             case LARGE_FERN:
@@ -129,6 +176,20 @@ public class SafeLocationFinder {
             case WATER:
             case LAVA:
             case CAVE_AIR:
+            default:
+                return false;
+        }
+    }
+
+    static boolean isSafeToGoThrough(Material mat) {
+        switch (mat) {
+            case ACACIA_LEAVES:
+            case BIRCH_LEAVES:
+            case DARK_OAK_LEAVES:
+            case JUNGLE_LEAVES:
+            case OAK_LEAVES:
+            case SPRUCE_LEAVES:
+                return true;
             default:
                 return false;
         }
@@ -153,7 +214,7 @@ public class SafeLocationFinder {
             case TALL_SEAGRASS:
             case LILY_PAD:
                 return false;
-            case GRASS:
+            case GRASS_BLOCK:
             case STONE:
             case DIRT:
             default:
@@ -168,17 +229,19 @@ public class SafeLocationFinder {
      * @return True if the location is in a tree.
      */
     static boolean isInATree(Location loc) {
-        switch (loc.clone().add(0, 1, 0).getBlock().getType()) {
-            case ACACIA_LEAVES:
-            case BIRCH_LEAVES:
-            case DARK_OAK_LEAVES:
-            case JUNGLE_LEAVES:
-            case OAK_LEAVES:
-            case SPRUCE_LEAVES:
-                return true;
-            default:
-                return false;
-        }
+        for (Material material : new Material[]{
+                loc.clone().add(0, 1, 0).getBlock().getType(),
+                loc.clone().add(0, 2, 0).getBlock().getType()})
+            switch (material) {
+                case ACACIA_LEAVES:
+                case BIRCH_LEAVES:
+                case DARK_OAK_LEAVES:
+                case JUNGLE_LEAVES:
+                case OAK_LEAVES:
+                case SPRUCE_LEAVES:
+                    return true;
+            }
+        return false;
     }
 
     /**
@@ -188,7 +251,7 @@ public class SafeLocationFinder {
      * @param loc The location to modify
      */
     static void dropToGround(Location loc) {
-        while (isSafeToBeIn(loc.getBlock().getType()))
+        while (isSafeToBeIn(loc.getBlock().getType()) || isSafeToGoThrough(loc.getBlock().getType()))
             loc.add(0, -1, 0);
     }
 
@@ -201,7 +264,8 @@ public class SafeLocationFinder {
      */
     static void dropToGround(Location loc, int lowBound) {
         while (loc.getBlockY() > lowBound &&
-               isSafeToBeIn(loc.getBlock().getType())
+               (isSafeToBeIn(loc.getBlock().getType()) ||
+                isSafeToGoThrough(loc.getBlock().getType()))
         ) loc.add(0, -1, 0);
     }
 }
