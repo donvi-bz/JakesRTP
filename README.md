@@ -1,3 +1,4 @@
+<sup>_A Spigot/Paper Plugin | Native Minecraft Version: 1.16_</sup>
 # Jake's Random Teleporter `[J-RTP]`
 What does it do? • Teleports a player to a random location by when they type `/rtp` or `/wild`, or when they join the server for the first time • Tons of configuration from basic shape and size to multiple configs and distribution patterns
 
@@ -106,7 +107,10 @@ And here are some settings that I like.
 * jakesrtp.use
     * description: Allows the use of the base "/rtp" command
     * default: true
-*jakesrtp.noCooldown
+* jakesrtp.rtpondeath:
+    * description: 'If rtp-on-death is enabled, players with this node will be respawn in a random location'
+    * default: false
+* jakesrtp.noCooldown
     * description: Allows the user to ignore the cool-down timer
     * default: op
 * jakesrtp.others
