@@ -34,7 +34,7 @@ Oh, and if you want more than one config, you just copy and paste the config sec
 # - - - - - - - - - - - - - - - - - - - - - -
 # Old configs may not run correctly.
 # Please don't edit config-version.
-config-version: 1.7
+config-version: 1.8.2
 # Should the plugin try and load an old config? Whenever a change is made to the structure of the config, the
 #   version is increased. On startup, the plugin compares the version of the existing config to the version
 #   that it is expecting, and will either (a) attempt to load the older version of the config regardless of
@@ -49,12 +49,32 @@ rtp-on-first-join:    # Should new players get randomly teleported when they fir
   enabled: false      # If this is false, they will not, and the values of 'world' and 'settings' will not be read.
   settings: default   # The rtp settings by name to teleport the player with.
   world: world        # The world the player will land in. This world MUST be included in the settings enabled worlds.
+rtp-on-death:         # Should a player get randomly teleported when they die?
+  enabled: false      # These settings follow the same structure as the settings above.
+  settings: default
+  world: world
+  respect-beds: true        # If true, the player will NOT be teleported if they have a valid home bed or anchor
+  require-permission: true  # The permission node tied to this setting is jakesrtp.rtpondeath
 # End of static settings. All settings below are modular
 # To use the modular rtp settings, simply copy and paste the 'random-teleport-settings default' section (including all
 #   child elements), change the name of the settings (ie, change 'default' to 'potato' or something), and your done!
 random-teleport-settings default: # The name of this config section is 'default', each section must have a unique name
-  enabled: true   # Should we load this config?
-  enabled-worlds: # Nether and End worlds are not currently supported, so please don't list them here
+  # Should we load this config? If false, this config will not be usable anywhere.
+  # For finer control, enable or disable command-enabled and require-explicit-permission.
+  enabled: true
+  # Can a player use this config with `/rtp`?
+  # Set to false if you plan on having this config exclusively for rtp-on-first-join or rtp-on-death.
+  command-enabled: true
+  # The player will only be able to use this config if they have the permission:
+  #   'jakesrtp.use.[name]' where the default config would be 'jakesrtp.use.default'.
+  # This setting is most useful when there are overlapping configurations
+  require-explicit-permission: false # TODO - Implement this fully. (Currently only recognised in commands)
+  # The priority of the config. Higher priority are preferred over lower ones.
+  # Only useful if there are overlapping configurations (multiple configs that include the same worlds).
+  priority: 1
+  # Which worlds will this configuration apply to?
+  # The nether is not currently supported. The end works, but is inefficient and requires a higher max-attempt value.
+  enabled-worlds:
     - world
     - yer  # You can remove this one, it's here as an example
   shape:
