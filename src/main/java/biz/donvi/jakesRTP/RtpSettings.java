@@ -4,12 +4,13 @@ import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Objects;
 import java.util.logging.Level;
 
 import static biz.donvi.jakesRTP.CenterAllowedValues.*;
 import static biz.donvi.jakesRTP.PluginMain.infoLog;
+import static biz.donvi.jakesRTP.RandomTeleporter.explicitPermPrefix;
 import static biz.donvi.jakesRTP.RtpRegionShape.*;
 
 public class RtpSettings {
@@ -17,6 +18,9 @@ public class RtpSettings {
     public final ArrayList<World> configWorlds = new ArrayList<>();
 
     public final String name;
+    public final boolean commandEnabled;
+    public final boolean requireExplicitPermission;
+    public final float priority;
     public final RtpRegionShape rtpRegionShape;
     public final int maxRadius;
     public final int minRadius;
@@ -43,6 +47,18 @@ public class RtpSettings {
         this.name = name;
         name = "[" + name + "] ";
 
+        commandEnabled = config.getBoolean("command-enabled");
+        infoLog(name + "Command " + (commandEnabled ? "enabled" : "disabled"));
+
+        requireExplicitPermission = config.getBoolean("require-explicit-permission");
+        infoLog(name + (requireExplicitPermission?
+                "Requires permission node [" + explicitPermPrefix + this.name + "] to use":
+                "No explicit named permission required"));
+
+        priority = (float) config.getDouble("priority");
+        infoLog(name + "Priority: " + priority);
+
+
         for (String worldName : config.getStringList("enabled-worlds"))
             try {
                 configWorlds.add(Objects.requireNonNull(PluginMain.plugin.getServer().getWorld(worldName)));
@@ -51,7 +67,7 @@ public class RtpSettings {
             }
 
         // SHAPE
-        switch (config.getString("shape.value").toLowerCase()) {
+        switch (Objects.requireNonNull(config.getString("shape.value")).toLowerCase()) {
             case "a":
                 infoLog(name + "RTP region shape set to SQUARE");
                 rtpRegionShape = SQUARE;
@@ -75,7 +91,7 @@ public class RtpSettings {
         infoLog(name + "Min radius set to " + minRadius);
 
         // RTP CENTER
-        switch (config.getString("defining-points.radius-center.center.value").toLowerCase()) {
+        switch (Objects.requireNonNull(config.getString("defining-points.radius-center.center.value")).toLowerCase()) {
             case "a":
                 infoLog(name + "RTP center set to world spawn.");
                 centerLocation = WORLD_SPAWN;
@@ -131,6 +147,57 @@ public class RtpSettings {
         infoLog(name + "Max attempts set to " + maxAttempts);
     }
 
+    public String getRtpRegionShapeAsString() {
+        switch (rtpRegionShape) {
+            case CIRCLE:
+                return "Circle";
+            case SQUARE:
+                return "Square";
+            case RECTANGLE:
+                return "Rectangle";
+            default:
+                return "?";
+        }
+    }
+
+    public String getRtpRegionCenterAsString(boolean mcFormat) {
+        switch (centerLocation) {
+            case WORLD_SPAWN:
+                StringBuilder spawnLocation = new StringBuilder("World Spawn ")
+                        .append(mcFormat ? "\u00A7o" : "")
+                        .append("[");
+                for (Iterator<World> iterator = configWorlds.iterator(); iterator.hasNext(); ) {
+                    World world = iterator.next();
+                    spawnLocation
+                            .append("(")
+                            .append((int) world.getSpawnLocation().getX())
+                            .append(", ")
+                            .append((int) world.getSpawnLocation().getZ())
+                            .append(") in ")
+                            .append(world.getName())
+                            .append(iterator.hasNext() ? "; " : "");
+                }
+                return spawnLocation
+                        .append("]")
+                        .append(mcFormat ? "\u00A7r" : "")
+                        .toString();
+            case PRESET_VALUE:
+                return "Specified in Config " + (mcFormat ? "\u00A7o" : "") +
+                       "(" + centerX + ", " + centerZ + ")" + (mcFormat ? "\u00A7r" : "");
+            case PLAYER_LOCATION:
+                return "Player's Location";
+        }
+        return "??";
+    }
+
+    public String getWorldsAsString() {
+        StringBuilder strb = new StringBuilder();
+        for (int i = 0; i < configWorlds.size(); i++) {
+            if (i != 0) strb.append(" ");
+            strb.append(configWorlds.get(i).getName());
+        }
+        return strb.toString();
+    }
 
     /**
      * Tells if the selected shape uses the "Radius & Center" style config.

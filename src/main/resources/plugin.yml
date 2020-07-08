@@ -2,7 +2,7 @@ name: JakesRTP
 author: JakeTS
 main: biz.donvi.jakesRTP.PluginMain
 prefix: 'J-RTP'
-version: '0.5'
+version: '0.6.3'
 api-version: '1.16'
 
 commands:
@@ -25,6 +25,9 @@ permissions:
   jakesrtp.use:
     description: 'Allows the use of the base "/rtp" command'
     default: true
+  jakesrtp.rtpondeath:
+    description: 'If rtp-on-death is enabled, players with this node will be respawn in a random location'
+    default: false
   jakesrtp.nocooldown:
     description: 'Allows the user to ignore the cool-down timer'
     default: op
@@ -40,6 +43,7 @@ permissions:
     children:
       jakesrtp.nocooldown: true
       jakesrtp.others: true
+      jakesrtp.admin: true
 
 command-tree:
   rtp-admin:

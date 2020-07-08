@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -19,11 +20,20 @@ import static biz.donvi.jakesRTP.PluginMain.infoLog;
 
 public class RandomTeleporter implements CommandExecutor, Listener {
 
+    final static String explicitPermPrefix = "jakesrtp.use.";
 
     private final ArrayList<RtpSettings> rtpSettings;
-    private final boolean firstJoinRtp;
-    private final RtpSettings firstJoinSettings;
-    private final World firstJoinWorld;
+
+    public final boolean firstJoinRtp;
+    public final RtpSettings firstJoinSettings;
+    public final World firstJoinWorld;
+
+    public final boolean onDeathRtp;
+    public final boolean onDeathRespectBeds;
+    public final boolean onDeathRequirePermission;
+    public final RtpSettings onDeathSettings;
+    public final World onDeathWorld;
+
 
     public ArrayList<RtpSettings> getRtpSettings() {
         return rtpSettings;
@@ -68,22 +78,46 @@ public class RandomTeleporter implements CommandExecutor, Listener {
             firstJoinSettings = null;
             firstJoinWorld = null;
         }
+
+        if (onDeathRtp = config.getBoolean("rtp-on-death.enabled")) {
+            onDeathRespectBeds = config.getBoolean("rtp-on-death.respect-beds");
+            onDeathSettings = getRtpSettingsByName(config.getString("rtp-on-death.settings"));
+            onDeathRequirePermission = config.getBoolean("rtp-on-death.require-permission");
+            World world = PluginMain.plugin.getServer().getWorld(
+                    Objects.requireNonNull(config.getString("rtp-on-death.world")));
+            if (onDeathSettings.configWorlds.contains(world))
+                onDeathWorld = world;
+            else throw new Exception("The RTP first join world is not an enabled world in the config's settings!");
+        } else {
+            onDeathRespectBeds = false;
+            onDeathRequirePermission = false;
+            onDeathSettings = null;
+            onDeathWorld = null;
+        }
     }
 
 
     /**
-     * Gets the RtpSettings object that contains the settings for the given world.
+     * Gets the {@code RtpSettings} that are being used by the given world. If more then one {@code RtpSettings}
+     * objects are valid, the one with the highest priority will be returned.
      *
      * @param world World to get RTP settings for
      * @return The RtpSettings of that world
      * @throws NotPermittedException If the world does not exist.
      */
     public RtpSettings getRtpSettingsByWorld(World world) throws NotPermittedException {
+        RtpSettings finSettings = null;
         for (RtpSettings settings : rtpSettings)
             for (World settingWorld : settings.configWorlds)
-                if (world.equals(settingWorld))
-                    return settings;
-        throw new NotPermittedException("RTP is not enabled in this world.");
+                if (world.equals(settingWorld) && (
+                        finSettings == null
+                        || finSettings.priority < settings.priority)
+                ) {
+                    finSettings = settings;
+                    break;
+                }
+        if (finSettings != null) return finSettings;
+        else throw new NotPermittedException("RTP is not enabled in this world.");
     }
 
 
@@ -99,6 +133,35 @@ public class RandomTeleporter implements CommandExecutor, Listener {
             if (settings.name.equals(name))
                 return settings;
         throw new Exception("No RTP settings found with name " + name);
+    }
+
+    /**
+     * Gets the RtpSettings that a specific player in a specific world should be using. This is intended to be
+     * used for players running the rtp command, as it follows all rules that players are held to when rtp-ing.
+     *
+     * @param player The player whose information will be used to determine the relevant rtp settings
+     * @return The RtpSettings for the player to use, normally for when they run the {@code /rtp} command.
+     * @throws NotPermittedException If no settings can be used.
+     */
+    public RtpSettings getRtpSettingsByWorldForPlayer(Player player) throws NotPermittedException {
+        RtpSettings finSettings = null;
+        World playerWorld = player.getWorld();
+        for (RtpSettings settings : rtpSettings)
+            for (World settingWorld : settings.configWorlds)
+                //First, the world must be in the settings to become a candidate
+                if (playerWorld.equals(settingWorld) &&
+                    //Then we check if the settings are usable from the command
+                    !settings.commandEnabled &&
+                    //Then we check the priority
+                    (finSettings == null || finSettings.priority < settings.priority) &&
+                    //Then we check if we require explicit perms
+                    (!settings.requireExplicitPermission || player.hasPermission(explicitPermPrefix + settings.name))
+                ) {
+                    finSettings = settings;
+                    break;
+                }
+        if (finSettings != null) return finSettings;
+        else throw new NotPermittedException("RTP is not enabled in this world.");
     }
 
     /**
@@ -181,20 +244,24 @@ public class RandomTeleporter implements CommandExecutor, Listener {
      * Keeps getting potential teleport locations until one has been found.
      * A fail-safe is included to throw an exception if too many unsuccessful attempts have been made.
      *
-     * @param player The player running the command. Used to find the world they are in, or current location.
+     * @param player
+     * @param force
      * @return A random location that can be safely teleported to by a player.
-     * @throws Exception Only two points of this code are expected to be able to throw an exception:
-     *                   getWorldRtpSettings() will throw an exception if the world is not RTP enabled.
-     *                   getRtpXZ() will throw an exception if the rtp shape is not defined.
+     * @throws Exception
      */
-    public Location getRtpLocation(Player player) throws Exception {
-        //Note: RtpSettings.getWorldRtpSettings() provides a potential exist point as it can throw an exception.
-        return getRtpLocation(getRtpSettingsByWorld(player.getWorld()), player.getLocation());
+    public Location getRtpLocation(Player player, boolean force) throws Exception {
+        if (force) return getRtpLocation(
+                getRtpSettingsByWorld(player.getWorld()),
+                player.getLocation());
+        else return getRtpLocation(
+                getRtpSettingsByWorldForPlayer(player),
+                player.getLocation());
     }
 
     /**
      * Keeps getting potential teleport locations until one has been found.
      * A fail-safe is included to throw an exception if too many unsuccessful attempts have been made.
+     * This method can bypass explicit permission checks.
      *
      * @param rtpSettings The specific RtpSettings to get the location with.
      * @param callFromLoc The location that the call originated from. Used to find the world spawn,
@@ -250,23 +317,26 @@ public class RandomTeleporter implements CommandExecutor, Listener {
                 Player player = (Player) sender;
                 long callTime = System.currentTimeMillis();
 
-                CoolDownTracker coolDownTracker = getRtpSettingsByWorld(player.getWorld()).coolDown;
+                CoolDownTracker coolDownTracker = getRtpSettingsByWorldForPlayer(player).coolDown;
 
                 if (player.hasPermission("jakesRtp.noCooldown") || coolDownTracker.check(player.getName())) {
-                    player.teleport(getRtpLocation(player));
+                    player.teleport(getRtpLocation(player, false));
                     coolDownTracker.log(player.getName(), callTime);
                 } else {
                     player.sendMessage("Need to wait for cooldown: " + coolDownTracker.timeLeftWords(player.getName()));
                 }
             }
             /* - - - - - - - - - - - - - - - - - - - - - - - - - - *|
-            |* - - - - If a player tries to RTP someone else - - - *|
+            |* - - If a player tries to RTP someone else - - - - - *|
             |* - - - - - - - - - - - - - - - - - - - - - - - - - - */
-            else if (args.length == 1 && sender.hasPermission("jakesRtp.others")) {
+            else if (args.length == 1 &&
+                     sender.hasPermission("jakesRtp.others")
+            ) {
                 Player playerToTp = sender.getServer().getPlayerExact(args[0]);
                 if (playerToTp == null)
                     sender.sendMessage("Could not find player " + args[0]);
-                else playerToTp.teleport(getRtpLocation(playerToTp));
+                else playerToTp.teleport(
+                        getRtpLocation(playerToTp, true));
             }
 
 
@@ -300,7 +370,22 @@ public class RandomTeleporter implements CommandExecutor, Listener {
         }
     }
 
-
+    @EventHandler
+    public void playerRespawn(PlayerRespawnEvent event) {
+        //All conditions must be met to continue
+        if (onDeathRtp &&
+            (!onDeathRequirePermission || event.getPlayer().hasPermission("jakesrtp.rtpondeath")) &&
+            (!onDeathRespectBeds || !(event.isBedSpawn()/* || event.isAnchorSpawn()*/))
+        ) try {
+            event.setRespawnLocation(
+                    getRtpLocation(
+                            onDeathSettings,
+                            onDeathWorld.getSpawnLocation() /*TODO~Decide: Do I want the player's death location instead? */
+                    ));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
 
 

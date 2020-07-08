@@ -1,6 +1,7 @@
 package biz.donvi.jakesRTP;
 
 import biz.donvi.argsChecker.Util;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.yaml.snakeyaml.Yaml;
 
@@ -20,6 +21,7 @@ public final class PluginMain extends JavaPlugin {
     static Logger logger;
     static Map<String, Object> cmdMap;
 
+    private RandomTeleporter theRandomTeleporter;
     private String defaultConfigVersion = null;
 
     @Override
@@ -53,7 +55,7 @@ public final class PluginMain extends JavaPlugin {
 
 
         //Register commands
-        getCommand("rtp-admin").setExecutor(new CmdRtpAdmin(Util.getImpliedMap(cmdMap,"rtp-admin")));
+        Objects.requireNonNull(getCommand("rtp-admin")).setExecutor(new CmdRtpAdmin(Util.getImpliedMap(cmdMap, "rtp-admin")));
         loadRandomTeleporter(); //DON'T REMOVE THIS LINE, THE MAJORITY OF THE FUNCTIONALITY COMES FROM IT
 
 
@@ -72,9 +74,10 @@ public final class PluginMain extends JavaPlugin {
     public void loadRandomTeleporter() {
         this.reloadConfig();
         try {
-            RandomTeleporter theRandomTeleporter = new RandomTeleporter(this.getConfig());
-            getCommand("rtp").setExecutor(theRandomTeleporter);
-            getServer().getPluginManager().registerEvents(theRandomTeleporter,this);
+            HandlerList.unregisterAll(theRandomTeleporter);
+            theRandomTeleporter = new RandomTeleporter(this.getConfig());
+            Objects.requireNonNull(getCommand("rtp")).setExecutor(theRandomTeleporter);
+            getServer().getPluginManager().registerEvents(theRandomTeleporter, this);
         } catch (Exception e) {
             plugin.getLogger().log(Level.WARNING, "RTP Command could not be loaded!");
             e.printStackTrace();
@@ -104,6 +107,6 @@ public final class PluginMain extends JavaPlugin {
     }
 
     public RandomTeleporter getRandomTeleporter() {
-        return (RandomTeleporter) getCommand("rtp").getExecutor();
+        return (RandomTeleporter) Objects.requireNonNull(getCommand("rtp")).getExecutor();
     }
 }

@@ -1,6 +1,8 @@
 rtp:
   playerName !dynamic:
+    force:
 rtp-admin:
   reload:
   status:
+    "#static":
     configName !dynamic:

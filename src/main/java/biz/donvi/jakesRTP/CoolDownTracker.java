@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 public class CoolDownTracker {
 
-    private HashMap<String, Long> tracker = new HashMap<>();
+    private final HashMap<String, Long> tracker = new HashMap<>();
     final long coolDownTime;
 
     /**
@@ -107,6 +107,20 @@ public class CoolDownTracker {
     String timeLeftWords(String playerName) {
         int days, hours, minutes, seconds;
         long millis = timeLeft(playerName);
+        seconds = (int) (millis / 1000) % 60;
+        minutes = (int) (millis / (1000 * 60)) % 60;
+        hours = (int) (millis / (1000 * 60 * 60)) % 24;
+        days = (int) (millis / (1000 * 60 * 60 * 24));
+        return (days > 0 ? days + " days, " : "") +
+               (hours > 0 ? hours + " hours, " : "") +
+               (minutes > 0 ? minutes + " minutes, " : "") +
+               (seconds > 0 ? seconds + " seconds." : "");
+    }
+    //TODO - Make this method and the one above use a method instead of having duplicate code
+    public String coolDownTime(){
+        if (coolDownTime == 0) return "None.";
+        int days, hours, minutes, seconds;
+        long millis = coolDownTime;
         seconds = (int) (millis / 1000) % 60;
         minutes = (int) (millis / (1000 * 60)) % 60;
         hours = (int) (millis / (1000 * 60 * 60)) % 24;
