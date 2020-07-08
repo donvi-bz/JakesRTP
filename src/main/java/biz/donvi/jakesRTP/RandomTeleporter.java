@@ -151,7 +151,7 @@ public class RandomTeleporter implements CommandExecutor, Listener {
                 //First, the world must be in the settings to become a candidate
                 if (playerWorld.equals(settingWorld) &&
                     //Then we check if the settings are usable from the command
-                    !settings.commandEnabled &&
+                    settings.commandEnabled &&
                     //Then we check the priority
                     (finSettings == null || finSettings.priority < settings.priority) &&
                     //Then we check if we require explicit perms
