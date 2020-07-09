@@ -55,7 +55,8 @@ public final class PluginMain extends JavaPlugin {
 
 
         //Register commands
-        Objects.requireNonNull(getCommand("rtp-admin")).setExecutor(new CmdRtpAdmin(Util.getImpliedMap(cmdMap, "rtp-admin")));
+        Objects.requireNonNull(getCommand("rtp-admin"))
+                .setExecutor(new CmdRtpAdmin(Util.getImpliedMap(cmdMap, "rtp-admin")));
         loadRandomTeleporter(); //DON'T REMOVE THIS LINE, THE MAJORITY OF THE FUNCTIONALITY COMES FROM IT
 
 
@@ -68,7 +69,9 @@ public final class PluginMain extends JavaPlugin {
 
     @Override
     public void onDisable() {
-
+        HandlerList.unregisterAll(theRandomTeleporter);
+        theRandomTeleporter = null;
+        defaultConfigVersion = null;
     }
 
     public void loadRandomTeleporter() {
