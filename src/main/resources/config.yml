@@ -3,7 +3,7 @@
 # - - - - - - - - - - - - - - - - - - - - - -
 # Old configs may not run correctly.
 # Please don't edit config-version.
-config-version: 1.8.2
+config-version: 1.9
 # Should the plugin try and load an old config? Whenever a change is made to the structure of the config, the
 #   version is increased. On startup, the plugin compares the version of the existing config to the version
 #   that it is expecting, and will either (a) attempt to load the older version of the config regardless of
@@ -24,6 +24,11 @@ rtp-on-death:         # Should a player get randomly teleported when they die?
   world: world
   respect-beds: true        # If true, the player will NOT be teleported if they have a valid home bed or anchor
   require-permission: true  # The permission node tied to this setting is jakesrtp.rtpondeath
+location-cache-filler:      # Should we cache RTP locations beforehand? Unless you specifically don't want this, it
+  enabled: true             #   should be enabled as it improves performance like crazy! Use Paper for best results.
+  recheck-time: 1800        # [The amount of] Time to wait before trying to refill the cache (In seconds)
+  between-time: 5           # Time to wait between each location search (In seconds)
+  async-wait-timeout: 5     # Time to wait for the completion of an async function (Mostly chunk loading) (In seconds) TODO IMPL
 # End of static settings. All settings below are modular
 # To use the modular rtp settings, simply copy and paste the 'random-teleport-settings default' section (including all
 #   child elements), change the name of the settings (ie, change 'default' to 'potato' or something), and your done!
@@ -77,4 +82,9 @@ random-teleport-settings default: # The name of this config section is 'default'
     x-z: 2       # Default: 2    | Max spots to check per attempt is equal to:
     vert: 2      # Default: 2    | (2*vert+1)*(2*(x-z)+1)^2
   max-attempts:  # If the random location, and all (by default 125) close spots are found to be unsafe,
-    value: 5     # how many attempts can we make? Minimum: 1; Default: 5
+    value: 10    # how many attempts can we make? Minimum: 1; Default: 10
+  #TODO - Implement the following settings ↓ (Currently, settings are read in)
+  preparations:  # Preparing spots to teleport to. Note: These will be ignored if the center is players location.
+    cache-locations: 10
+    keep-loaded-max: 10
+    keep-loaded-per: 2

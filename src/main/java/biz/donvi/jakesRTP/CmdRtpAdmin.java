@@ -33,7 +33,7 @@ public class CmdRtpAdmin implements TabExecutor, DynamicArgsMap {
         ArgsChecker argsChecker = new ArgsChecker(args);
 
         if (argsChecker.matches(true, "reload"))
-            PluginMain.plugin.loadRandomTeleporter();
+            subReload();
         else if (argsChecker.matches(true, "status", null))
             subStatus(sender, argsChecker.getRemainingArgs());
         else if (argsChecker.matches(true, "test"))
@@ -56,6 +56,11 @@ public class CmdRtpAdmin implements TabExecutor, DynamicArgsMap {
             default:
                 throw new Exception("Path led nowhere: " + path);
         }
+    }
+
+    private void subReload(){
+        PluginMain.plugin.loadRandomTeleporter();
+        PluginMain.plugin.loadLocationCacheFiller();
     }
 
 
@@ -121,7 +126,7 @@ public class CmdRtpAdmin implements TabExecutor, DynamicArgsMap {
                     COLOR_IL[0] + "┃ [J-RTP] " + COLOR_IL[1] + "Displaying config: " + COLOR_IL[2] + args[0] + "\n" +
                     COLOR_IL[0] + "┣\u00A7l\u00A7m╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍\u00A7r\n" +
                     COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Enabled worlds: " + COLOR_IL[2] + settings.getWorldsAsString() + "\n" +
-                    COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Region shape: " + COLOR_IL[2] + settings.getRtpRegionShapeAsString() + "\n" +
+                    COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Region shape: " + COLOR_IL[2] + settings.rtpRegionShape.toString() + "\n" +
                     COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Region center: " + COLOR_IL[2] + settings.getRtpRegionCenterAsString(true) + "\n" +
                     COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Radius min: " + COLOR_IL[2] + settings.minRadius +
                     COLOR_IL[0] + " ┃ " + COLOR_IL[1] + "Radius max: " + COLOR_IL[2] + settings.maxRadius + "\n" +

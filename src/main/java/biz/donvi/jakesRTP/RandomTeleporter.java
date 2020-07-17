@@ -1,6 +1,8 @@
 package biz.donvi.jakesRTP;
 
 import biz.donvi.evenDistribution.RandomCords;
+import io.papermc.lib.PaperLib;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -15,8 +17,10 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Queue;
 
 import static biz.donvi.jakesRTP.PluginMain.infoLog;
+import static biz.donvi.jakesRTP.PluginMain.plugin;
 
 public class RandomTeleporter implements CommandExecutor, Listener {
 
@@ -33,6 +37,8 @@ public class RandomTeleporter implements CommandExecutor, Listener {
     public final boolean onDeathRequirePermission;
     public final RtpSettings onDeathSettings;
     public final World onDeathWorld;
+
+    public final int asyncWaitTimeout;
 
 
     public ArrayList<RtpSettings> getRtpSettings() {
@@ -71,21 +77,20 @@ public class RandomTeleporter implements CommandExecutor, Listener {
             firstJoinSettings = getRtpSettingsByName(config.getString("rtp-on-first-join.settings"));
             World world = PluginMain.plugin.getServer().getWorld(
                     Objects.requireNonNull(config.getString("rtp-on-first-join.world")));
-            if (firstJoinSettings.configWorlds.contains(world))
+            if (firstJoinSettings.getConfigWorlds().contains(world))
                 firstJoinWorld = world;
             else throw new Exception("The RTP first join world is not an enabled world in the config's settings!");
         } else {
             firstJoinSettings = null;
             firstJoinWorld = null;
         }
-
         if (onDeathRtp = config.getBoolean("rtp-on-death.enabled")) {
             onDeathRespectBeds = config.getBoolean("rtp-on-death.respect-beds");
             onDeathSettings = getRtpSettingsByName(config.getString("rtp-on-death.settings"));
             onDeathRequirePermission = config.getBoolean("rtp-on-death.require-permission");
             World world = PluginMain.plugin.getServer().getWorld(
                     Objects.requireNonNull(config.getString("rtp-on-death.world")));
-            if (onDeathSettings.configWorlds.contains(world))
+            if (onDeathSettings.getConfigWorlds().contains(world))
                 onDeathWorld = world;
             else throw new Exception("The RTP first join world is not an enabled world in the config's settings!");
         } else {
@@ -94,6 +99,9 @@ public class RandomTeleporter implements CommandExecutor, Listener {
             onDeathSettings = null;
             onDeathWorld = null;
         }
+        if (config.getBoolean("location-cache-filler.enabled"))
+            asyncWaitTimeout = config.getInt("location-cache-filler.async-wait-timeout",5);
+        else asyncWaitTimeout = 1; //Yes a hard coded default. If set to 0 and accidentally used, there would be issues.
     }
 
 
@@ -108,7 +116,7 @@ public class RandomTeleporter implements CommandExecutor, Listener {
     public RtpSettings getRtpSettingsByWorld(World world) throws NotPermittedException {
         RtpSettings finSettings = null;
         for (RtpSettings settings : rtpSettings)
-            for (World settingWorld : settings.configWorlds)
+            for (World settingWorld : settings.getConfigWorlds())
                 if (world.equals(settingWorld) && (
                         finSettings == null
                         || finSettings.priority < settings.priority)
@@ -117,7 +125,7 @@ public class RandomTeleporter implements CommandExecutor, Listener {
                     break;
                 }
         if (finSettings != null) return finSettings;
-        else throw new NotPermittedException("RTP is not enabled in this world.");
+        else throw new NotPermittedException("RTP is not enabled in this world. ~ECW");
     }
 
 
@@ -147,7 +155,7 @@ public class RandomTeleporter implements CommandExecutor, Listener {
         RtpSettings finSettings = null;
         World playerWorld = player.getWorld();
         for (RtpSettings settings : rtpSettings)
-            for (World settingWorld : settings.configWorlds)
+            for (World settingWorld : settings.getConfigWorlds())
                 //First, the world must be in the settings to become a candidate
                 if (playerWorld.equals(settingWorld) &&
                     //Then we check if the settings are usable from the command
@@ -161,7 +169,7 @@ public class RandomTeleporter implements CommandExecutor, Listener {
                     break;
                 }
         if (finSettings != null) return finSettings;
-        else throw new NotPermittedException("RTP is not enabled in this world.");
+        else throw new NotPermittedException("RTP is not enabled in this world. ~ECP");
     }
 
     /**
@@ -244,18 +252,30 @@ public class RandomTeleporter implements CommandExecutor, Listener {
      * Keeps getting potential teleport locations until one has been found.
      * A fail-safe is included to throw an exception if too many unsuccessful attempts have been made.
      *
-     * @param player
-     * @param force
+     * @param player        The player to teleport. This is important as it lets us know which {@code RtpSettings} to
+     *                      use, and in the case that the teleport is relative to the player, it also gives the
+     *                      player's location.
+     * @param force         Should we "forcefully" teleport the player? Forceful teleporting <em>bypasses</em> any
+     *                      permission or command checks when teleporting, meaning that the player will teleport
+     *                      regardless of whether they have permission to or not or whether the settings can be used
+     *                      through a command.
+     * @param takeFromQueue Should we attempt to take the location from the queue before finding one on the spot?
+     *                      <p> - Set to {@code true} if all you care about is teleporting the player, as this method
+     *                      will fall back to using a Location not from the queue if required.
+     *                      <p> - Set to {@code false} if you are filling the queue,
+     *                      or it is known that the queue is empty.
      * @return A random location that can be safely teleported to by a player.
      * @throws Exception
      */
-    public Location getRtpLocation(Player player, boolean force) throws Exception {
+    public Location getRtpLocation(Player player, boolean force, boolean takeFromQueue) throws Exception {
         if (force) return getRtpLocation(
                 getRtpSettingsByWorld(player.getWorld()),
-                player.getLocation());
+                player.getLocation(),
+                takeFromQueue);
         else return getRtpLocation(
                 getRtpSettingsByWorldForPlayer(player),
-                player.getLocation());
+                player.getLocation(),
+                takeFromQueue);
     }
 
     /**
@@ -263,44 +283,93 @@ public class RandomTeleporter implements CommandExecutor, Listener {
      * A fail-safe is included to throw an exception if too many unsuccessful attempts have been made.
      * This method can bypass explicit permission checks.
      *
-     * @param rtpSettings The specific RtpSettings to get the location with.
-     * @param callFromLoc The location that the call originated from. Used to find the world spawn,
-     *                    or player's current location.
+     * @param rtpSettings   The specific RtpSettings to get the location with.
+     * @param callFromLoc   The location that the call originated from. Used to find the world spawn,
+     *                      or player's current location.
+     * @param takeFromQueue Should we attempt to take the location from the queue before finding one on the spot?
+     *                      <p> - Set to {@code true} if all you care about is teleporting the player, as this method
+     *                      will fall back to using a Location not from the queue if required.
+     *                      <p> - Set to {@code false} if you are filling the queue, or it is known that the queue is empty.
      * @return A random location that can be safely teleported to by a player.
      * @throws Exception Only two points of this code are expected to be able to throw an exception:
      *                   getWorldRtpSettings() will throw an exception if the world is not RTP enabled.
      *                   getRtpXZ() will throw an exception if the rtp shape is not defined.
      */
-    public Location getRtpLocation(RtpSettings rtpSettings, Location callFromLoc) throws Exception {
-        long timeStart = System.currentTimeMillis();
-        infoLog("Player used RTP. Finding location...");
+    public Location getRtpLocation(RtpSettings rtpSettings, Location callFromLoc, boolean takeFromQueue) throws Exception {
+        if (!rtpSettings.getConfigWorlds().contains(callFromLoc.getWorld()))
+            throw new NotPermittedException("RTP is not enabled in this world. ~ECG");
 
-        Location potentialRtpLocation;
-        int randAttemptCount = 0;
-        do {
-            potentialRtpLocation = getPotentialRtpLocation(callFromLoc, rtpSettings);
-            if (randAttemptCount++ > rtpSettings.maxAttempts)
-                throw new NotPermittedException("Too many failed attempts.");
-        } while (
-                !new SafeLocationFinder(
-                        potentialRtpLocation,
-                        rtpSettings.checkRadiusXZ,
-                        rtpSettings.checkRadiusVert,
-                        rtpSettings.lowBound
-                ).tryAndMakeSafe()
-        );
-        infoLog("Location chosen:" +
-                " (" + potentialRtpLocation.getX() +
-                ", " + potentialRtpLocation.getY() +
-                ", " + potentialRtpLocation.getZ() +
-                ") in world " + Objects.requireNonNull(potentialRtpLocation.getWorld()).getName());
+        else if (takeFromQueue && rtpSettings.useLocationQueue) {
+            Location preselectedLocation = rtpSettings.getLocationQueue(callFromLoc.getWorld()).poll();
+            if (preselectedLocation != null) {
+                plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin,
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                PluginMain.locFinderRunnable.syncNotify();
+                            }
+                        }, 100);
+                return preselectedLocation;
+            } else return getRtpLocation(rtpSettings, callFromLoc, false);
 
-        long timeElapsed = System.currentTimeMillis() - timeStart;
-        infoLog("Location found in " + timeElapsed + " milliseconds after " + randAttemptCount + " attempt(s).");
-        if (timeElapsed > 1000)
-            infoLog("Note: long search times are mostly caused by the server generating and loading new areas.");
-        return potentialRtpLocation;
 
+        } else {
+            long timeStart = System.currentTimeMillis();
+            infoLog("Player used RTP. Finding location...");
+
+            Location potentialRtpLocation;
+            int randAttemptCount = 0;
+            do {
+                potentialRtpLocation = getPotentialRtpLocation(callFromLoc, rtpSettings);
+                if (randAttemptCount++ > rtpSettings.maxAttempts)
+                    throw new NotPermittedException("Too many failed attempts.");
+            } while (
+                    Bukkit.isPrimaryThread() ?
+                            !new SafeLocationFinder(
+                                    potentialRtpLocation,
+                                    rtpSettings.checkRadiusXZ,
+                                    rtpSettings.checkRadiusVert,
+                                    rtpSettings.lowBound
+                            ).tryAndMakeSafe() :
+                            !new SafeLocationFinderOtherThread(
+                                    potentialRtpLocation,
+                                    rtpSettings.checkRadiusXZ,
+                                    rtpSettings.checkRadiusVert,
+                                    rtpSettings.lowBound,
+                                    asyncWaitTimeout
+                            ).tryAndMakeSafe()
+            );
+            infoLog("Location chosen:" +
+                    " (" + potentialRtpLocation.getX() +
+                    ", " + potentialRtpLocation.getY() +
+                    ", " + potentialRtpLocation.getZ() +
+                    ") in world " + Objects.requireNonNull(potentialRtpLocation.getWorld()).getName());
+
+            long timeElapsed = System.currentTimeMillis() - timeStart;
+            infoLog("Location found in " + timeElapsed + " milliseconds after " + randAttemptCount + " attempt(s).");
+            if (timeElapsed > 1000)
+                infoLog("Note: long search times are mostly caused by the server generating and loading new areas.");
+            return potentialRtpLocation;
+        }
+
+    }
+
+    public int fillQueue(RtpSettings settings, World world) throws NotPermittedException {
+        try {
+            int changesMade = 0;
+            for (Queue<Location> locationQueue = settings.getLocationQueue(world);
+                 locationQueue.size() < settings.cacheLocationCount;
+                 changesMade++
+            ) {
+                PluginMain.locFinderRunnable.waitIfNonMainThread();
+                locationQueue.add(getRtpLocation(settings, world.getSpawnLocation(), false));
+            }
+            return changesMade;
+        } catch (Exception exception) {
+            if (exception instanceof NotPermittedException) throw (NotPermittedException) exception;
+            else exception.printStackTrace();
+            return 0;
+        }
     }
 
     /**
@@ -318,9 +387,8 @@ public class RandomTeleporter implements CommandExecutor, Listener {
                 long callTime = System.currentTimeMillis();
 
                 CoolDownTracker coolDownTracker = getRtpSettingsByWorldForPlayer(player).coolDown;
-
                 if (player.hasPermission("jakesRtp.noCooldown") || coolDownTracker.check(player.getName())) {
-                    player.teleport(getRtpLocation(player, false));
+                    PaperLib.teleportAsync(player, getRtpLocation(player, false, true));
                     coolDownTracker.log(player.getName(), callTime);
                 } else {
                     player.sendMessage("Need to wait for cooldown: " + coolDownTracker.timeLeftWords(player.getName()));
@@ -335,8 +403,7 @@ public class RandomTeleporter implements CommandExecutor, Listener {
                 Player playerToTp = sender.getServer().getPlayerExact(args[0]);
                 if (playerToTp == null)
                     sender.sendMessage("Could not find player " + args[0]);
-                else playerToTp.teleport(
-                        getRtpLocation(playerToTp, true));
+                else PaperLib.teleportAsync(playerToTp, getRtpLocation(playerToTp, true, true));
             }
 
 
@@ -360,10 +427,12 @@ public class RandomTeleporter implements CommandExecutor, Listener {
     public void playerJoin(PlayerJoinEvent event) {
         if (!firstJoinRtp || event.getPlayer().hasPlayedBefore()) return;
         try {
-            event.getPlayer().teleport(
+            PaperLib.teleportAsync(
+                    event.getPlayer(),
                     getRtpLocation(
                             firstJoinSettings,
-                            firstJoinWorld.getSpawnLocation()
+                            firstJoinWorld.getSpawnLocation(),
+                            true
                     ));
         } catch (Exception e) {
             e.printStackTrace();
@@ -380,7 +449,8 @@ public class RandomTeleporter implements CommandExecutor, Listener {
             event.setRespawnLocation(
                     getRtpLocation(
                             onDeathSettings,
-                            onDeathWorld.getSpawnLocation() /*TODO~Decide: Do I want the player's death location instead? */
+                            onDeathWorld.getSpawnLocation(), /*TODO~Decide: Do I want the player's death location instead? */
+                            true
                     ));
         } catch (Exception e) {
             e.printStackTrace();

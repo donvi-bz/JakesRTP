@@ -6,7 +6,7 @@
 
     <groupId>biz.donvi</groupId>
     <artifactId>JakesRtp</artifactId>
-    <version>0.6.1</version>
+    <version>0.7</version>
     <build>
         <plugins>
             <plugin>
@@ -27,11 +27,10 @@
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
-<!--        <repository>-->
-<!--            <id>minecraft-libraries</id>-->
-<!--            <name>Minecraft Libraries</name>-->
-<!--            <url>https://libraries.minecraft.net</url>-->
-<!--        </repository>-->
+        <repository>
+            <id>papermc</id>
+            <url>https://papermc.io/repo/repository/maven-public/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -41,17 +40,12 @@
             <version>1.16.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>me.lucko</groupId>-->
-<!--            <artifactId>commodore</artifactId>-->
-<!--            <version>1.5</version>-->
-<!--            <scope>compile</scope>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>com.mojang</groupId>-->
-<!--            <artifactId>brigadier</artifactId>-->
-<!--            <version>1.0.17</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>io.papermc</groupId>
+            <artifactId>paperlib</artifactId>
+            <version>1.0.4</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
 

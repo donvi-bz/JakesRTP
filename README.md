@@ -120,7 +120,7 @@ The examples displayed are just to give an idea of what the settings can do.
 ![Image](pics/distributionExamples.png "icon")
 
 
-####Here are some settings that I like.
+#### Here are some settings that I like.
 Both of these have a relatively consistent distribution towards the middle and inside (while still leaving a gap for spawn),
 but they also make it so that player will _not_ frequently be placed near the max distance. 
 While the distribution of rtp locations is not something people tent to focus much on, it may still be fun to get that

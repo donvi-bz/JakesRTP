@@ -20,9 +20,11 @@ public final class PluginMain extends JavaPlugin {
     public static PluginMain plugin;
     static Logger logger;
     static Map<String, Object> cmdMap;
+    static LocationCacheFiller locFinderRunnable;
 
     private RandomTeleporter theRandomTeleporter;
     private String defaultConfigVersion = null;
+
 
     @Override
     public void onEnable() {
@@ -58,7 +60,7 @@ public final class PluginMain extends JavaPlugin {
         Objects.requireNonNull(getCommand("rtp-admin"))
                 .setExecutor(new CmdRtpAdmin(Util.getImpliedMap(cmdMap, "rtp-admin")));
         loadRandomTeleporter(); //DON'T REMOVE THIS LINE, THE MAJORITY OF THE FUNCTIONALITY COMES FROM IT
-
+        loadLocationCacheFiller(); //DON'T REMOVE THIS LINE, IT IS REQUIRED FOR LOCATION CACHING TO WORK
 
         System.out.println("Loading complete.");
     }
@@ -72,6 +74,7 @@ public final class PluginMain extends JavaPlugin {
         HandlerList.unregisterAll(theRandomTeleporter);
         theRandomTeleporter = null;
         defaultConfigVersion = null;
+        locFinderRunnable.markAsOver();
     }
 
     public void loadRandomTeleporter() {
@@ -84,6 +87,20 @@ public final class PluginMain extends JavaPlugin {
         } catch (Exception e) {
             plugin.getLogger().log(Level.WARNING, "RTP Command could not be loaded!");
             e.printStackTrace();
+        }
+    }
+
+    public void loadLocationCacheFiller() {
+        //First end the current runnable if it exists
+        if (locFinderRunnable != null) locFinderRunnable.markAsOver();
+        //Then load up a new runnable
+        if (getConfig().getBoolean("location-cache-filler.enabled")) {
+            System.out.println("Setting up the location caching system.");
+            new Thread(locFinderRunnable = new LocationCacheFiller(
+                    this,
+                    getConfig().getInt("location-cache-filler.recheck-time") * 1000,
+                    getConfig().getInt("location-cache-filler.between-time") * 1000
+            ), "J-RTP LCF").start();
         }
     }
 
