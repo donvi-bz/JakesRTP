@@ -94,12 +94,12 @@ public final class PluginMain extends JavaPlugin {
         //First end the current runnable if it exists
         if (locFinderRunnable != null) locFinderRunnable.markAsOver();
         //Then load up a new runnable
-        if (getConfig().getBoolean("location-cache-filler.enabled")) {
+        if (getConfig().getBoolean("location-cache-filler.enabled",true)) {
             System.out.println("Setting up the location caching system.");
             new Thread(locFinderRunnable = new LocationCacheFiller(
                     this,
-                    getConfig().getInt("location-cache-filler.recheck-time") * 1000,
-                    getConfig().getInt("location-cache-filler.between-time") * 1000
+                    getConfig().getInt("location-cache-filler.recheck-time", 2) * 1000,
+                    getConfig().getInt("location-cache-filler.between-time", 2) * 1000
             ), "J-RTP LCF").start();
         }
     }

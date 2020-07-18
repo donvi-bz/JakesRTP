@@ -52,12 +52,12 @@ public class RtpSettings {
     RtpSettings(final ConfigurationSection config, String name) throws Exception {
         this.name = name;
         infoLog("Loading random teleporter...");
-        commandEnabled = config.getBoolean("command-enabled");
-        requireExplicitPermission = config.getBoolean("require-explicit-permission");
-        priority = (float) config.getDouble("priority");
-        cacheLocationCount = config.getInt("preparations.cache-locations");
-        chunkKeepLoadedCountMax = config.getInt("preparations.keep-loaded-max");
-        chunkKeepLoadedCountPer = config.getInt("preparations.keep-loaded-per");
+        commandEnabled = config.getBoolean("command-enabled", true);
+        requireExplicitPermission = config.getBoolean("require-explicit-permission", false);
+        priority = (float) config.getDouble("priority", 1f);
+        cacheLocationCount = config.getInt("preparations.cache-locations", 10);
+        chunkKeepLoadedCountMax = config.getInt("preparations.keep-loaded-max", 10);
+        chunkKeepLoadedCountPer = config.getInt("preparations.keep-loaded-per", 2);
         for (String worldName : config.getStringList("enabled-worlds"))
             try {
                 configWorlds.put(
@@ -68,21 +68,21 @@ public class RtpSettings {
             }
         rtpRegionShape = RtpRegionShape.values()[config.getString(
                 "shape.value").toLowerCase().charAt(0) - 'a'];
-        maxRadius = config.getInt("defining-points.radius-center.radius.max");
-        minRadius = config.getInt("defining-points.radius-center.radius.min");
+        maxRadius = config.getInt("defining-points.radius-center.radius.max", 2000);
+        minRadius = config.getInt("defining-points.radius-center.radius.min", 1000);
         centerLocation = CenterAllowedValues.values()[config.getString(
                 "defining-points.radius-center.center.value").toLowerCase().charAt(0) - 'a'];
-        centerX = config.getInt("defining-points.radius-center.center.x");
-        centerZ = config.getInt("defining-points.radius-center.center.z");
-        if (config.getBoolean("defining-points.radius-center.gaussian-distribution.enabled")) {
-            gaussianShrink = config.getDouble("defining-points.radius-center.gaussian-distribution.shrink");
-            gaussianCenter = config.getDouble("defining-points.radius-center.gaussian-distribution.center");
+        centerX = config.getInt("defining-points.radius-center.center.x", 0);
+        centerZ = config.getInt("defining-points.radius-center.center.z", 0);
+        if (config.getBoolean("defining-points.radius-center.gaussian-distribution.enabled", false)) {
+            gaussianShrink = config.getDouble("defining-points.radius-center.gaussian-distribution.shrink", 4);
+            gaussianCenter = config.getDouble("defining-points.radius-center.gaussian-distribution.center", 0.25);
         } else gaussianShrink = gaussianCenter = 0;
-        coolDown = new CoolDownTracker(config.getInt("cooldown.seconds"));
-        lowBound = config.getInt("low-bound.value");
-        checkRadiusXZ = config.getInt("check-radius.x-z");
-        checkRadiusVert = config.getInt("check-radius.vert");
-        maxAttempts = config.getInt("max-attempts.value");
+        coolDown = new CoolDownTracker(config.getInt("cooldown.seconds", 30));
+        lowBound = config.getInt("low-bound.value", 48);
+        checkRadiusXZ = config.getInt("check-radius.x-z", 2);
+        checkRadiusVert = config.getInt("check-radius.vert", 2);
+        maxAttempts = config.getInt("max-attempts.value", 10);
         //Some important finalization work.
         useLocationQueue = centerLocation != CenterAllowedValues.PLAYER_LOCATION &&
                            cacheLocationCount > 0;
