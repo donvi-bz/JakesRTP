@@ -11,7 +11,7 @@ What does it do? • Teleports a player to a random location by when they type `
 * The minimum distance to take a player from the center
 * Where the random teleport is centered...
     * At the world's spawn
-    * At the players current location
+    * At the players current location`
     * At a specific x and z
 * Will the locations be chosen such that they are evenly distributed or with a Gaussian distribution...
 * If Gaussian distribution is enabled, these settings can be used:
@@ -27,90 +27,11 @@ What does it do? • Teleports a player to a random location by when they type `
 
 Oh, and if you want more than one config, you just copy and paste the config section, change the name, and suddenly you have 2! An example of this is sitting at the bottom of the default generated config.
 
-## The config (and all its documentation) ~ _Config v1.8.2_
-```yaml
-# - - - - - - - - - - - - - - - - - - - - - -
-# → JakesRTP Config!  Have fun configuring! ←
-# - - - - - - - - - - - - - - - - - - - - - -
-# Old configs may not run correctly.
-# Please don't edit config-version.
-config-version: 1.8.2
-# Should the plugin try and load an old config? Whenever a change is made to the structure of the config, the
-#   version is increased. On startup, the plugin compares the version of the existing config to the version
-#   that it is expecting, and will either (a) attempt to load the older version of the config regardless of
-#   if the versions match, or (b) back up the existing config, and load the new one in its place.
-# If this is set to true, there is a large chance that the plugin will crash on load, BUT that may actually be
-#   the preferred course of action as it makes it very apparent that the config needs to be updated. Then it
-#   can be temporarily set to false so that the plugin can load in the new config, and all the old values that
-#   still apply can be copied over.
-run-old-configs: false
-# ↑ IMPORTANT SETTING ↑
-rtp-on-first-join:    # Should new players get randomly teleported when they first join?
-  enabled: false      # If this is false, they will not, and the values of 'world' and 'settings' will not be read.
-  settings: default   # The rtp settings by name to teleport the player with.
-  world: world        # The world the player will land in. This world MUST be included in the settings enabled worlds.
-rtp-on-death:         # Should a player get randomly teleported when they die?
-  enabled: false      # These settings follow the same structure as the settings above.
-  settings: default
-  world: world
-  respect-beds: true        # If true, the player will NOT be teleported if they have a valid home bed or anchor
-  require-permission: true  # The permission node tied to this setting is jakesrtp.rtpondeath
-# End of static settings. All settings below are modular
-# To use the modular rtp settings, simply copy and paste the 'random-teleport-settings default' section (including all
-#   child elements), change the name of the settings (ie, change 'default' to 'potato' or something), and your done!
-random-teleport-settings default: # The name of this config section is 'default', each section must have a unique name
-  # Should we load this config? If false, this config will not be usable anywhere.
-  # For finer control, enable or disable command-enabled and require-explicit-permission.
-  enabled: true
-  # Can a player use this config with `/rtp`?
-  # Set to false if you plan on having this config exclusively for rtp-on-first-join or rtp-on-death.
-  command-enabled: true
-  # The player will only be able to use this config if they have the permission:
-  #   'jakesrtp.use.[name]' where the default config would be 'jakesrtp.use.default'.
-  # This setting is most useful when there are overlapping configurations
-  require-explicit-permission: false # TODO - Implement this fully. (Currently only recognised in commands)
-  # The priority of the config. Higher priority are preferred over lower ones.
-  # Only useful if there are overlapping configurations (multiple configs that include the same worlds).
-  priority: 1
-  # Which worlds will this configuration apply to?
-  # The nether is not currently supported. The end works, but is inefficient and requires a higher max-attempt value.
-  enabled-worlds:
-    - world
-    - yer  # You can remove this one, it's here as an example
-  shape:
-    allowed-values:
-      a: "Square (radius & center)"
-      b: "Circle (radius & center)"
-    value: a
-  defining-points:
-    radius-center:
-      radius:
-        max: 2000
-        min: 1000
-      center:
-        allowed-values:
-          a: "World spawn"
-          b: "Player's current location"
-          c: "The x and z as set in config"
-        value: a
-        x: 0
-        z: 0
-      gaussian-distribution:  # Enabling this will make the points no longer evenly distributed, but instead follow
-        enabled: false        # a gaussian centered between the min and max radius (represented by setting center to
-        shrink: 4             # 0 for min, 1 for max, or anything in between). Shrink makes the distribution denser,
-        center: 0.25          # my preference is to keep it near 3 for a center of 0 or 1, and 6 for a center of 0.5
-  cooldown:      # Cooldown between uses. Can be bypassed with permission node jakesrtp.nocooldown
-    seconds: 30  # Default: 30
-  ############## # Everything past this point in the config probably does not need to get changed
-  low-bound:     # The lowest point a player can be RTP'd to.
-    value: 48    # Default: 48
-  check-radius:  # How many blocks away from the initial spot to check.
-    x-z: 2       # Default: 2    | Max spots to check per attempt is equal to:
-    vert: 2      # Default: 2    | (2*vert+1)*(2*(x-z)+1)^2
-  max-attempts:  # If the random location, and all (by default 125) close spots are found to be unsafe,
-    value: 5     # how many attempts can we make? Minimum: 1; Default: 5
+## The config (and all its documentation)
 
-```
+Go [here](src/main/resources/config.yml) for the config,
+or [here](doc/config.md)
+
 
 ## Random points examples
 The random coordinate generator I made for this plugin does a real good job at evenly distributing points over an area, assuming you _want_ them to be distributed evenly.
@@ -129,7 +50,7 @@ one off rtp that takes you further out that most others do.
 | Using a circle...       | Using a square...       |
 | ----------------------- | ----------------------- |
 | ![Image](pics/x%20Circle%20250%20to%201000%20-%20Normal%20distribution%20(4-0.25).png "icon") | ![Image](pics/x%20Square%20250%20to%201000%20-%20Normal%20distribution%20(4-0.25).png "icon") |
-###### All images were made with points generated by the plugin, but plotted with gnuPlot.
+###### All images made with points generated by the plugin, and plotted with gnuPlot.
 
 ## Permissions
 * jakesrtp.use
@@ -147,6 +68,9 @@ one off rtp that takes you further out that most others do.
 * jakesrtp.admin
     * description: Allows the usage of the "/rtp-admin" command.
     * default: op
+    
+Please go [here](src/main/resources/config.yml) for the config.
+
 
 ## Commands
 `/rtp` and `/wild` both make the user randomly teleport  

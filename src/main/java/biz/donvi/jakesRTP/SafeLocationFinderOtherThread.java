@@ -50,24 +50,15 @@ public class SafeLocationFinderOtherThread extends SafeLocationFinder {
      * @param loc The location to get the material for.
      */
     @Override
-    protected Material getLocMaterial(Location loc) {
-        try {
-            return locMatFromSnapshot(loc, getChunkForLocation(loc));
-        } catch (TimeoutException timeoutException) {
-            //Not passing the exception up further because: 1. Its difficult; 2. It reasonably should not be caught here
-            System.out.println("Request for chunk snapshot timed out.");
-            return Material.CAVE_AIR;
-        }
+    protected Material getLocMaterial(Location loc) throws Exception {
+        return locMatFromSnapshot(loc, getChunkForLocation(loc));
+
     }
 
     @Override
     protected void dropToGround() throws Exception {
-        try {
-            SafeLocationUtils.dropToGround(loc, lowBound, getChunkForLocation(loc));
-        } catch (TimeoutException timeoutException) {
-            System.out.println("Request for chunk snapshot timed out.");
-            throw timeoutException;
-        }
+        SafeLocationUtils.dropToGround(loc, lowBound, getChunkForLocation(loc));
+
     }
 
     private ChunkSnapshot getChunkForLocation(Location loc) throws TimeoutException {

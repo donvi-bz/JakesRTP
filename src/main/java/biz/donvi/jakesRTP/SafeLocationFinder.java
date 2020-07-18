@@ -3,6 +3,10 @@ package biz.donvi.jakesRTP;
 import org.bukkit.Location;
 import org.bukkit.Material;
 
+import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
+
+import static biz.donvi.jakesRTP.PluginMain.logger;
 import static biz.donvi.jakesRTP.SafeLocationUtils.requireMainThread;
 
 /**
@@ -66,17 +70,22 @@ public class SafeLocationFinder {
      * @throws Exception if this method was called from an object with no checking bounds.
      */
     public boolean tryAndMakeSafe() throws Exception {
-        if (!enableSelfChecking)
-            throw new Exception("Tried to use self checking on an object that can not self check.");
+        try {
+            if (!enableSelfChecking)
+                throw new Exception("Tried to use self checking on an object that can not self check.");
 
-        dropToGround();
+            dropToGround();
 
-        for (int i = 0, spiralArea = (int) Math.pow(checkRadiusXZ * 2 + 1, 2); i < spiralArea; i++)
-            if (checkSafety(checkRadiusVert)) {
-                loc.add(0.5, 1, 0.5);
-                loc.setYaw((float) (360f * Math.random()));
-                return true;
-            } else nextInSpiral();
+            for (int i = 0, spiralArea = (int) Math.pow(checkRadiusXZ * 2 + 1, 2); i < spiralArea; i++)
+                if (checkSafety(checkRadiusVert)) {
+                    loc.add(0.5, 1, 0.5);
+                    loc.setYaw((float) (360f * Math.random()));
+                    return true;
+                } else nextInSpiral();
+        } catch (TimeoutException e) {
+            logger.log(Level.WARNING, "Request to make location safe timed out. " +
+                                      "This is only an issue if this warning is common.");
+        }
         return false;
     }
 
@@ -87,8 +96,9 @@ public class SafeLocationFinder {
      * @param avm Allowed Vertical Movement - How much (up or down) can we look to find a safe spot.<p>
      *            Ex: if {@code avm = 1}, the block itself, 1 up, and 1 down will be checked.
      * @return True if the location is safe, false if it is not.
+     * @throws Exception if the location, and most likely all proceeding locations, can not be checked for safety.
      */
-    public final boolean checkSafety(int avm) {
+    public final boolean checkSafety(int avm) throws Exception {
         if (avm < 0) throw new IllegalArgumentException("Avm can not be less than 0.");
         //Make a temporary location so we don't edit the main one unless its safe.
         Location tempLoc = loc.clone().add(0, avm + 1, 0);
@@ -159,8 +169,10 @@ public class SafeLocationFinder {
      * small method to override instead of overriding the entire {@code checkSafety()} method.
      *
      * @param loc The location to get the material for.
+     * @throws Exception This method will never throw an exception, but it is important to allow overrides
+     *                   to be able to throw an exception if necessary
      */
-    protected Material getLocMaterial(Location loc) {
+    protected Material getLocMaterial(Location loc) throws Exception {
         requireMainThread();
         return loc.getBlock().getType();
     }
