@@ -86,7 +86,7 @@ public class RandomTeleporter implements CommandExecutor, Listener {
             firstJoinWorld = null;
         }
         if (onDeathRtp = config.getBoolean("rtp-on-death.enabled", false)) {
-            onDeathRespectBeds = config.getBoolean("rtp-on-death.respect-beds",true);
+            onDeathRespectBeds = config.getBoolean("rtp-on-death.respect-beds", true);
             onDeathSettings = getRtpSettingsByName(config.getString("rtp-on-death.settings"));
             onDeathRequirePermission = config.getBoolean("rtp-on-death.require-permission", true);
             World world = PluginMain.plugin.getServer().getWorld(
@@ -317,12 +317,17 @@ public class RandomTeleporter implements CommandExecutor, Listener {
      *                   getWorldRtpSettings() will throw an exception if the world is not RTP enabled.
      *                   getRtpXZ() will throw an exception if the rtp shape is not defined.
      */
-    public Location getRtpLocation(RtpSettings rtpSettings, Location callFromLoc, boolean takeFromQueue) throws Exception {
-        //Part 1: Quick error checking
+    public Location getRtpLocation(final RtpSettings rtpSettings, Location callFromLoc,
+                                   final boolean takeFromQueue) throws Exception {
+        //Part 1: Force destination world if not current world
+        if (rtpSettings.forceDestinationWorld && callFromLoc.getWorld() != rtpSettings.destinationWorld)
+            callFromLoc = rtpSettings.destinationWorld.getSpawnLocation();
+
+        //Part 2: Quick error checking
         if (!rtpSettings.getConfigWorlds().contains(callFromLoc.getWorld()))
             throw new NotPermittedException("RTP is not enabled in this world. ~ECG");
 
-        //Part 2 option 1: The Queue Route.
+        //Part 3 option 1: The Queue Route.
         //If we want to take from the queue and the queue is enabled, go here.
         if (takeFromQueue && rtpSettings.useLocationQueue) {
             Location preselectedLocation = rtpSettings.getLocationQueue(callFromLoc.getWorld()).poll();
@@ -342,7 +347,7 @@ public class RandomTeleporter implements CommandExecutor, Listener {
                 return getRtpLocation(rtpSettings, callFromLoc, false); /*Type: Recursive*/
         }
 
-        //Part 2 option 2: The Normal Route.
+        //Part 3 option 2: The Normal Route.
         //If we need to find a NEW location (meaning we can't use the queue), go here.
         else {
             Location potentialRtpLocation;

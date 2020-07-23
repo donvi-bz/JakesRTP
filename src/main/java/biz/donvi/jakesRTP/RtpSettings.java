@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 
 import static biz.donvi.jakesRTP.PluginMain.infoLog;
+import static biz.donvi.jakesRTP.PluginMain.plugin;
 import static biz.donvi.jakesRTP.RandomTeleporter.explicitPermPrefix;
 
 public class RtpSettings {
@@ -24,6 +25,8 @@ public class RtpSettings {
     public final boolean commandEnabled;
     public final boolean requireExplicitPermission;
     public final float priority;
+    public final boolean forceDestinationWorld;
+    public final World destinationWorld;
     public final RtpRegionShape rtpRegionShape;
     public final int maxRadius;
     public final int minRadius;
@@ -55,13 +58,19 @@ public class RtpSettings {
         commandEnabled = config.getBoolean("command-enabled", true);
         requireExplicitPermission = config.getBoolean("require-explicit-permission", false);
         priority = (float) config.getDouble("priority", 1f);
+        forceDestinationWorld = config.getBoolean("force-destination-world.enabled", false);
+        if (forceDestinationWorld) {
+            destinationWorld = plugin.getServer().getWorld(config.getString(
+                    "force-destination-world.destination", null));
+            configWorlds.putIfAbsent(destinationWorld,new ConcurrentLinkedQueue<>());
+        } else destinationWorld = null;
         cacheLocationCount = config.getInt("preparations.cache-locations", 10);
         chunkKeepLoadedCountMax = config.getInt("preparations.keep-loaded-max", 10);
         chunkKeepLoadedCountPer = config.getInt("preparations.keep-loaded-per", 2);
         for (String worldName : config.getStringList("enabled-worlds"))
             try {
                 configWorlds.put(
-                        Objects.requireNonNull(PluginMain.plugin.getServer().getWorld(worldName)),
+                        Objects.requireNonNull(plugin.getServer().getWorld(worldName)),
                         new ConcurrentLinkedQueue<>());
             } catch (NullPointerException e) {
                 PluginMain.logger.log(Level.WARNING, "![" + name + "] World " + worldName + " not recognised.");

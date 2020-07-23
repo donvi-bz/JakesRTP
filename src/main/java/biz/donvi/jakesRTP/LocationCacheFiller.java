@@ -24,15 +24,15 @@ public class LocationCacheFiller implements Runnable {
 
 
     @Override
-    public synchronized void run() {
+    public void run() {
         patientlyWait(1000);//Debug line, remove later.
         try {
             while (keepRunning && isPluginLoaded()) try {
                 ArrayList<Integer> qFills = new ArrayList<>();
                 for (RtpSettings settings : getCurrentRtpSettings())
-                    for (World world : settings.getConfigWorlds()) {
-                        qFills.add(pluginMain().getRandomTeleporter().fillQueue(settings, world));
-                    }
+                    for (World world : settings.getConfigWorlds())
+                        if (!settings.forceDestinationWorld || settings.destinationWorld == world)
+                            qFills.add(pluginMain().getRandomTeleporter().fillQueue(settings, world));
                 System.out.println(qFills); //Debug line, remove later
                 patientlyWait(recheckTime);
             } catch (NotPermittedException e) {
@@ -40,7 +40,7 @@ public class LocationCacheFiller implements Runnable {
                 e.printStackTrace();
             }
             System.out.println("LCF exiting"); //Debug line, remove later.
-        } catch (ReferenceNonExistentException ignored) {
+        } catch (Exception ignored) {
             System.out.println("Plugin no longer exists.");
         }
         System.out.println("Shutting location caching thread down.");
@@ -71,7 +71,7 @@ public class LocationCacheFiller implements Runnable {
     /**
      * Waits for the specified amount of time, returning either then the time has passed or an interrupt has occurred.
      */
-    private void patientlyWait(long milliseconds) {
+    private synchronized void patientlyWait(long milliseconds) {
         try {
             wait(milliseconds);
         } catch (InterruptedException ignored) { }

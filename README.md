@@ -30,7 +30,7 @@ Oh, and if you want more than one config, you just copy and paste the config sec
 ## The config (and all its documentation)
 
 Go [here](src/main/resources/config.yml) for the config,
-or [here](doc/config.md)
+or [here](doc/config.md) for extra information.
 
 
 ## Random points examples
