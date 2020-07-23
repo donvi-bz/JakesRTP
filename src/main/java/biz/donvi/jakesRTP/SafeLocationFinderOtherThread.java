@@ -64,22 +64,17 @@ public class SafeLocationFinderOtherThread extends SafeLocationFinder {
     private ChunkSnapshot getChunkForLocation(Location loc) throws TimeoutException {
         String chunkKey = loc.getBlockX() + " " + loc.getBlockZ();
         ChunkSnapshot chunkSnapshot = chunkSnapshotMap.get(chunkKey);
+        if (chunkSnapshot != null) return chunkSnapshot;
         try {
             chunkSnapshot = Bukkit.getScheduler().callSyncMethod(
                     PluginMain.plugin,
-                    new Callable<CompletableFuture<ChunkSnapshot>>() {
-                        @Override
-                        public CompletableFuture<ChunkSnapshot> call() {
-                            return PaperLib.getChunkAtAsync(loc).thenApply(Chunk::getChunkSnapshot);
-                        }
-                    }
+                    () -> PaperLib.getChunkAtAsync(loc).thenApply(Chunk::getChunkSnapshot)
             ).get(timeout, TimeUnit.SECONDS).get(timeout, TimeUnit.SECONDS);
             chunkSnapshotMap.put(chunkKey, chunkSnapshot);
         } catch (InterruptedException e) {
             System.out.println("Caught an unexpected interrupt.");
         } catch (ExecutionException e) {
             e.printStackTrace();
-
         }
         return chunkSnapshot;
     }

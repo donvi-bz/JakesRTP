@@ -458,16 +458,25 @@ public class RandomTeleporter implements CommandExecutor, Listener {
             /* - - - - - - - - - - - - - - - - - - - - - - - - - - *|
             |* - - If a player tries to RTP someone else - - - - - *|
             |* - - - - - - - - - - - - - - - - - - - - - - - - - - */
-            else if (args.length == 1 &&
-                     sender.hasPermission("jakesRtp.others")
-            ) {
+            else if (args.length >= 1 && args.length <= 2 && sender.hasPermission("jakesRtp.others")) {
                 Player playerToTp = sender.getServer().getPlayerExact(args[0]);
+                World destWorld = args.length < 2 ? null : GeneralUtil.getWorldIgnoreCase(sender.getServer(), args[1]);
                 if (playerToTp == null)
                     sender.sendMessage("Could not find player " + args[0]);
+                else if (args.length >= 2 && destWorld == null)
+                    sender.sendMessage("Could not find world" + args[1]);
                 else {
                     long startTime = System.currentTimeMillis();
 
-                    Location rtpLocation = getRtpLocation(playerToTp, true, true);
+                    Location rtpLocation = destWorld == null ?
+                            getRtpLocation(
+                                    playerToTp,
+                                    true,
+                                    true) :
+                            getRtpLocation(
+                                    getRtpSettingsByWorld(destWorld),
+                                    destWorld.getSpawnLocation(),
+                                    true);
                     PaperLib.teleportAsync(playerToTp, rtpLocation);
 
                     long endTime = System.currentTimeMillis();

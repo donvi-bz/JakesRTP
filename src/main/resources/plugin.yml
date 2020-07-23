@@ -2,7 +2,7 @@ name: JakesRTP
 author: JakeTS
 main: biz.donvi.jakesRTP.PluginMain
 prefix: 'J-RTP'
-version: '0.7.4'
+version: '0.7.5'
 api-version: '1.16'
 
 softdepend:
@@ -22,7 +22,7 @@ commands:
     description: 'All the admin functionality (of J-RTP) in its own place'
     permission: 'jakesrtp.admin'
     permission-message: 'Could not run command. Missing permission node: jakesrtp.admin'
-    useage: '/rtp-admin [reload]'
+    useage: '/rtp-admin [reload|status]'
 
 permissions:
   jakesrtp.use:
