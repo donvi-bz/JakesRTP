@@ -1,40 +1,6 @@
 # [J-RTP] Documentation ~ _config.yml_  
 ###### The even more in depth guide to configuring J-RTP  
-
-## Simplified Config  
-Because the plugin loads its default in place of missing values in the config, you can remove all the settings you do not plan on using.
-As an example, this config-section (named simple-config) has the majority of the settings removed, leaving only the most basic options visible.
-If you do not plan on making a crazy config, it may be simpler to use this as your template instead of the one in the config.yml.
-
-```yaml
-random-teleport-settings simple-config:
-  enabled: true
-  command-enabled: true
-  require-explicit-permission: false
-  priority: 1
-  enabled-worlds:
-    - world
-  shape:
-    value: a     # < a:square | b:circle >
-  defining-points:
-    radius-center:
-      radius:
-        max: 2000
-        min: 1000
-      center:
-        value: a # < a:spawn | b:player-location | c:preset-values >
-        x: 0     # Used for preset value only.
-        z: 0     # Used for preset value only.
-  cooldown:      # Cooldown between uses. Can be bypassed with permission node jakesrtp.nocooldown
-    seconds: 30  # Default: 30
-```
-If you need to add anything later on, 
-either go to the [config.yml](src/main/resources/config.yml) for a quick look at all the settings
-or keep reading here for all the settings _and_ a detailed description.
-
-## Detailed Description
-Work in progress.  
-Come back later.
+Go to the bottom of this page for the simplified config.
 
 ---
 ### `config-version`
@@ -91,3 +57,34 @@ you must say which world to spawn the player in.
 _<sub>Note: the world name IS case-sensitive, and it MUST be listed as an enabled world in the rtp-settings</sub>_
 
 ---
+
+# Simplified Config  
+Because the plugin loads its default in place of missing values in the config, you can remove all the settings you do not plan on using.
+As an example, this config-section (named simple-config) has the majority of the settings removed, leaving only the most basic options visible.
+If you do not plan on making a crazy config, it may be simpler to use this as your template instead of the one in the config.yml.
+
+```yaml
+random-teleport-settings simple-config:
+  enabled: true
+  command-enabled: true
+  require-explicit-permission: false
+  priority: 1
+  enabled-worlds:
+    - world
+  shape:
+    value: a     # < a:square | b:circle >
+  defining-points:
+    radius-center:
+      radius:
+        max: 2000
+        min: 1000
+      center:
+        value: a # < a:spawn | b:player-location | c:preset-values >
+        x: 0     # Used for preset value only.
+        z: 0     # Used for preset value only.
+  cooldown:      # Cooldown between uses. Can be bypassed with permission node jakesrtp.nocooldown
+    seconds: 30  # Default: 30
+```
+If you need to add anything later on, 
+either go to the [config.yml](src/main/resources/config.yml) for a quick look at all the settings
+or keep reading here for all the settings _and_ a detailed description.
