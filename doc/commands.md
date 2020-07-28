@@ -44,9 +44,9 @@ Permission: `jakesrtp.admin` defaults to: `op`
 
 | | ForceRtp Example 2 |
 | ---- | ---- | 
-| Usage       | `/rtp <playername> [worldName]`
+| Usage       | `/rtp <playername> <worldName>`
 | Permissions | `jakesrtp.use` & `jakesRtp.others`   
-| Description | This will teleport the given user randomly, acting as if they ran `/rtp` while standing in at the spawn point of the given world.
+| Description | This will teleport the given user randomly, acting as if they ran `/rtp` while standing at the spawn point of the given world.
 
 ## `/rtp-admin` - The general admin command for this plugin.
 
