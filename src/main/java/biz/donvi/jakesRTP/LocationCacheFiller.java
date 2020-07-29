@@ -27,23 +27,25 @@ public class LocationCacheFiller implements Runnable {
     public void run() {
         patientlyWait(1000);//Debug line, remove later.
         try {
-            while (keepRunning && isPluginLoaded()) try {
-                ArrayList<Integer> qFills = new ArrayList<>();
-                for (RtpSettings settings : getCurrentRtpSettings())
-                    for (World world : settings.getConfigWorlds())
-                        if (!settings.forceDestinationWorld || settings.destinationWorld == world)
-                            qFills.add(pluginMain().getRandomTeleporter().fillQueue(settings, world));
-                System.out.println(qFills); //Debug line, remove later
-                patientlyWait(recheckTime);
-            } catch (NotPermittedException e) {
-                System.out.println("[J-RTP] An exception has occurred that should be impossible to occur. Please report this.");
-                e.printStackTrace();
-            }
-            System.out.println("LCF exiting"); //Debug line, remove later.
+            while (keepRunning && isPluginLoaded())
+                try {
+                    ArrayList<Integer> qFills = new ArrayList<>();
+                    for (RtpSettings settings : getCurrentRtpSettings())
+                        for (World world : settings.getConfigWorlds())
+                            if (!settings.forceDestinationWorld || settings.destinationWorld == world)
+                                qFills.add(pluginMain().getRandomTeleporter().fillQueue(settings, world));
+                    patientlyWait(recheckTime);
+                } catch (JrtpBaseException ex) {
+                    if (ex instanceof NotPermittedException)
+                        PluginMain.infoLog("An exception has occurred that should be impossible to occur. Please report this.");
+                    else
+                        PluginMain.infoLog("Something has gone wrong, but this is most likely not an issue.");
+                    ex.printStackTrace();
+                }
         } catch (Exception ignored) {
-            System.out.println("Plugin no longer exists.");
+            System.out.println("[J-RTP] Plugin no longer exists.");
         }
-        System.out.println("Shutting location caching thread down.");
+        System.out.println("[J-RTP] Shutting location caching thread down.");
     }
 
     /**

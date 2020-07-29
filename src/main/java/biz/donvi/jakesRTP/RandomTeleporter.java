@@ -329,6 +329,9 @@ public class RandomTeleporter implements CommandExecutor, Listener {
 
         //Part 3 option 1: The Queue Route.
         //If we want to take from the queue and the queue is enabled, go here.
+        //TODO split this into two things:
+        // First is if location caching is turned off
+        // Second is if it can not be used because of a relative location. In this case we want to find a new pos async
         if (takeFromQueue && rtpSettings.useLocationQueue) {
             Location preselectedLocation = rtpSettings.getLocationQueue(callFromLoc.getWorld()).poll();
             if (preselectedLocation != null) {
@@ -355,7 +358,7 @@ public class RandomTeleporter implements CommandExecutor, Listener {
             do {
                 potentialRtpLocation = getPotentialRtpLocation(callFromLoc, rtpSettings);
                 if (randAttemptCount++ > rtpSettings.maxAttempts)
-                    throw new NotPermittedException("Too many failed attempts.");
+                    throw new JrtpBaseException("Too many failed attempts.");
             } while (
                     Bukkit.isPrimaryThread() ?
                             !new SafeLocationFinder(
@@ -391,7 +394,7 @@ public class RandomTeleporter implements CommandExecutor, Listener {
      * @throws NotPermittedException Should not realistically get thrown, but may occur if the world is not
      *                               enabled in the settings.
      */
-    public int fillQueue(RtpSettings settings, World world) throws NotPermittedException {
+    public int fillQueue(RtpSettings settings, World world) throws JrtpBaseException {
         try {
             int changesMade = 0;
             for (Queue<Location> locationQueue = settings.getLocationQueue(world);
@@ -413,7 +416,7 @@ public class RandomTeleporter implements CommandExecutor, Listener {
             }
             return changesMade;
         } catch (Exception exception) {
-            if (exception instanceof NotPermittedException) throw (NotPermittedException) exception;
+            if (exception instanceof JrtpBaseException) throw (JrtpBaseException) exception;
             else exception.printStackTrace();
             return 0;
         }

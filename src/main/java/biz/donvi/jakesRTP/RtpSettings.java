@@ -62,7 +62,7 @@ public class RtpSettings {
         if (forceDestinationWorld) {
             destinationWorld = plugin.getServer().getWorld(config.getString(
                     "force-destination-world.destination", null));
-            configWorlds.putIfAbsent(destinationWorld,new ConcurrentLinkedQueue<>());
+            configWorlds.putIfAbsent(destinationWorld, new ConcurrentLinkedQueue<>());
         } else destinationWorld = null;
         cacheLocationCount = config.getInt("preparations.cache-locations", 10);
         chunkKeepLoadedCountMax = config.getInt("preparations.keep-loaded-max", 10);
@@ -161,6 +161,13 @@ public class RtpSettings {
             if (i != 0) strb.append(" ");
             strb.append(worldsAsList[i].getName());
         }
+        return strb.toString();
+    }
+
+    public String getQueueSizesAsString() {
+        StringBuilder strb = new StringBuilder();
+        for (World world : configWorlds.keySet())
+            strb.append(world.getName()).append(" [").append(configWorlds.get(world).size()).append("] ");
         return strb.toString();
     }
 

@@ -36,8 +36,6 @@ public class CmdRtpAdmin implements TabExecutor, DynamicArgsMap {
             subReload();
         else if (argsChecker.matches(true, "status", null))
             subStatus(sender, argsChecker.getRemainingArgs());
-        else if (argsChecker.matches(true, "test"))
-            subTest(sender);
         else return false;
         return true;
     }
@@ -58,7 +56,7 @@ public class CmdRtpAdmin implements TabExecutor, DynamicArgsMap {
         }
     }
 
-    private void subReload(){
+    private void subReload() {
         PluginMain.plugin.loadRandomTeleporter();
         PluginMain.plugin.loadLocationCacheFiller();
     }
@@ -141,7 +139,11 @@ public class CmdRtpAdmin implements TabExecutor, DynamicArgsMap {
                     COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Command enabled: " + COLOR_IL[2] + settings.commandEnabled + "\n" +
                     COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Require explicit permission: " +
                     COLOR_IL[2] + settings.requireExplicitPermission + " \u00A7o[" + explicitPermPrefix + settings.name + "]\u00A7r\n" +
-                    COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Priority: " + COLOR_IL[2] + settings.priority + "\n"
+                    COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Priority: " + COLOR_IL[2] + settings.priority + "\n" +
+                    COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Location cache count: " + COLOR_IL[2] + settings.cacheLocationCount +
+                    (settings.cacheLocationCount == 0 ? "\n" :
+                            COLOR_IL[0] + " ┃ " + COLOR_IL[1] + "Actual: \n" +
+                            COLOR_IL[0] + "┃ • " + COLOR_IL[2] + settings.getQueueSizesAsString())
             );
         } catch (Exception e) {
             sender.sendMessage(
@@ -151,19 +153,4 @@ public class CmdRtpAdmin implements TabExecutor, DynamicArgsMap {
 
     }
 
-    private void subTest(CommandSender sender) {
-        TextComponent tempComponent = new TextComponent("mer");
-        tempComponent.setHoverEvent(
-                new HoverEvent(
-                        HoverEvent.Action.SHOW_TEXT,
-                        new ComponentBuilder("hover text").create()
-                )
-        );
-
-        BaseComponent[] mainComponent =
-                new ComponentBuilder("Mer")
-                        .append(tempComponent)
-                        .create();
-        sender.spigot().sendMessage(mainComponent);
-    }
 }

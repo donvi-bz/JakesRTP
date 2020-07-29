@@ -50,13 +50,13 @@ public class SafeLocationFinderOtherThread extends SafeLocationFinder {
      * @param loc The location to get the material for.
      */
     @Override
-    protected Material getLocMaterial(Location loc) throws Exception {
+    protected Material getLocMaterial(Location loc) throws TimeoutException {
         return locMatFromSnapshot(loc, getChunkForLocation(loc));
 
     }
 
     @Override
-    protected void dropToGround() throws Exception {
+    protected void dropToGround() throws TimeoutException {
         SafeLocationUtils.dropToGround(loc, lowBound, getChunkForLocation(loc));
 
     }
@@ -66,11 +66,10 @@ public class SafeLocationFinderOtherThread extends SafeLocationFinder {
         ChunkSnapshot chunkSnapshot = chunkSnapshotMap.get(chunkKey);
         if (chunkSnapshot != null) return chunkSnapshot;
         try {
-            chunkSnapshot = Bukkit.getScheduler().callSyncMethod(
+            chunkSnapshotMap.put(chunkKey, chunkSnapshot = Bukkit.getScheduler().callSyncMethod(
                     PluginMain.plugin,
                     () -> PaperLib.getChunkAtAsync(loc).thenApply(Chunk::getChunkSnapshot)
-            ).get(timeout, TimeUnit.SECONDS).get(timeout, TimeUnit.SECONDS);
-            chunkSnapshotMap.put(chunkKey, chunkSnapshot);
+            ).get(timeout, TimeUnit.SECONDS).get(timeout, TimeUnit.SECONDS));
         } catch (InterruptedException e) {
             System.out.println("Caught an unexpected interrupt.");
         } catch (ExecutionException e) {
