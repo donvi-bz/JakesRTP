@@ -361,7 +361,7 @@ public class RandomTeleporter implements CommandExecutor, Listener {
                     throw new JrtpBaseException("Too many failed attempts.");
             } while (
                     Bukkit.isPrimaryThread() ?
-                            !new SafeLocationFinder(
+                            !new SafeLocationFinderBukkitThread(
                                     potentialRtpLocation,
                                     rtpSettings.checkRadiusXZ,
                                     rtpSettings.checkRadiusVert,

@@ -194,6 +194,48 @@ public abstract class SafeLocationUtils {
             loc.add(0, -1, 0);
     }
 
+    static void dropToMiddle(final Location loc, int lowBound, int highBound) {
+        dropToMiddle(loc, lowBound, highBound, null);
+    }
+
+    static void dropToMiddle(final Location loc, int lowBound, int highBound, ChunkSnapshot chunk) {
+        loc.setY((highBound + lowBound) / 2d);      //Set starting point
+        Material mat = (chunk == null)              //Set starting material
+                ? loc.getBlock().getType()          //  If we are on the bukkit thread, we should be called without a
+                : locMatFromSnapshot(loc, chunk);   //  snapshot. If we are off it, we should have a snapshot.
+
+        int change = 0;     //For movement control
+        int direction = 1;  //For movement control
+        boolean upWasSolid = false, //For escaping while
+                downWasAir = false; //For escaping while
+
+        //While [we are unsafe] check the next spot for partial safety
+        while (((direction == -1)
+                ? !(upWasSolid && isSafeToBeIn(mat))
+                : !(downWasAir && isSafeToBeOn(mat)))
+               && loc.getY() > 0
+               && loc.getY() < 128
+        ) {
+            mat = (chunk == null)
+                    ? loc.getBlock().getType()
+                    : locMatFromSnapshot(loc, chunk);
+            //Preparing testing variables
+            if (direction == 1)
+                upWasSolid = isSafeToBeOn(mat);
+            else
+                downWasAir = isSafeToBeIn(mat) | isSafeToGoThrough(mat);
+            //Moving location
+            loc.add(0, change * direction, 0);
+            if (direction == -1)
+                change++;
+            direction *= -1;
+            loc.add(0, -change * direction, 0);
+            mat = (chunk == null)
+                    ? loc.getBlock().getType()
+                    : locMatFromSnapshot(loc, chunk);
+        }
+    }
+
     /* ================================================== *\
                     Chunk cache utils
     \* ================================================== */
@@ -220,9 +262,7 @@ public abstract class SafeLocationUtils {
      * Checks if the current thread is the primary Bukkit thread.
      * If it is, nothing happens, if not, it throws an unchecked exception.
      */
-    static void requireMainThread() {
-        if (!Bukkit.isPrimaryThread()) throw new AccessFromNonMainThreadError();
-    }
+    static void requireMainThread() { if (!Bukkit.isPrimaryThread()) throw new AccessFromNonMainThreadError(); }
 
     /**
      * Exists purely to throw an exception before an attempt is made

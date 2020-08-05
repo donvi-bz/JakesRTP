@@ -52,13 +52,16 @@ public class SafeLocationFinderOtherThread extends SafeLocationFinder {
     @Override
     protected Material getLocMaterial(Location loc) throws TimeoutException {
         return locMatFromSnapshot(loc, getChunkForLocation(loc));
-
     }
 
     @Override
     protected void dropToGround() throws TimeoutException {
         SafeLocationUtils.dropToGround(loc, lowBound, getChunkForLocation(loc));
+    }
 
+    @Override
+    protected void dropToMiddle() throws TimeoutException {
+        SafeLocationUtils.dropToMiddle(loc, lowBound, 96/*Todo: set value in config*/,getChunkForLocation(loc));
     }
 
     private ChunkSnapshot getChunkForLocation(Location loc) throws TimeoutException {

@@ -2,28 +2,28 @@ package biz.donvi.jakesRTP;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
 import static biz.donvi.jakesRTP.PluginMain.logger;
-import static biz.donvi.jakesRTP.SafeLocationUtils.requireMainThread;
 
 /**
  * An object that can be given a location in a spigot world, and will try
  * and move around until it finds a spot that a player can safely stand on.
  */
-public class SafeLocationFinder {
+public abstract class SafeLocationFinder {
 
     public final Location loc;
     protected final int lowBound;
-    private final boolean enableSelfChecking;
-    private final int checkRadiusXZ;
-    private final int checkRadiusVert;
+    protected final boolean enableSelfChecking;
+    protected final int checkRadiusXZ;
+    protected final int checkRadiusVert;
 
     /* Small set of variables just for nextInSpiral */
-    private boolean xNotY = true;
-    private int
+    protected boolean xNotY = true;
+    protected int
             flip = 1,
             count = 0,
             subCount = 0,
@@ -35,7 +35,7 @@ public class SafeLocationFinder {
      *
      * @param loc The location that will be checked for safety, and potentially modified.
      */
-    public SafeLocationFinder(final Location loc) {
+    public SafeLocationFinder(Location loc) {
         this.loc = loc;
         enableSelfChecking = false;
         checkRadiusXZ = checkRadiusVert = lowBound = 0;
@@ -51,7 +51,7 @@ public class SafeLocationFinder {
      * @param checkRadiusVert The distance up and down that the location can move.
      * @param lowBound        The lowest Y value the location can have.
      */
-    public SafeLocationFinder(final Location loc, int checkRadiusXZ, int checkRadiusVert, int lowBound) {
+    public SafeLocationFinder(Location loc, int checkRadiusXZ, int checkRadiusVert, int lowBound) {
         this.loc = loc;
         enableSelfChecking = true;
         this.checkRadiusXZ = checkRadiusXZ;
@@ -74,7 +74,11 @@ public class SafeLocationFinder {
             if (!enableSelfChecking)
                 throw new Exception("Tried to use self checking on an object that can not self check.");
 
-            dropToGround();
+            //TODO replace this if/else with a method "drop to start"
+            if (loc.getWorld().getEnvironment() == World.Environment.NETHER)
+                dropToMiddle();
+            else
+                dropToGround();
 
             for (int i = 0, spiralArea = (int) Math.pow(checkRadiusXZ * 2 + 1, 2); i < spiralArea; i++)
                 if (checkSafety(checkRadiusVert)) {
@@ -110,6 +114,7 @@ public class SafeLocationFinder {
         //We will ALWAYS loop at least 3 times, even if avm is 0.
         // Two for air space, one for foot space.
         for (int i = 0; i < range; i++) {
+            if (loc.getY() <= 0 || loc.getY() >= 256) continue; //TODO maybe put this in config?
             Material mat = getLocMaterial(tempLoc);
             //If either of these conditions are reached, it is not worth checking
             // the remaining spaces because the combined result will fail.
@@ -135,7 +140,6 @@ public class SafeLocationFinder {
         //We only make it here if no safe place was found
         return false;
     }
-
 
     /**
      * This method will MOVE the current location so that it spirals outwards from the initial location.
@@ -165,21 +169,14 @@ public class SafeLocationFinder {
 
     /**
      * Gets the material of the location as if by {@code loc.getBlock().getType()}.
-     * This method exists solely to allow the OtherThread implementation of this class to have a single
-     * small method to override instead of overriding the entire {@code checkSafety()} method.
      *
      * @param loc The location to get the material for.
      * @throws Exception This method will never throw an exception, but it is important to allow overrides
      *                   to be able to throw an exception if necessary
      */
-    protected Material getLocMaterial(Location loc) throws Exception {
-        requireMainThread();
-        return loc.getBlock().getType();
-    }
+    protected abstract Material getLocMaterial(Location loc) throws Exception;
 
-    protected void dropToGround() throws Exception {
-        requireMainThread();
-        SafeLocationUtils.dropToGround(loc, lowBound);
-    }
+    protected abstract void dropToGround() throws Exception;
 
+    protected abstract void dropToMiddle() throws Exception;
 }
