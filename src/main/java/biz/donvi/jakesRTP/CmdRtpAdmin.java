@@ -19,7 +19,7 @@ import java.util.Map;
 
 import static biz.donvi.jakesRTP.RandomTeleporter.explicitPermPrefix;
 
-public class CmdRtpAdmin implements TabExecutor, DynamicArgsMap {
+public class CmdRtpAdmin extends DynamicArgsMap implements TabExecutor {
 
     Map<String, Object> cmdMap;
 
@@ -46,13 +46,14 @@ public class CmdRtpAdmin implements TabExecutor, DynamicArgsMap {
     }
 
     @Override
-    public List<String> getPotential(String path) throws Exception {
+    public void getPotential(String[] path) throws ResultAlreadySetException { }
+
+    @Override
+    public void getPotential(String path) throws ResultAlreadySetException {
         //noinspection SwitchStatementWithTooFewBranches
         switch (path) {
             case "status":
-                return getConfigNames();
-            default:
-                throw new Exception("Path led nowhere: " + path);
+                setResult(getConfigNames());
         }
     }
 
