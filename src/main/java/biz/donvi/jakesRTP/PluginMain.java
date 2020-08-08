@@ -1,6 +1,7 @@
 package biz.donvi.jakesRTP;
 
 import biz.donvi.argsChecker.Util;
+import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.yaml.snakeyaml.Yaml;
@@ -94,13 +95,14 @@ public final class PluginMain extends JavaPlugin {
         //First end the current runnable if it exists
         if (locFinderRunnable != null) locFinderRunnable.markAsOver();
         //Then load up a new runnable
-        if (getConfig().getBoolean("location-cache-filler.enabled",true)) {
+        if (getConfig().getBoolean("location-cache-filler.enabled", true)) {
             System.out.println("Setting up the location caching system.");
-            new Thread(locFinderRunnable = new LocationCacheFiller(
-                    this,
-                    getConfig().getInt("location-cache-filler.recheck-time", 2) * 1000,
-                    getConfig().getInt("location-cache-filler.between-time", 2) * 1000
-            ), "J-RTP LCF").start();
+            Bukkit.getScheduler().runTaskAsynchronously(this,
+                    (locFinderRunnable = new LocationCacheFiller(
+                            this,
+                            getConfig().getInt("location-cache-filler.recheck-time", 2) * 1000,
+                            getConfig().getInt("location-cache-filler.between-time", 2) * 1000)
+                    ));
         }
     }
 
