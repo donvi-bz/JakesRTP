@@ -14,8 +14,9 @@ public class SafeLocationFinderBukkitThread extends SafeLocationFinder {
 
     public SafeLocationFinderBukkitThread(final Location loc) { super(loc); }
 
-    public SafeLocationFinderBukkitThread(final Location loc, int checkRadiusXZ, int checkRadiusVert, int lowBound) {
-        super(loc, checkRadiusXZ, checkRadiusVert, lowBound);
+    public SafeLocationFinderBukkitThread(final Location loc, int checkRadiusXZ, int checkRadiusVert,
+                                          int lowBound, int highBound) {
+        super(loc, checkRadiusXZ, checkRadiusVert, lowBound, highBound);
     }
 
     @Override
@@ -33,7 +34,7 @@ public class SafeLocationFinderBukkitThread extends SafeLocationFinder {
     @Override
     protected void dropToMiddle() throws Exception {
         requireMainThread();
-        SafeLocationUtils.dropToMiddle(loc, lowBound, 96/*Todo: set value in config*/);
+        SafeLocationUtils.dropToMiddle(loc, lowBound, highBound);
     }
 
 }

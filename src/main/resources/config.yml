@@ -28,7 +28,7 @@ location-cache-filler:      # Should we cache RTP locations beforehand? Unless y
   enabled: true             #   should be enabled as it improves performance like crazy! Use Paper for best results.
   recheck-time: 1800        # [The amount of] Time to wait before trying to refill the cache (In seconds)
   between-time: 2           # Time to wait between each location search (In seconds). Paper users, set this to 0.
-  async-wait-timeout: 5     # Time to wait for the completion of an async function (Mostly chunk loading) (In seconds) TODO IMPL
+  async-wait-timeout: 5     # Time to wait for the completion of an async function (Mostly chunk loading) (In seconds)
 logging: # Which messages do you want to log? You can ignore log messages for settings that are disabled.
   rtp-on-player-join: true
   rtp-on-respawn: true
@@ -60,7 +60,7 @@ random-teleport-settings default: # The name of this config section is 'default'
     - yer  # You can remove this one, it's here as an example
   force-destination-world:  # Forces the world that the RTP will land you in. If this is true, then 'enabled worlds' no
     enabled: false          #   longer represents worlds that you can RTP IN, but worlds you can RTP FROM, always
-    destination: world      #   landing you in the world specified by 'destination'. TODO test
+    destination: world      #   landing you in the world specified by 'destination'.
   shape:
     allowed-values:
       a: "Square (radius & center)"
@@ -83,11 +83,18 @@ random-teleport-settings default: # The name of this config section is 'default'
         enabled: false        #   gaussian centered between the min and max radius (represented by setting center to
         shrink: 4             #   0 for min, 1 for max, or anything in between). Shrink makes the distribution denser,
         center: 0.25          #   my preference is to keep it near 3 for a center of 0 or 1, and 6 for a center of 0.5
+  location-checking-profile:  # Which method should we use to find a safe location? Since this plugin is meant to work
+    allowed-values:           #   'out-of-the-box' without need of configuring, the 'auto' option has been included.
+      a: "Auto"               # Auto chooses middle-out for the nether and top-down for everything else.
+      b: "Top down"           # Starts the search at the high bound and moves down until it finds the ground.
+      c: "Middle out"         # Starts the search between high and low and moves up and down to find land.
+    value: a              # Top-down will never spawn you in a cave. Middle-out is intended for underground teleports.
   cooldown:      # Cooldown between uses. Can be bypassed with permission node jakesrtp.nocooldown
     seconds: 30  # Default: 30
   ############## # Everything past this point in the config probably does not need to get changed
-  low-bound:     # The lowest point a player can be RTP'd to. Make
-    value: 32    # Default: 48
+  bounds:        # The lowest and highest points a player can be RTP'd to.
+    low: 32      # Default: 32
+    high: 255    # Default: 255  | SET THIS TO 127 FOR NETHER WORLDS
   check-radius:  # How many blocks away from the initial spot to check.
     x-z: 2       # Default: 2    | Max spots to check per attempt is equal to:
     vert: 2      # Default: 2    | (2*vert+1)*(2*(x-z)+1)^2
@@ -95,5 +102,3 @@ random-teleport-settings default: # The name of this config section is 'default'
     value: 10    #   how many attempts can we make? Minimum: 1; Default: 10
   preparations:  # Preparing spots to teleport to. Note: These will be ignored if the center is players location.
     cache-locations: 10 # The number of safe rtp spots to hold on to. For best performance, keep this larger than 2.
-    keep-loaded-max: 10 # TODO Implement (Low priority for impl because it won't have too much of a noticeable effect)
-    keep-loaded-per: 2  # TODO Implement (Low priority for impl because it won't have too much of a noticeable effect)

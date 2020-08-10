@@ -30,10 +30,13 @@ public class LocationCacheFiller implements Runnable {
             while (keepRunning && isPluginLoaded())
                 try {
                     ArrayList<Integer> qFills = new ArrayList<>();
-                    for (RtpSettings settings : getCurrentRtpSettings())
+                    for (RtpSettings settings : getCurrentRtpSettings()) {
                         for (World world : settings.getConfigWorlds())
-                            if (!settings.forceDestinationWorld || settings.destinationWorld == world)
+                            if (!keepRunning) break;
+                            else if (!settings.forceDestinationWorld || settings.destinationWorld == world)
                                 qFills.add(pluginMain().getRandomTeleporter().fillQueue(settings, world));
+                        if (!keepRunning) break;
+                    }
                     patientlyWait(recheckTime);
                 } catch (JrtpBaseException ex) {
                     if (ex instanceof NotPermittedException)
@@ -74,6 +77,7 @@ public class LocationCacheFiller implements Runnable {
      * Waits for the specified amount of time, returning either then the time has passed or an interrupt has occurred.
      */
     private synchronized void patientlyWait(long milliseconds) {
+        if (!keepRunning) return;
         try {
             wait(milliseconds);
         } catch (InterruptedException ignored) { }
@@ -96,7 +100,7 @@ public class LocationCacheFiller implements Runnable {
             synchronized (this) {
                 final long startTime = System.currentTimeMillis();
                 long currentTime;
-                while ((currentTime = System.currentTimeMillis()) - startTime < betweenTime)
+                while (keepRunning && (currentTime = System.currentTimeMillis()) - startTime < betweenTime)
                     //This is more complicated than necessary, but will not freeze up, nor wait too long.
                     patientlyWait((int) ((startTime + betweenTime - currentTime) * 0.95) + 1);
             }

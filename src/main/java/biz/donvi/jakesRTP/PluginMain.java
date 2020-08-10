@@ -3,6 +3,7 @@ package biz.donvi.jakesRTP;
 import biz.donvi.argsChecker.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
+import org.bukkit.plugin.IllegalPluginAccessException;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.yaml.snakeyaml.Yaml;
 
@@ -13,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CancellationException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -76,6 +78,7 @@ public final class PluginMain extends JavaPlugin {
         theRandomTeleporter = null;
         defaultConfigVersion = null;
         locFinderRunnable.markAsOver();
+        Bukkit.getScheduler().cancelTasks(this);
     }
 
     public void loadRandomTeleporter() {

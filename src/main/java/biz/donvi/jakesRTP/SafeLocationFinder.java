@@ -17,6 +17,7 @@ public abstract class SafeLocationFinder {
 
     public final Location loc;
     protected final int lowBound;
+    protected int highBound;
     protected final boolean enableSelfChecking;
     protected final int checkRadiusXZ;
     protected final int checkRadiusVert;
@@ -39,6 +40,7 @@ public abstract class SafeLocationFinder {
         this.loc = loc;
         enableSelfChecking = false;
         checkRadiusXZ = checkRadiusVert = lowBound = 0;
+        highBound = 128; //Note: This is not ideal for all circumstances
     }
 
     /**
@@ -50,13 +52,15 @@ public abstract class SafeLocationFinder {
      * @param checkRadiusXZ   The distance out from the center that the location cam move.
      * @param checkRadiusVert The distance up and down that the location can move.
      * @param lowBound        The lowest Y value the location can have.
+     * @param highBound       The highest Y value the location can have.
      */
-    public SafeLocationFinder(Location loc, int checkRadiusXZ, int checkRadiusVert, int lowBound) {
+    public SafeLocationFinder(Location loc, int checkRadiusXZ, int checkRadiusVert, int lowBound, int highBound) {
         this.loc = loc;
         enableSelfChecking = true;
         this.checkRadiusXZ = checkRadiusXZ;
         this.checkRadiusVert = checkRadiusVert;
         this.lowBound = lowBound;
+        this.highBound = highBound;
     }
 
     /**
@@ -66,19 +70,16 @@ public abstract class SafeLocationFinder {
      * Node: Trying to run this method on a {@code SafeLocationFinder} that was <em>not</em> passed the bounds on
      * construction will cause an Exception to be thrown.
      *
+     * @param checkProfile Which method to use to find the starting point.
      * @return True if the location is now safe, false if it could not be made safe.
      * @throws Exception if this method was called from an object with no checking bounds.
      */
-    public boolean tryAndMakeSafe() throws Exception {
+    public boolean tryAndMakeSafe(LocCheckProfiles checkProfile) throws Exception {
         try {
             if (!enableSelfChecking)
                 throw new Exception("Tried to use self checking on an object that can not self check.");
 
-            //TODO replace this if/else with a method "drop to start"
-            if (loc.getWorld().getEnvironment() == World.Environment.NETHER)
-                dropToMiddle();
-            else
-                dropToGround();
+            moveToStart(checkProfile);
 
             for (int i = 0, spiralArea = (int) Math.pow(checkRadiusXZ * 2 + 1, 2); i < spiralArea; i++)
                 if (checkSafety(checkRadiusVert)) {
@@ -114,7 +115,7 @@ public abstract class SafeLocationFinder {
         //We will ALWAYS loop at least 3 times, even if avm is 0.
         // Two for air space, one for foot space.
         for (int i = 0; i < range; i++) {
-            if (loc.getY() <= 0 || loc.getY() >= 256) continue; //TODO maybe put this in config?
+            if (loc.getY() < lowBound || loc.getY() >= highBound) continue;
             Material mat = getLocMaterial(tempLoc);
             //If either of these conditions are reached, it is not worth checking
             // the remaining spaces because the combined result will fail.
@@ -139,6 +140,28 @@ public abstract class SafeLocationFinder {
         }
         //We only make it here if no safe place was found
         return false;
+    }
+
+    /**
+     * Moves the location to the starting position using one of the preset methods. <p>
+     * This should only ever need to be called once.
+     *
+     * @param checkProfile The profile setting. This determines which method will be called.
+     * @throws Exception Any exception thrown will be passed along.
+     */
+    private void moveToStart(LocCheckProfiles checkProfile) throws Exception {
+        if (checkProfile == LocCheckProfiles.TOP_DOWN)
+            dropToGround();
+        else if (checkProfile == LocCheckProfiles.MIDDLE_OUT)
+            dropToMiddle();
+        else {
+            assert checkProfile == LocCheckProfiles.AUTO;
+            World world = loc.getWorld();
+            if (world != null && world.getEnvironment() == World.Environment.NETHER) {
+                if (highBound > 127) highBound = 127;
+                dropToMiddle();
+            } else dropToGround();
+        }
     }
 
     /**
@@ -179,4 +202,6 @@ public abstract class SafeLocationFinder {
     protected abstract void dropToGround() throws Exception;
 
     protected abstract void dropToMiddle() throws Exception;
+
+    public static enum LocCheckProfiles {AUTO, TOP_DOWN, MIDDLE_OUT}
 }

@@ -365,15 +365,17 @@ public class RandomTeleporter implements CommandExecutor, Listener {
                                     potentialRtpLocation,
                                     rtpSettings.checkRadiusXZ,
                                     rtpSettings.checkRadiusVert,
-                                    rtpSettings.lowBound
-                            ).tryAndMakeSafe() :
+                                    rtpSettings.lowBound,
+                                    rtpSettings.highBound
+                            ).tryAndMakeSafe(rtpSettings.checkProfile) :
                             !new SafeLocationFinderOtherThread(
                                     potentialRtpLocation,
                                     rtpSettings.checkRadiusXZ,
                                     rtpSettings.checkRadiusVert,
                                     rtpSettings.lowBound,
+                                    rtpSettings.highBound,
                                     asyncWaitTimeout
-                            ).tryAndMakeSafe());
+                            ).tryAndMakeSafe(rtpSettings.checkProfile));
             return potentialRtpLocation;
         }
 

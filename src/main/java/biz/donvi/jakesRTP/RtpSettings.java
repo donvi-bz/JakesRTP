@@ -37,12 +37,12 @@ public class RtpSettings {
     public final double gaussianCenter;
     final CoolDownTracker coolDown;
     public final int lowBound;
+    public final int highBound;
     public final int checkRadiusXZ;
     public final int checkRadiusVert;
     public final int maxAttempts;
-    public final int cacheLocationCount;        //TODO | Add to infoLogSettings & rtp-admin status
-    public final int chunkKeepLoadedCountMax;   // CONT| Add to infoLogSettings & rtp-admin status
-    public final int chunkKeepLoadedCountPer;   // CONT| Add to infoLogSettings & rtp-admin status
+    public final int cacheLocationCount;
+    public final SafeLocationFinder.LocCheckProfiles checkProfile;
 
     /**
      * Creates an RtpSettings object. This primarily deals with reading in data from a YAML config,
@@ -65,8 +65,6 @@ public class RtpSettings {
             configWorlds.putIfAbsent(destinationWorld, new ConcurrentLinkedQueue<>());
         } else destinationWorld = null;
         cacheLocationCount = config.getInt("preparations.cache-locations", 10);
-        chunkKeepLoadedCountMax = config.getInt("preparations.keep-loaded-max", 10);
-        chunkKeepLoadedCountPer = config.getInt("preparations.keep-loaded-per", 2);
         for (String worldName : config.getStringList("enabled-worlds"))
             try {
                 configWorlds.put(
@@ -88,7 +86,10 @@ public class RtpSettings {
             gaussianCenter = config.getDouble("defining-points.radius-center.gaussian-distribution.center", 0.25);
         } else gaussianShrink = gaussianCenter = 0;
         coolDown = new CoolDownTracker(config.getInt("cooldown.seconds", 30));
-        lowBound = config.getInt("low-bound.value", 48);
+        checkProfile = SafeLocationFinder.LocCheckProfiles.values()[config.getString(
+                "location-checking-profile.value").toLowerCase().charAt(0) - 'a'];
+        lowBound = config.getInt("bounds.low", 32);
+        highBound = config.getInt("bounds.high", 255);
         checkRadiusXZ = config.getInt("check-radius.x-z", 2);
         checkRadiusVert = config.getInt("check-radius.vert", 2);
         maxAttempts = config.getInt("max-attempts.value", 10);
@@ -119,9 +120,12 @@ public class RtpSettings {
         infoLog(name + (coolDown.coolDownTime == 0 ?
                 "Cooldown disabled" :
                 "Cooldown time: " + coolDown.coolDownTime / 1000 + " seconds."));
-        infoLog(name + "Set low bound to " + lowBound);
+        infoLog(name + "Low bound: " + lowBound + " | High bound: " + highBound);
         infoLog(name + "Check radius x and z set to " + checkRadiusXZ + " and vert set to " + checkRadiusVert);
         infoLog(name + "Max attempts set to " + maxAttempts);
+        infoLog(name + "Location caching " + (useLocationQueue ?
+                "disabled." :
+                "Enabled. Caching " + cacheLocationCount + " location per world."));
     }
 
     public String getRtpRegionCenterAsString(final boolean mcFormat) {

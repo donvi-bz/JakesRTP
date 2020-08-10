@@ -36,9 +36,9 @@ public class SafeLocationFinderOtherThread extends SafeLocationFinder {
      * @param lowBound        The lowest Y value the location can have.
      * @param timeout         The max number of seconds to wait for data from another thread
      */
-    public SafeLocationFinderOtherThread(Location loc,
-                                         int checkRadiusXZ, int checkRadiusVert, int lowBound, int timeout) {
-        super(loc, checkRadiusXZ, checkRadiusVert, lowBound);
+    public SafeLocationFinderOtherThread(Location loc, int checkRadiusXZ, int checkRadiusVert,
+                                         int lowBound, int highBound, int timeout) {
+        super(loc, checkRadiusXZ, checkRadiusVert, lowBound, highBound);
         this.timeout = timeout;
     }
 
@@ -61,7 +61,7 @@ public class SafeLocationFinderOtherThread extends SafeLocationFinder {
 
     @Override
     protected void dropToMiddle() throws TimeoutException {
-        SafeLocationUtils.dropToMiddle(loc, lowBound, 96/*Todo: set value in config*/,getChunkForLocation(loc));
+        SafeLocationUtils.dropToMiddle(loc, lowBound, highBound, getChunkForLocation(loc));
     }
 
     private ChunkSnapshot getChunkForLocation(Location loc) throws TimeoutException {
@@ -69,6 +69,7 @@ public class SafeLocationFinderOtherThread extends SafeLocationFinder {
         ChunkSnapshot chunkSnapshot = chunkSnapshotMap.get(chunkKey);
         if (chunkSnapshot != null) return chunkSnapshot;
         try {
+            // TODO - Don't run this code when the plugin is disabled. Oh, and deal with the consequences.
             chunkSnapshotMap.put(chunkKey, chunkSnapshot = Bukkit.getScheduler().callSyncMethod(
                     PluginMain.plugin,
                     () -> PaperLib.getChunkAtAsync(loc).thenApply(Chunk::getChunkSnapshot)
