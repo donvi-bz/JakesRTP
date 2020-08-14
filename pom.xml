@@ -6,6 +6,7 @@
 
     <groupId>biz.donvi</groupId>
     <artifactId>JakesRtp</artifactId>
+    <packaging>pom</packaging>
     <version>0.8</version>
     <build>
         <plugins>
@@ -44,7 +45,6 @@
             -->
         </plugins>
     </build>
-
 
     <repositories>
         <repository>

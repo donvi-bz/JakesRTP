@@ -3,6 +3,7 @@ package biz.donvi.jakesRTP;
 import biz.donvi.argsChecker.ArgsChecker;
 import biz.donvi.argsChecker.ArgsTester;
 import biz.donvi.argsChecker.DynamicArgsMap;
+import io.papermc.lib.PaperLib;
 import javafx.util.Pair;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -90,10 +91,15 @@ public class CmdRtpAdmin extends DynamicArgsMap implements TabExecutor {
 
     @SuppressWarnings("SpellCheckingInspection")
     private static final String[] COLOR_S = {"#157BEF", "#0CB863", "#0DDDC9"};
-    private static final ChatColor[] COLOR_IL = {
-            ChatColor.of(COLOR_S[0]),
-            ChatColor.of(COLOR_S[1]),
-            ChatColor.of(COLOR_S[2]),};
+    private static final ChatColor[] COLOR_IL = PaperLib.getMinecraftVersion() >= 16 ?
+            new ChatColor[]{
+                    ChatColor.of(COLOR_S[0]),
+                    ChatColor.of(COLOR_S[1]),
+                    ChatColor.of(COLOR_S[2])} :
+            new ChatColor[]{
+                    ChatColor.BLUE,
+                    ChatColor.GREEN,
+                    ChatColor.GRAY};
 
     private void subStatus(CommandSender sender, String[] args) {
 //        String box = "┏╍┓┃┗╍┛";

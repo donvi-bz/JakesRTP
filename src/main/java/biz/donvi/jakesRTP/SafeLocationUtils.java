@@ -1,8 +1,21 @@
 package biz.donvi.jakesRTP;
 
+import io.papermc.lib.PaperLib;
 import org.bukkit.*;
 
 public abstract class SafeLocationUtils {
+
+    protected static SafeLocationUtils impl;
+
+    protected SafeLocationUtils() {impl = this;}
+
+    public static SafeLocationUtils getSafeLocationUtils() {
+        if (impl == null)
+            if (PaperLib.getMinecraftVersion() <= 12)
+                new SafeLocationUtils_12();
+            else new SafeLocationUtils_16();
+        return impl;
+    }
 
     /* ================================================== *\
                     Material checking utils
@@ -14,23 +27,23 @@ public abstract class SafeLocationUtils {
      * @param mat The material to check
      * @return Whether it is safe or not to be there
      */
-    static boolean isSafeToBeIn(Material mat) {
-        switch (mat) {
-            case AIR:
-            case SNOW:
-            case FERN:
-            case LARGE_FERN:
-            case VINE:
-            case GRASS:
-            case TALL_GRASS:
-                return true;
-            case WATER:
-            case LAVA:
-            case CAVE_AIR:
-            default:
-                return false;
-        }
-    }
+    abstract boolean isSafeToBeIn(Material mat);
+
+    /**
+     * Checks the given material against a <u>blacklist</u> of materials deemed to be "safe to be on"
+     *
+     * @param mat The material to check
+     * @return Whether it is safe or not to be there
+     */
+    abstract boolean isSafeToBeOn(Material mat);
+
+    /**
+     * Checks if the given material is any type of tree leaf.
+     *
+     * @param mat The material to check
+     * @return Whether it is a type of leaf
+     */
+    abstract boolean isTreeLeaves(Material mat);
 
     /**
      * Checks the given material against a <u>whitelist</u> of materials deemed to be "safe to go through".
@@ -42,57 +55,10 @@ public abstract class SafeLocationUtils {
      * @param mat The material to check
      * @return Whether it is safe to go through
      */
-    static boolean isSafeToGoThrough(Material mat) {
+    boolean isSafeToGoThrough(Material mat) {
         //At the time of writing this, I can not think of any materials other than leaves that fit this category.
         //I am leaving the method in place though so if I decide to add more materials later, it will be easy.
         return isTreeLeaves(mat);
-    }
-
-    /**
-     * Checks the given material against a <u>blacklist</u> of materials deemed to be "safe to be on"
-     *
-     * @param mat The material to check
-     * @return Whether it is safe or not to be there
-     */
-    static boolean isSafeToBeOn(Material mat) {
-        switch (mat) {
-            case LAVA:
-            case MAGMA_BLOCK:
-            case WATER:
-            case AIR:
-            case CAVE_AIR:
-            case VOID_AIR:
-            case CACTUS:
-            case SEAGRASS:
-            case TALL_SEAGRASS:
-            case LILY_PAD:
-                return false;
-            case GRASS_BLOCK:
-            case STONE:
-            case DIRT:
-            default:
-                return true;
-        }
-    }
-
-    /**
-     * Checks if the given material is any type of tree leaf.
-     *
-     * @param mat The material to check
-     * @return Whether it is a type of leaf
-     */
-    static boolean isTreeLeaves(Material mat) {
-        switch (mat) {
-            case ACACIA_LEAVES:
-            case BIRCH_LEAVES:
-            case DARK_OAK_LEAVES:
-            case JUNGLE_LEAVES:
-            case OAK_LEAVES:
-            case SPRUCE_LEAVES:
-                return true;
-            default:
-                return false;
-        }
     }
 
     /* ================================================== *\
@@ -106,7 +72,7 @@ public abstract class SafeLocationUtils {
      * @param loc The location to check.
      * @return True if the location is in a tree.
      */
-    static boolean isInATree(final Location loc) {
+    boolean isInATree(final Location loc) {
         requireMainThread();
         for (Material material : new Material[]{
                 loc.clone().add(0, 1, 0).getBlock().getType(),
@@ -123,7 +89,7 @@ public abstract class SafeLocationUtils {
      * @param chunk The chunk snapshot that contains the {@code Location}'s data.
      * @return True if the location is in a tree.
      */
-    static boolean isInTree(final Location loc, ChunkSnapshot chunk) {
+    boolean isInTree(final Location loc, ChunkSnapshot chunk) {
         for (Material material : new Material[]{
                 locMatFromSnapshot(loc.clone().add(0, 1, 0), chunk),
                 locMatFromSnapshot(loc.clone().add(0, 2, 0), chunk)})
@@ -142,7 +108,7 @@ public abstract class SafeLocationUtils {
      *
      * @param loc The location to modify
      */
-    static void dropToGround(final Location loc) {
+    void dropToGround(final Location loc) {
         requireMainThread();
         while (isSafeToBeIn(loc.getBlock().getType()) || isSafeToGoThrough(loc.getBlock().getType()))
             loc.add(0, -1, 0);
@@ -156,7 +122,7 @@ public abstract class SafeLocationUtils {
      * @param loc   The location to modify
      * @param chunk The chunk snapshot that contains the {@code Location}'s data.
      */
-    static void dropToGround(final Location loc, ChunkSnapshot chunk) {
+    void dropToGround(final Location loc, ChunkSnapshot chunk) {
         while (isSafeToBeIn(locMatFromSnapshot(loc, chunk))
                || isSafeToGoThrough(locMatFromSnapshot(loc, chunk)))
             loc.add(0, -1, 0);
@@ -170,7 +136,7 @@ public abstract class SafeLocationUtils {
      * @param loc      The location to modify
      * @param lowBound The lowest the location can go
      */
-    static void dropToGround(final Location loc, int lowBound) {
+    void dropToGround(final Location loc, int lowBound) {
         requireMainThread();
         while (loc.getBlockY() > lowBound && (
                 isSafeToBeIn(loc.getBlock().getType())
@@ -187,18 +153,18 @@ public abstract class SafeLocationUtils {
      * @param lowBound The lowest the location can go
      * @param chunk    The chunk snapshot that contains the {@code Location}'s data.
      */
-    static void dropToGround(final Location loc, int lowBound, ChunkSnapshot chunk) {
+    void dropToGround(final Location loc, int lowBound, ChunkSnapshot chunk) {
         while (loc.getBlockY() > lowBound && (
                 isSafeToBeIn(locMatFromSnapshot(loc, chunk))
                 || isSafeToGoThrough(locMatFromSnapshot(loc, chunk))))
             loc.add(0, -1, 0);
     }
 
-    static void dropToMiddle(final Location loc, int lowBound, int highBound) {
+    void dropToMiddle(final Location loc, int lowBound, int highBound) {
         dropToMiddle(loc, lowBound, highBound, null);
     }
 
-    static void dropToMiddle(final Location loc, int lowBound, int highBound, ChunkSnapshot chunk) {
+    void dropToMiddle(final Location loc, int lowBound, int highBound, ChunkSnapshot chunk) {
         loc.setY((highBound + lowBound) / 2d);      //Set starting point
         Material mat = (chunk == null)              //Set starting material
                 ? loc.getBlock().getType()          //  If we are on the bukkit thread, we should be called without a
@@ -240,16 +206,18 @@ public abstract class SafeLocationUtils {
                     Chunk cache utils
     \* ================================================== */
 
-    static Material locMatFromSnapshot(Location loc, ChunkSnapshot chunk) {
+    Material locMatFromSnapshot(Location loc, ChunkSnapshot chunk) {
         if (!isLocationInsideChunk(loc, chunk)) throw new Error("The given location is not within given chunk!");
         int x = loc.getBlockX() % 16;
         int z = loc.getBlockZ() % 16;
         if (x < 0) x += 16;
         if (z < 0) z += 16;
-        return chunk.getBlockData(x, loc.getBlockY(), z).getMaterial();
+        return chunkLocMatFromSnapshot(x, loc.getBlockY(), z, chunk);
     }
 
-    static boolean isLocationInsideChunk(Location loc, ChunkSnapshot chunk) {
+    abstract Material chunkLocMatFromSnapshot(int inX, int y, int inZ, ChunkSnapshot chunk);
+
+    boolean isLocationInsideChunk(Location loc, ChunkSnapshot chunk) {
         return (int) Math.floor((double) loc.getBlockX() / 16) == chunk.getX() &&
                (int) Math.floor((double) loc.getBlockZ() / 16) == chunk.getZ();
     }

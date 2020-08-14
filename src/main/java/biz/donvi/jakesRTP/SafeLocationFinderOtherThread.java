@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;
 
-import static biz.donvi.jakesRTP.SafeLocationUtils.locMatFromSnapshot;
+import static biz.donvi.jakesRTP.SafeLocationUtils.getSafeLocationUtils;
 
 public class SafeLocationFinderOtherThread extends SafeLocationFinder {
 
@@ -51,17 +51,17 @@ public class SafeLocationFinderOtherThread extends SafeLocationFinder {
      */
     @Override
     protected Material getLocMaterial(Location loc) throws TimeoutException {
-        return locMatFromSnapshot(loc, getChunkForLocation(loc));
+        return getSafeLocationUtils().locMatFromSnapshot(loc, getChunkForLocation(loc));
     }
 
     @Override
     protected void dropToGround() throws TimeoutException {
-        SafeLocationUtils.dropToGround(loc, lowBound, getChunkForLocation(loc));
+        getSafeLocationUtils().dropToGround(loc, lowBound, getChunkForLocation(loc));
     }
 
     @Override
     protected void dropToMiddle() throws TimeoutException {
-        SafeLocationUtils.dropToMiddle(loc, lowBound, highBound, getChunkForLocation(loc));
+        getSafeLocationUtils().dropToMiddle(loc, lowBound, highBound, getChunkForLocation(loc));
     }
 
     private ChunkSnapshot getChunkForLocation(Location loc) throws TimeoutException {
