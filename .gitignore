@@ -3,3 +3,5 @@
 /target/
 /testServer/
 /.idea/
+/artifacts/
+/.run/

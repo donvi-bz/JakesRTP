@@ -30,12 +30,12 @@ public class LocationCacheFiller implements Runnable {
             while (keepRunning && isPluginLoaded())
                 try {
                     ArrayList<Integer> qFills = new ArrayList<>();
+                    beginning:
                     for (RtpSettings settings : getCurrentRtpSettings()) {
                         for (World world : settings.getConfigWorlds())
-                            if (!keepRunning) break;
+                            if (!keepRunning) break beginning;
                             else if (!settings.forceDestinationWorld || settings.destinationWorld == world)
                                 qFills.add(pluginMain().getRandomTeleporter().fillQueue(settings, world));
-                        if (!keepRunning) break;
                     }
                     patientlyWait(recheckTime);
                 } catch (JrtpBaseException ex) {
