@@ -8,7 +8,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
 import static biz.donvi.jakesRTP.PluginMain.logger;
-import static biz.donvi.jakesRTP.SafeLocationUtils.getSafeLocationUtils;
 
 /**
  * An object that can be given a location in a spigot world, and will try
@@ -124,16 +123,16 @@ public abstract class SafeLocationFinder {
                 (i == range - 1 && safe != 2)) break;
             //This is the part that checks if a player can safely stand and fit.
             if (safe < 2)
-                if (getSafeLocationUtils().isSafeToBeIn(mat))
+                if (SafeLocationUtils.util.isSafeToBeIn(mat))
                     safe++;
                 else safe = 0;
             else if (safe == 2)
-                if (getSafeLocationUtils().isSafeToBeOn(mat)) {
+                if (SafeLocationUtils.util.isSafeToBeOn(mat)) {
                     loc.setX(tempLoc.getX());
                     loc.setY(tempLoc.getY());
                     loc.setZ(tempLoc.getZ());
                     return true;
-                } else if (!getSafeLocationUtils().isSafeToBeIn(mat)) {
+                } else if (!SafeLocationUtils.util.isSafeToBeIn(mat)) {
                     safe = 0;
                 }
             //Move down one block, and we loop again

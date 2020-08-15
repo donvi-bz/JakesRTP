@@ -8,7 +8,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
 import static biz.donvi.jakesRTP.PluginMain.logger;
-import static biz.donvi.jakesRTP.SafeLocationUtils.getSafeLocationUtils;
 import static biz.donvi.jakesRTP.SafeLocationUtils.requireMainThread;
 
 public class SafeLocationFinderBukkitThread extends SafeLocationFinder {
@@ -29,13 +28,13 @@ public class SafeLocationFinderBukkitThread extends SafeLocationFinder {
     @Override
     protected void dropToGround() throws Exception {
         requireMainThread();
-        getSafeLocationUtils().dropToGround(loc, lowBound);
+        SafeLocationUtils.util.dropToGround(loc, lowBound);
     }
 
     @Override
     protected void dropToMiddle() throws Exception {
         requireMainThread();
-        getSafeLocationUtils().dropToMiddle(loc, lowBound, highBound);
+        SafeLocationUtils.util.dropToMiddle(loc, lowBound, highBound);
     }
 
 }

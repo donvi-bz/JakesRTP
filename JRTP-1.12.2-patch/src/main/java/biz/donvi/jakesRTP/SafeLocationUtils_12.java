@@ -3,7 +3,12 @@ package biz.donvi.jakesRTP;
 import org.bukkit.ChunkSnapshot;
 import org.bukkit.Material;
 
-public class SafeLocationUtils_12 extends SafeLocationUtils {
+public class SafeLocationUtils_12 implements SafeLocationUtils_Patch{
+
+    @Override
+    public int getPatchVersion() {
+        return 12;
+    }
 
     @Override
     public boolean isSafeToBeIn(Material mat) {

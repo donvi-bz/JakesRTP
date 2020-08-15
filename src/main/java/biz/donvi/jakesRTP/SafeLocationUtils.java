@@ -3,19 +3,40 @@ package biz.donvi.jakesRTP;
 import io.papermc.lib.PaperLib;
 import org.bukkit.*;
 
-public abstract class SafeLocationUtils {
+import java.lang.reflect.Constructor;
 
-    protected static SafeLocationUtils impl;
+public class SafeLocationUtils {
 
-    protected SafeLocationUtils() {impl = this;}
+    public static final SafeLocationUtils util;
 
-    public static SafeLocationUtils getSafeLocationUtils() {
-        if (impl == null)
-            if (PaperLib.getMinecraftVersion() <= 12)
-                new SafeLocationUtils_12();
-            else new SafeLocationUtils_16();
-        return impl;
+    private static final SafeLocationUtils_Patch patcher;
+
+    static {
+        util = new SafeLocationUtils();
+        Class<SafeLocationUtils_Patch> patchClass = null;
+        SafeLocationUtils_Patch patchInstance = null;
+        if (PaperLib.getMinecraftVersion() <= 12)
+            try {
+                //noinspection unchecked
+                patchClass = (Class<SafeLocationUtils_Patch>) Class
+                        .forName("biz.donvi.jakesRTP.SafeLocationUtils_12")
+                        .asSubclass(SafeLocationUtils_Patch.class);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+
+        if (patchClass != null)
+            try {
+                patchInstance = patchClass.newInstance();
+            } catch (IllegalAccessException | InstantiationException e) {
+                e.printStackTrace();
+            }
+        else patchInstance = new SafeLocationUtils_Patch.BlankPatch();
+        patcher = patchInstance;
     }
+
+
+    private SafeLocationUtils() {}
 
     /* ================================================== *\
                     Material checking utils
@@ -27,7 +48,24 @@ public abstract class SafeLocationUtils {
      * @param mat The material to check
      * @return Whether it is safe or not to be there
      */
-    abstract boolean isSafeToBeIn(Material mat);
+    boolean isSafeToBeIn(Material mat) {
+        if (patcher.matchesPatchVersion(12)) return patcher.isSafeToBeIn(mat);
+        switch (mat) {
+            case AIR:
+            case SNOW:
+            case FERN:
+            case LARGE_FERN:
+            case VINE:
+            case GRASS:
+            case TALL_GRASS:
+                return true;
+            case WATER:
+            case LAVA:
+            case CAVE_AIR:
+            default:
+                return false;
+        }
+    }
 
     /**
      * Checks the given material against a <u>blacklist</u> of materials deemed to be "safe to be on"
@@ -35,7 +73,27 @@ public abstract class SafeLocationUtils {
      * @param mat The material to check
      * @return Whether it is safe or not to be there
      */
-    abstract boolean isSafeToBeOn(Material mat);
+    boolean isSafeToBeOn(Material mat) {
+        if (patcher.matchesPatchVersion(12)) return patcher.isSafeToBeOn(mat);
+        switch (mat) {
+            case LAVA:
+            case MAGMA_BLOCK:
+            case WATER:
+            case AIR:
+            case CAVE_AIR:
+            case VOID_AIR:
+            case CACTUS:
+            case SEAGRASS:
+            case TALL_SEAGRASS:
+            case LILY_PAD:
+                return false;
+            case GRASS_BLOCK:
+            case STONE:
+            case DIRT:
+            default:
+                return true;
+        }
+    }
 
     /**
      * Checks if the given material is any type of tree leaf.
@@ -43,7 +101,20 @@ public abstract class SafeLocationUtils {
      * @param mat The material to check
      * @return Whether it is a type of leaf
      */
-    abstract boolean isTreeLeaves(Material mat);
+    boolean isTreeLeaves(Material mat) {
+        if (patcher.matchesPatchVersion(12)) return patcher.isTreeLeaves(mat);
+        switch (mat) {
+            case ACACIA_LEAVES:
+            case BIRCH_LEAVES:
+            case DARK_OAK_LEAVES:
+            case JUNGLE_LEAVES:
+            case OAK_LEAVES:
+            case SPRUCE_LEAVES:
+                return true;
+            default:
+                return false;
+        }
+    }
 
     /**
      * Checks the given material against a <u>whitelist</u> of materials deemed to be "safe to go through".
@@ -215,7 +286,11 @@ public abstract class SafeLocationUtils {
         return chunkLocMatFromSnapshot(x, loc.getBlockY(), z, chunk);
     }
 
-    abstract Material chunkLocMatFromSnapshot(int inX, int y, int inZ, ChunkSnapshot chunk);
+    Material chunkLocMatFromSnapshot(int inX, int y, int inZ, ChunkSnapshot chunk) {
+        if (patcher.matchesPatchVersion(12))
+            return patcher.chunkLocMatFromSnapshot(inX, y, inZ, chunk);
+        return chunk.getBlockData(inX, y, inZ).getMaterial();
+    }
 
     boolean isLocationInsideChunk(Location loc, ChunkSnapshot chunk) {
         return (int) Math.floor((double) loc.getBlockX() / 16) == chunk.getX() &&

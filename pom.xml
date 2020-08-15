@@ -62,11 +62,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>biz.donvi.jakesRTP</groupId>
-            <artifactId>JRTP-1.12.2-patch</artifactId>
-            <version>0.8</version>
-        </dependency>
-        <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
             <version>1.16.1-R0.1-SNAPSHOT</version>
