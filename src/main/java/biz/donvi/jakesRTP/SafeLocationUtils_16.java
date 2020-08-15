@@ -65,5 +65,4 @@ public class SafeLocationUtils_16 extends SafeLocationUtils {
     Material chunkLocMatFromSnapshot(int inX, int y, int inZ, ChunkSnapshot chunk) {
         return chunk.getBlockData(inX, y, inZ).getMaterial();
     }
-
 }

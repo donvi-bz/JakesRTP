@@ -45,6 +45,9 @@
             -->
         </plugins>
     </build>
+    <modules>
+        <module>JRTP-1.12.2-patch</module>
+    </modules>
 
     <repositories>
         <repository>
@@ -58,6 +61,11 @@
     </repositories>
 
     <dependencies>
+        <dependency>
+            <groupId>biz.donvi.jakesRTP</groupId>
+            <artifactId>JRTP-1.12.2-patch</artifactId>
+            <version>0.8</version>
+        </dependency>
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
