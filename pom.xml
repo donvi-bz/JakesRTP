@@ -19,7 +19,6 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
-            <!--
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -35,17 +34,33 @@
                             <relocations>
                                 <relocation>
                                     <pattern>io.papermc</pattern>
-                                    <shadedPattern>biz.donvi.jakesRTP</shadedPattern>
+                                    <shadedPattern>biz.donvi.jakesRTP.libs.io.papermc</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>biz.donvi.argsChecker</pattern>
+                                    <shadedPattern>biz.donvi.jakesRTP.libs.biz.donvi.argsChecker</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>biz.donvi.evenDistribution</pattern>
+                                    <shadedPattern>biz.donvi.jakesRTP.libs.biz.donvi.evenDistribution</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
     <modules>
+        <module>JakesRTP-Core</module>
         <module>JRTP-1.12.2-patch</module>
     </modules>
 
@@ -59,21 +74,5 @@
             <url>https://papermc.io/repo/repository/maven-public/</url>
         </repository>
     </repositories>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
-            <version>1.16.1-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.papermc</groupId>
-            <artifactId>paperlib</artifactId>
-            <version>1.0.4</version>
-            <scope>compile</scope>
-        </dependency>
-    </dependencies>
-
 
 </project>

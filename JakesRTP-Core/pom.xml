@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>JakesRtp</artifactId>
+        <groupId>biz.donvi</groupId>
+        <version>0.8</version>
+    </parent>
+
+    <artifactId>JakesRTP-Core</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>1.16.1-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.papermc</groupId>
+            <artifactId>paperlib</artifactId>
+            <version>1.0.4</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>biz.donvi</groupId>
+            <artifactId>ArgsChecker</artifactId>
+            <version>1</version>
+        </dependency>
+        <dependency>
+            <groupId>biz.donvi</groupId>
+            <artifactId>EvenDistribution</artifactId>
+            <version>1</version>
+        </dependency>
+        <dependency>
+            <groupId>biz.donvi</groupId>
+            <artifactId>JRTP-1.12.2-patch</artifactId>
+            <version>0.8</version>
+        </dependency>
+    </dependencies>
+
+</project>

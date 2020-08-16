@@ -32,7 +32,7 @@ public final class PluginMain extends JavaPlugin {
         //Set up the reference for some objects
         plugin = this;
         logger = plugin.getLogger();
-        cmdMap = new Yaml().load(this.getClassLoader().getResourceAsStream("commandTree.yaml"));
+        cmdMap = new Yaml().load(this.getClassLoader().getResourceAsStream("commandTree.yml"));
 
 
         try {
