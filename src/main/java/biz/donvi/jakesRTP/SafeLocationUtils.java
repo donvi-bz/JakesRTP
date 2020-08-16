@@ -3,28 +3,26 @@ package biz.donvi.jakesRTP;
 import io.papermc.lib.PaperLib;
 import org.bukkit.*;
 
-import java.lang.reflect.Constructor;
-
 public class SafeLocationUtils {
 
     public static final SafeLocationUtils util;
 
-    private static final SafeLocationUtils_Patch patcher;
+    private static final SafeLocationUtils_Patch patches;
 
     static {
         util = new SafeLocationUtils();
         Class<SafeLocationUtils_Patch> patchClass = null;
         SafeLocationUtils_Patch patchInstance = null;
-        if (PaperLib.getMinecraftVersion() <= 12)
-            try {
+        try {
+            if (PaperLib.getMinecraftVersion() <= 12) {
                 //noinspection unchecked
                 patchClass = (Class<SafeLocationUtils_Patch>) Class
                         .forName("biz.donvi.jakesRTP.SafeLocationUtils_12")
                         .asSubclass(SafeLocationUtils_Patch.class);
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
             }
-
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
         if (patchClass != null)
             try {
                 patchInstance = patchClass.newInstance();
@@ -32,7 +30,7 @@ public class SafeLocationUtils {
                 e.printStackTrace();
             }
         else patchInstance = new SafeLocationUtils_Patch.BlankPatch();
-        patcher = patchInstance;
+        patches = patchInstance;
     }
 
 
@@ -49,7 +47,7 @@ public class SafeLocationUtils {
      * @return Whether it is safe or not to be there
      */
     boolean isSafeToBeIn(Material mat) {
-        if (patcher.matchesPatchVersion(12)) return patcher.isSafeToBeIn(mat);
+        if (patches.matchesPatchVersion(12)) return patches.isSafeToBeIn(mat);
         switch (mat) {
             case AIR:
             case SNOW:
@@ -74,7 +72,7 @@ public class SafeLocationUtils {
      * @return Whether it is safe or not to be there
      */
     boolean isSafeToBeOn(Material mat) {
-        if (patcher.matchesPatchVersion(12)) return patcher.isSafeToBeOn(mat);
+        if (patches.matchesPatchVersion(12)) return patches.isSafeToBeOn(mat);
         switch (mat) {
             case LAVA:
             case MAGMA_BLOCK:
@@ -102,7 +100,7 @@ public class SafeLocationUtils {
      * @return Whether it is a type of leaf
      */
     boolean isTreeLeaves(Material mat) {
-        if (patcher.matchesPatchVersion(12)) return patcher.isTreeLeaves(mat);
+        if (patches.matchesPatchVersion(12)) return patches.isTreeLeaves(mat);
         switch (mat) {
             case ACACIA_LEAVES:
             case BIRCH_LEAVES:
@@ -287,8 +285,8 @@ public class SafeLocationUtils {
     }
 
     Material chunkLocMatFromSnapshot(int inX, int y, int inZ, ChunkSnapshot chunk) {
-        if (patcher.matchesPatchVersion(12))
-            return patcher.chunkLocMatFromSnapshot(inX, y, inZ, chunk);
+        if (patches.matchesPatchVersion(12))
+            return patches.chunkLocMatFromSnapshot(inX, y, inZ, chunk);
         return chunk.getBlockData(inX, y, inZ).getMaterial();
     }
 

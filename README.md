@@ -29,7 +29,7 @@ Oh, and if you want more than one config, you just copy and paste the config sec
 
 ## The config (and all its documentation)
 
-Go [here](src/main/resources/config.yml) for the config,
+Go [here](JRTP-1.12.2-patch/src/main/resources/config.yml) for the config,
 ~~or [here](doc/config.md) for extra information.~~
 
 ## Commands overview
