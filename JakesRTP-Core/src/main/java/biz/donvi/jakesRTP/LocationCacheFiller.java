@@ -45,8 +45,11 @@ public class LocationCacheFiller implements Runnable {
                         PluginMain.infoLog("Something has gone wrong, but this is most likely not an issue.");
                     ex.printStackTrace();
                 }
-        } catch (Exception ignored) {
+        } catch (ReferenceNonExistentException ignored) {
             System.out.println("[J-RTP] Plugin no longer exists.");
+        } catch (Exception e){
+            System.out.println("Something unexpected went wrong.");
+            e.printStackTrace();
         }
         System.out.println("[J-RTP] Shutting location caching thread down.");
     }

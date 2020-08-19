@@ -3,7 +3,7 @@ author: JakeTS
 main: biz.donvi.jakesRTP.PluginMain
 prefix: 'J-RTP'
 version: '0.8'
-api-version: '1.16'
+api-version: '1.13'
 
 softdepend:
   - 'Multiverse-Core'

@@ -72,7 +72,7 @@ public final class PluginMain extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        HandlerList.unregisterAll(theRandomTeleporter);
+        HandlerList.unregisterAll(this);
         theRandomTeleporter = null;
         defaultConfigVersion = null;
         locFinderRunnable.markAsOver();
@@ -82,10 +82,9 @@ public final class PluginMain extends JavaPlugin {
     public void loadRandomTeleporter() {
         this.reloadConfig();
         try {
-            HandlerList.unregisterAll(theRandomTeleporter);
             theRandomTeleporter = new RandomTeleporter(this.getConfig());
-            Objects.requireNonNull(getCommand("rtp")).setExecutor(theRandomTeleporter);
-            getServer().getPluginManager().registerEvents(theRandomTeleporter, this);
+            Objects.requireNonNull(getCommand("rtp")).setExecutor(new CmdRtp(theRandomTeleporter));
+            getServer().getPluginManager().registerEvents(new RtpOnEvent(theRandomTeleporter), this);
         } catch (Exception e) {
             plugin.getLogger().log(Level.WARNING, "RTP Command could not be loaded!");
             e.printStackTrace();
@@ -130,6 +129,6 @@ public final class PluginMain extends JavaPlugin {
     }
 
     public RandomTeleporter getRandomTeleporter() {
-        return (RandomTeleporter) Objects.requireNonNull(getCommand("rtp")).getExecutor();
+        return theRandomTeleporter;
     }
 }

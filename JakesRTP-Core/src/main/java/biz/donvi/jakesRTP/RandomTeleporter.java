@@ -22,7 +22,7 @@ import java.util.Queue;
 import static biz.donvi.jakesRTP.PluginMain.infoLog;
 import static biz.donvi.jakesRTP.PluginMain.plugin;
 
-public class RandomTeleporter implements CommandExecutor, Listener {
+public class RandomTeleporter {
 
     final static String explicitPermPrefix = "jakesrtp.use.";
 
@@ -382,7 +382,7 @@ public class RandomTeleporter implements CommandExecutor, Listener {
     }
 
     /* ================================================== *\
-                    Misc ←  Workers
+                    Misc ← Workers
     \* ================================================== */
 
     /**
@@ -424,141 +424,4 @@ public class RandomTeleporter implements CommandExecutor, Listener {
         }
     }
 
-    /* ================================================== *\
-                    Event Handlers
-    \* ================================================== */
-
-    /**
-     * This is called when a player runs the in-game "/rtp" command.
-     * Anything (except errors) that directly deals with the player is done here.
-     */
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        try {
-            /* - - - - - - - - - - - - - - - - - - - - - - - - - - *|
-            |* - - - - If a player tries to RTP themselves - - - - *|
-            |* - - - - - - - - - - - - - - - - - - - - - - - - - - */
-            if (args.length == 0 && sender instanceof Player) {
-                Player player = (Player) sender;
-                long callTime = System.currentTimeMillis();
-
-                CoolDownTracker coolDownTracker = getRtpSettingsByWorldForPlayer(player).coolDown;
-                if (player.hasPermission("jakesRtp.noCooldown") || coolDownTracker.check(player.getName())) {
-                    long startTime = System.currentTimeMillis();
-
-                    Location rtpLocation = getRtpLocation(player, false, true);
-                    PaperLib.teleportAsync(player, rtpLocation);
-                    coolDownTracker.log(player.getName(), callTime);
-
-                    long endTime = System.currentTimeMillis();
-                    if (logRtpOnCommand) infoLog(
-                            "Rtp-from-command triggered! " +
-                            "Teleported player " + player.getName() +
-                            " to " + GeneralUtil.locationAsString(rtpLocation, 1, false) +
-                            " taking " + (endTime - startTime) + " ms.");
-                } else {
-                    player.sendMessage("Need to wait for cooldown: " + coolDownTracker.timeLeftWords(player.getName()));
-                }
-            }
-            /* - - - - - - - - - - - - - - - - - - - - - - - - - - *|
-            |* - - If a player tries to RTP someone else - - - - - *|
-            |* - - - - - - - - - - - - - - - - - - - - - - - - - - */
-            else if (args.length >= 1 && args.length <= 2 && sender.hasPermission("jakesRtp.others")) {
-                Player playerToTp = sender.getServer().getPlayerExact(args[0]);
-                World destWorld = args.length < 2 ? null : GeneralUtil.getWorldIgnoreCase(sender.getServer(), args[1]);
-                if (playerToTp == null)
-                    sender.sendMessage("Could not find player " + args[0]);
-                else if (args.length >= 2 && destWorld == null)
-                    sender.sendMessage("Could not find world" + args[1]);
-                else {
-                    long startTime = System.currentTimeMillis();
-
-                    Location rtpLocation = destWorld == null ?
-                            getRtpLocation(
-                                    playerToTp,
-                                    true,
-                                    true) :
-                            getRtpLocation(
-                                    getRtpSettingsByWorld(destWorld),
-                                    destWorld.getSpawnLocation(),
-                                    true);
-                    PaperLib.teleportAsync(playerToTp, rtpLocation);
-
-                    long endTime = System.currentTimeMillis();
-                    if (logRtpOnForceCommand) infoLog(
-                            "Rtp-from-force-command triggered! " +
-                            "Teleported player " + playerToTp.getName() +
-                            " to " + GeneralUtil.locationAsString(rtpLocation, 1, false) +
-                            " taking " + (endTime - startTime) + " ms.");
-                }
-            }
-
-
-        } catch (NotPermittedException npe) {
-            sender.sendMessage("Could not RTP for reason: " + npe.getMessage());
-        } catch (Exception e) {
-            sender.sendMessage("Error. Could not RTP for reason: " + e.getMessage());
-            sender.sendMessage("Please check console for more info on why teleportation failed.");
-            e.printStackTrace();
-        }
-        return true;
-    }
-
-    /**
-     * When {@code firstJoinRtp} is enabled, this will RTP a player when they join the server
-     * for the first time.
-     *
-     * @param event The PlayerJoinEvent
-     */
-    @EventHandler
-    public void playerJoin(PlayerJoinEvent event) {
-        if (!firstJoinRtp || event.getPlayer().hasPlayedBefore()) return;
-        try {
-            long startTime = System.currentTimeMillis();
-
-            Location rtpLocation = getRtpLocation(firstJoinSettings, firstJoinWorld.getSpawnLocation(), true);
-            event.getPlayer().teleport(rtpLocation);
-
-            long endTime = System.currentTimeMillis();
-            if (logRtpOnPlayerJoin) infoLog(
-                    "Rtp-on-join triggered! " +
-                    "Teleported player " + event.getPlayer().getName() +
-                    " to " + GeneralUtil.locationAsString(rtpLocation, 1, false) +
-                    " taking " + (endTime - startTime) + " ms.");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    /**
-     * When {@code onDeathRtp} is enabled, this will RTP a player when they die (with a few exceptions).<p>
-     * A player will not be teleported randomly, even if {@code onDeathRtp} is true, if at least one of these conditions is true:<p>
-     * • {@code onDeathRequirePermission} is true, and the player does not have the correct permission<p>
-     * • {@code onDeathRespectBeds} is true, and the player has a home bed
-     *
-     * @param event
-     */
-    @EventHandler
-    public void playerRespawn(PlayerRespawnEvent event) {
-        //All conditions must be met to continue
-        if (onDeathRtp &&
-            (!onDeathRequirePermission || event.getPlayer().hasPermission("jakesrtp.rtpondeath")) &&
-            (!onDeathRespectBeds || !(event.isBedSpawn()/* || event.isAnchorSpawn()*/))
-        ) try {
-            long startTime = System.currentTimeMillis();
-            //TODO~Decide: Do I want the player's death location instead?
-            Location rtpLocation = getRtpLocation(onDeathSettings, onDeathWorld.getSpawnLocation(), true);
-            event.setRespawnLocation(rtpLocation);
-
-            long endTime = System.currentTimeMillis();
-            if (logRtpOnRespawn) infoLog(
-                    "Rtp-on-respawn triggered! " +
-                    "Teleported player " + event.getPlayer().getName() +
-                    " to " + GeneralUtil.locationAsString(rtpLocation, 1, false) +
-                    " taking " + (endTime - startTime) + " ms.");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 }
