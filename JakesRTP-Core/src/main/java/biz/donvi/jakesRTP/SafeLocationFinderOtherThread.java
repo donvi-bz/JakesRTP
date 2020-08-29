@@ -49,30 +49,35 @@ public class SafeLocationFinderOtherThread extends SafeLocationFinder {
      * @param loc The location to get the material for.
      */
     @Override
-    protected Material getLocMaterial(Location loc) throws TimeoutException {
+    protected Material getLocMaterial(Location loc) throws TimeoutException, PluginDisabledException {
         return SafeLocationUtils.util.locMatFromSnapshot(loc, getChunkForLocation(loc));
     }
 
     @Override
-    protected void dropToGround() throws TimeoutException {
+    protected void dropToGround() throws TimeoutException, PluginDisabledException {
         SafeLocationUtils.util.dropToGround(loc, lowBound, getChunkForLocation(loc));
     }
 
     @Override
-    protected void dropToMiddle() throws TimeoutException {
+    protected void dropToMiddle() throws TimeoutException, PluginDisabledException {
         SafeLocationUtils.util.dropToMiddle(loc, lowBound, highBound, getChunkForLocation(loc));
     }
 
-    private ChunkSnapshot getChunkForLocation(Location loc) throws TimeoutException {
-        String chunkKey = loc.getBlockX() + " " + loc.getBlockZ();
+    private ChunkSnapshot getChunkForLocation(Location loc) throws TimeoutException, PluginDisabledException {
+        String chunkKey = loc.getChunk().getX() + " " + loc.getChunk().getZ();
         ChunkSnapshot chunkSnapshot = chunkSnapshotMap.get(chunkKey);
         if (chunkSnapshot != null) return chunkSnapshot;
         try {
             // TODO - Don't run this code when the plugin is disabled. Oh, and deal with the consequences.
+            //  Now make sure this solution works well.
+            if (!PluginMain.plugin.isEnabled()) throw new PluginDisabledException();
             chunkSnapshotMap.put(chunkKey, chunkSnapshot = Bukkit.getScheduler().callSyncMethod(
                     PluginMain.plugin,
                     () -> PaperLib.getChunkAtAsync(loc).thenApply(Chunk::getChunkSnapshot)
             ).get(timeout, TimeUnit.SECONDS).get(timeout, TimeUnit.SECONDS));
+//            System.out.println("LOADED CHUNK SNAPSHOT USING PAPER");
+        } catch (CancellationException ignored) {
+            throw new PluginDisabledException();
         } catch (InterruptedException e) {
             System.out.println("Caught an unexpected interrupt.");
         } catch (ExecutionException e) {

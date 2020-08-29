@@ -74,7 +74,7 @@ public abstract class SafeLocationFinder {
      * @return True if the location is now safe, false if it could not be made safe.
      * @throws Exception if this method was called from an object with no checking bounds.
      */
-    public boolean tryAndMakeSafe(LocCheckProfiles checkProfile) throws Exception {
+    public boolean tryAndMakeSafe(LocCheckProfiles checkProfile) throws Exception, PluginDisabledException {
         try {
             if (!enableSelfChecking)
                 throw new Exception("Tried to use self checking on an object that can not self check.");
@@ -149,7 +149,7 @@ public abstract class SafeLocationFinder {
      * @param checkProfile The profile setting. This determines which method will be called.
      * @throws Exception Any exception thrown will be passed along.
      */
-    private void moveToStart(LocCheckProfiles checkProfile) throws Exception {
+    private void moveToStart(LocCheckProfiles checkProfile) throws Exception, PluginDisabledException {
         if (checkProfile == LocCheckProfiles.TOP_DOWN)
             dropToGround();
         else if (checkProfile == LocCheckProfiles.MIDDLE_OUT)
@@ -204,4 +204,7 @@ public abstract class SafeLocationFinder {
     protected abstract void dropToMiddle() throws Exception;
 
     public static enum LocCheckProfiles {AUTO, TOP_DOWN, MIDDLE_OUT}
+
+    static class PluginDisabledException extends Exception {}
+
 }
