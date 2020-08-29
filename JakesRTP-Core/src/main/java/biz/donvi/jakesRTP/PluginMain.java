@@ -79,12 +79,17 @@ public final class PluginMain extends JavaPlugin {
         Bukkit.getScheduler().cancelTasks(this);
     }
 
+    @SuppressWarnings("ConstantConditions")
     public void loadRandomTeleporter() {
         this.reloadConfig();
         try {
             theRandomTeleporter = new RandomTeleporter(this.getConfig());
-            Objects.requireNonNull(getCommand("rtp")).setExecutor(new CmdRtp(theRandomTeleporter));
-            getServer().getPluginManager().registerEvents(new RtpOnEvent(theRandomTeleporter), this);
+            getCommand("rtp").setExecutor(
+                    new CmdRtp(theRandomTeleporter));
+            getCommand("forcertp").setExecutor(
+                    new CmdForceRtp(theRandomTeleporter, Util.getImpliedMap(cmdMap, "forcertp")));
+            getServer().getPluginManager().registerEvents(
+                    new RtpOnEvent(theRandomTeleporter), this);
         } catch (Exception e) {
             plugin.getLogger().log(Level.WARNING, "RTP Command could not be loaded!");
             e.printStackTrace();

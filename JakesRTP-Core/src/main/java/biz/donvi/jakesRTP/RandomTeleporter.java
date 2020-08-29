@@ -16,6 +16,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
 
@@ -68,8 +69,11 @@ public class RandomTeleporter {
                                 configSection,
                                 configName));
                     else infoLog("Not loading config " + configName + " since it is marked disabled.");
-                } catch (NullPointerException e) {
+                } catch (NullPointerException | JrtpBaseException e) {
                     PluginMain.infoLog(
+                            (e instanceof JrtpBaseException
+                                    ? "Error: " + ((JrtpBaseException) e).getMessage() + '\n'
+                                    : "") +
                             "Whoops! Something in the config wasn't right, " +
                             rtpSettings.size() + " configs have been loaded thus far.");
                 }
@@ -124,6 +128,18 @@ public class RandomTeleporter {
     public ArrayList<RtpSettings> getRtpSettings() { return rtpSettings; }
 
     /**
+     * Gets the list of RtpSettings names.
+     *
+     * @return A list of RtpSettings names.
+     */
+    public ArrayList<String> getRtpSettingsNames() {
+        ArrayList<String> rtpSettings = new ArrayList<>();
+        for (RtpSettings rtpSetting : this.rtpSettings)
+            rtpSettings.add(rtpSetting.name);
+        return rtpSettings;
+    }
+
+    /**
      * Gets the {@code RtpSettings} that are being used by the given world. If more then one {@code RtpSettings}
      * objects are valid, the one with the highest priority will be returned.
      *
@@ -152,13 +168,13 @@ public class RandomTeleporter {
      *
      * @param name The name of the settings
      * @return The Rtp settings object with the given name
-     * @throws Exception If no settings have the given name
+     * @throws JrtpBaseException If no settings have the given name
      */
-    public RtpSettings getRtpSettingsByName(String name) throws Exception {
+    public RtpSettings getRtpSettingsByName(String name) throws JrtpBaseException {
         for (RtpSettings settings : rtpSettings)
             if (settings.name.equals(name))
                 return settings;
-        throw new Exception("No RTP settings found with name " + name);
+        throw new JrtpBaseException("No RTP settings found with name " + name);
     }
 
     /**
@@ -318,7 +334,8 @@ public class RandomTeleporter {
      *                   getRtpXZ() will throw an exception if the rtp shape is not defined.
      */
     public Location getRtpLocation(final RtpSettings rtpSettings, Location callFromLoc,
-                                   final boolean takeFromQueue) throws Exception {
+                                   final boolean takeFromQueue
+    ) throws Exception, SafeLocationFinder.PluginDisabledException {
         //Part 1: Force destination world if not current world
         if (rtpSettings.forceDestinationWorld && callFromLoc.getWorld() != rtpSettings.destinationWorld)
             callFromLoc = rtpSettings.destinationWorld.getSpawnLocation();
@@ -396,7 +413,7 @@ public class RandomTeleporter {
      * @throws NotPermittedException Should not realistically get thrown, but may occur if the world is not
      *                               enabled in the settings.
      */
-    public int fillQueue(RtpSettings settings, World world) throws JrtpBaseException {
+    public int fillQueue(RtpSettings settings, World world) throws JrtpBaseException, SafeLocationFinder.PluginDisabledException {
         try {
             int changesMade = 0;
             for (Queue<Location> locationQueue = settings.getLocationQueue(world);
@@ -417,6 +434,8 @@ public class RandomTeleporter {
                         " Time: " + (endTime - startTime) + " ms.");
             }
             return changesMade;
+        } catch (SafeLocationFinder.PluginDisabledException pluginDisabledException) {
+            throw pluginDisabledException;
         } catch (Exception exception) {
             if (exception instanceof JrtpBaseException) throw (JrtpBaseException) exception;
             else exception.printStackTrace();

@@ -1,12 +1,17 @@
 package biz.donvi.jakesRTP;
 
+import io.papermc.lib.PaperLib;
 import org.apache.commons.lang.text.StrBuilder;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Server;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 
 import java.text.DecimalFormat;
 import java.util.List;
+
+import static biz.donvi.jakesRTP.PluginMain.infoLog;
 
 public final class GeneralUtil {
 
@@ -54,12 +59,70 @@ public final class GeneralUtil {
         return null;
     }
 
-    public static World getWorldIgnoreCase(Server server, String worldName){
+    public static World getWorldIgnoreCase(Server server, String worldName) {
         final List<World> worldList = server.getWorlds();
         for (World world : worldList)
             if (world.getName().equalsIgnoreCase(worldName))
                 return world;
         return null;
+    }
+
+    /**
+     * Conveniently teleports a given player with a given rtpSettings in a given world, logging and timing if requested,
+     * and can be run sync or async.
+     *
+     * @param playerToTp The player to teleport.
+     * @param randomTeleporter The random teleporter to supply the random location.
+     * @param rtpSettings The rtpSettings to use.
+     * @param callFromLoc The location that the player called RTP from (used to decide where they land).
+     * @param takeFromQueue Should a location be taken from the queue (or generated on the spot).
+     * @param timed Should we time this?
+     * @param async Should we teleport the player asynchronously?
+     * @param doLog Should we log this teleport to console?
+     * @param logMsgStart The first line of the log message.
+     * @return The location that the player was teleported to.
+     * @throws Exception If something goes wrong.
+     */
+    public static Location teleportRandomlyWrapper( /*TODO use this more often*/
+            Player playerToTp,
+            RandomTeleporter randomTeleporter, RtpSettings rtpSettings, Location callFromLoc, boolean takeFromQueue,
+            boolean timed, boolean async, boolean doLog, String logMsgStart) throws Exception {
+        long startTime = timed ? System.currentTimeMillis() : 0;
+        Location rtpLocation =
+                randomTeleporter.getRtpLocation(
+                        rtpSettings,
+                        callFromLoc,
+                        true);
+        //TODO clean up message portion
+        if (async) {
+            PaperLib.teleportAsync(playerToTp, rtpLocation).thenAccept(teleported -> {
+                long endTime = timed ? System.currentTimeMillis() : 0;
+                if (doLog) infoLog(
+                        logMsgStart +
+                        " Teleported player " + playerToTp.getName() +
+                        " to " + locationAsString(rtpLocation, 1, false) +
+                        " taking " + (timed ? endTime - startTime : "N/A") + " ms.");
+            });
+        } else if (Bukkit.isPrimaryThread()) {
+            playerToTp.teleport(rtpLocation);
+            long endTime = timed ? System.currentTimeMillis() : 0;
+            if (doLog) infoLog(
+                    logMsgStart +
+                    " Teleported player " + playerToTp.getName() +
+                    " to " + locationAsString(rtpLocation, 1, false) +
+                    " taking " + (timed ? endTime - startTime : "N/A") + " ms.");
+        } else {
+            playerToTp.getServer().getScheduler().runTask(PluginMain.plugin, () -> {
+                playerToTp.teleport(rtpLocation);
+                long endTime = timed ? System.currentTimeMillis() : 0;
+                if (doLog) infoLog(
+                        logMsgStart +
+                        " Teleported player " + playerToTp.getName() +
+                        " to " + locationAsString(rtpLocation, 1, false) +
+                        " taking " + (timed ? endTime - startTime : "N/A") + " ms.");
+            });
+        }
+        return rtpLocation;
     }
 
 }

@@ -1,6 +1,14 @@
 rtp:
+  configName !dynamic:
+forcertp:
   playerName !dynamic:
-    force:
+    -c:
+      configName !dynamic:
+    -c-w:
+      configName !dynamic:
+        worldName !dynamic:
+    -w:
+      worldName !dynamic:
 rtp-admin:
   reload:
   status:

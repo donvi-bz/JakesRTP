@@ -62,6 +62,7 @@ public class RtpSettings {
         if (forceDestinationWorld) {
             destinationWorld = plugin.getServer().getWorld(config.getString(
                     "force-destination-world.destination", null));
+            if (destinationWorld == null) throw new JrtpBaseException("Force destination world not recognised.");
             configWorlds.putIfAbsent(destinationWorld, new ConcurrentLinkedQueue<>());
         } else destinationWorld = null;
         cacheLocationCount = config.getInt("preparations.cache-locations", 10);
