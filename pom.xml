@@ -7,7 +7,10 @@
     <groupId>biz.donvi</groupId>
     <artifactId>JakesRtp</artifactId>
     <packaging>pom</packaging>
-    <version>0.8.1</version>
+    <version>${release.version}</version>
+    <properties>
+        <release.version>0.8.1</release.version>
+    </properties>
     <build>
         <plugins>
             <plugin>

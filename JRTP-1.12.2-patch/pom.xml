@@ -7,7 +7,8 @@
     <parent>
         <artifactId>JakesRtp</artifactId>
         <groupId>biz.donvi</groupId>
-        <version>0.8.1</version>
+        <!--suppress MavenPropertyInParent -->
+        <version>${release.version}</version>
     </parent>
 
     <artifactId>JRTP-1.12.2-patch</artifactId>
