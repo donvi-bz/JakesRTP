@@ -105,8 +105,8 @@ public final class PluginMain extends JavaPlugin {
             Bukkit.getScheduler().runTaskAsynchronously(this,
                     (locFinderRunnable = new LocationCacheFiller(
                             this,
-                            getConfig().getInt("location-cache-filler.recheck-time", 2) * 1000,
-                            getConfig().getInt("location-cache-filler.between-time", 2) * 1000)
+                            (long) (getConfig().getDouble("location-cache-filler.recheck-time", 2) * 1000),
+                            (long) (getConfig().getDouble("location-cache-filler.between-time", 0.5) * 1000))
                     ));
         }
     }

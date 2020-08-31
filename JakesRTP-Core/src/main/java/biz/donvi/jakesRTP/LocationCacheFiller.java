@@ -5,13 +5,9 @@ import org.bukkit.World;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
 
 //DEBUG ↓
-import biz.donvi.gnuPlotter.Plotter;
 
-import static org.bukkit.Bukkit.getServer;
 
 public class LocationCacheFiller implements Runnable {
 
@@ -32,19 +28,17 @@ public class LocationCacheFiller implements Runnable {
 
     @Override
     public void run() {
-        patientlyWait(5000);//Debug line, remove later.
-        System.out.println("[J-RTP] LCF Started.");
         try {
-//            waitNGoodTicks(300); TODO ITEM - shelved for later
+            SimpleLagTimer.blockingTimer(pluginMain(), 5000);
+            System.out.println("[J-RTP] LCF Started.");
             while (keepRunning && isPluginLoaded())
                 try {
-                    ArrayList<Integer> qFills = new ArrayList<>();
                     beginning:
                     for (RtpSettings settings : getCurrentRtpSettings()) {
                         for (World world : settings.getConfigWorlds())
                             if (!keepRunning) break beginning;
                             else if (!settings.forceDestinationWorld || settings.destinationWorld == world)
-                                qFills.add(pluginMain().getRandomTeleporter().fillQueue(settings, world));
+                                pluginMain().getRandomTeleporter().fillQueue(settings, world);
                     }
                     patientlyWait(recheckTime);
                 } catch (JrtpBaseException ex) {
@@ -119,71 +113,6 @@ public class LocationCacheFiller implements Runnable {
                     patientlyWait((int) ((startTime + betweenTime - currentTime) * 0.95) + 1);
             }
     }
-//
-//    /**
-//     * Waits for the specified number of ticks to pass where every tick is less than 50ms.
-//     *
-//     * @param ticks Number of <50ms ticks in a row to wait for.
-//     */
-//    private void waitNGoodTicks(long ticks) throws ReferenceNonExistentException {
-//        final LocationCacheFiller lcf = this;
-//        final ArrayList<double[]> points = new ArrayList<>(); //DEBUG REMOVE
-//        final Queue<Integer> lastPointsQueue = new LinkedList<>(); //DEBUG REMOVE
-//        final int[] runningTotal = {0, 0};//DEBUG REMOVE
-//        final int[] goodTicks = {0, 0, 0}; //DEBUG This should only be a 1d array
-//        final long[] lastTime = {System.currentTimeMillis()};
-//        final int[] taskNumber = new int[1];
-//        taskNumber[0] = pluginMain().getServer().getScheduler().scheduleSyncRepeatingTask(pluginMain(),
-//                new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        long currentTime = System.currentTimeMillis();
-//                        //DEBUG REMOVE LINE ↓
-//                        long timeDif = currentTime - lastTime[0];
-//                        if (lastPointsQueue.size() >= 100) {
-//                            int lastPointPoll = lastPointsQueue.poll();
-//                            runningTotal[0] -= lastPointPoll;
-//                            runningTotal[1] -= lastPointPoll;
-//                        }
-//                        if (timeDif > 45) {
-//                            lastPointsQueue.add((int) timeDif);
-//                            runningTotal[0] += timeDif;
-//                            runningTotal[1] += timeDif;
-//                        }
-//                        points.add(new double[]{
-//                                (double) (timeDif),
-//                                goodTicks[0],
-//                                (double) runningTotal[0] / lastPointsQueue.size(),
-//                                goodTicks[1],
-//                                (double) runningTotal[1] / lastPointsQueue.size(),
-//                                goodTicks[2]
-//                        });
-//                        if (runningTotal[0] / lastPointsQueue.size() < 55)
-//                            goodTicks[1]++;
-//                        else
-//                            goodTicks[1] = 0;
-//                        if (runningTotal[1] / lastPointsQueue.size() < 55)
-//                            goodTicks[2]++;
-//                        else
-//                            goodTicks[2] = 0;
-//                        //DEBUG REMOVE LINE ↑
-//                        if (currentTime - lastTime[0] < 55)
-//                            goodTicks[0]++;
-//                        else
-//                            goodTicks[0] = 0;
-//                        if (goodTicks[0] > ticks) {
-//                            getServer().getScheduler().cancelTask(taskNumber[0]);
-//                            lcf.syncNotify();
-//                        }
-//                        lastTime[0] = currentTime;
-//                    }
-//                }, 0, 1);
-//        System.out.println("starting wait");
-//        patientlyWait(1000 * 60 * 2);
-//        System.out.println("ending wait");
-//        new Plotter("C:/Program Files/gnuplot/bin/wgnuplot.exe") //DEBUG REMOVE
-//                .writeData(points.toArray(new double[0][])).plot(false);
-//    }
 
     /**
      * Gets the plugin's reference when it exists, or throws {@code ReferenceNonExistentException} if it is not.
