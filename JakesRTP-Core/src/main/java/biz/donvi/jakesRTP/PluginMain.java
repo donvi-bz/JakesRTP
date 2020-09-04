@@ -47,8 +47,8 @@ public final class PluginMain extends JavaPlugin {
                 logger.log(Level.WARNING, "You may want to copy any values from the old config to the new one if you customized it at all.");
                 logger.log(Level.WARNING, "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
                 Files.move(
-                        Paths.get(getDataFolder().getPath() + "\\config.yml"),
-                        Paths.get(getDataFolder().getPath() + "\\config-" + getCurrentConfigVersion() + "-old.yml")
+                        Paths.get(getDataFolder().getPath() + "/config.yml"),
+                        Paths.get(getDataFolder().getPath() + "/config-" + getCurrentConfigVersion() + "-old.yml")
                 );
                 saveDefaultConfig();
             }

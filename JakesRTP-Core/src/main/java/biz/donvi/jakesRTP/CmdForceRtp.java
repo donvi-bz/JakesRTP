@@ -3,8 +3,6 @@ package biz.donvi.jakesRTP;
 import biz.donvi.argsChecker.ArgsChecker;
 import biz.donvi.argsChecker.ArgsTester;
 import biz.donvi.argsChecker.DynamicArgsMap;
-import io.papermc.lib.PaperLib;
-import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -15,17 +13,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static biz.donvi.jakesRTP.PluginMain.infoLog;
 import static org.bukkit.Bukkit.getServer;
 
 public class CmdForceRtp extends DynamicArgsMap implements TabExecutor {
 
     Map<String, Object> cmdMap;
 
-    private final RandomTeleporter rt;
+    private final RandomTeleporter randomTeleporter;
 
-    public CmdForceRtp(RandomTeleporter rt, Map<String, Object> commandMap) {
-        this.rt = rt;
+    public CmdForceRtp(RandomTeleporter randomTeleporter, Map<String, Object> commandMap) {
+        this.randomTeleporter = randomTeleporter;
         this.cmdMap = commandMap;
     }
 
@@ -59,16 +56,14 @@ public class CmdForceRtp extends DynamicArgsMap implements TabExecutor {
             sender.sendMessage("Could not find player " + args[0]);
             return;
         }
-        RtpSettings rtpSettings = rt.getRtpSettingsByName(args[1]);
+        RtpSettings rtpSettings = randomTeleporter.getRtpSettingsByName(args[1]);
 
         // ↑ Check step | Teleport step ↓
 
-        GeneralUtil.teleportRandomlyWrapper(
-                playerToTp,rt,
-                rtpSettings, playerToTp.getLocation(), true,
-                true, true,
-                rt.logRtpOnForceCommand, "Rtp-from-force-command triggered!"
-        );
+        new RandomTeleportAction(
+                randomTeleporter, rtpSettings, playerToTp.getLocation(), true, true,
+                randomTeleporter.logRtpOnForceCommand, "Rtp-from-force-command triggered!"
+        ).teleportAsync(playerToTp);
     }
 
     private void subForceRtpWithWorld(CommandSender sender, String[] args) throws Exception {
@@ -85,16 +80,16 @@ public class CmdForceRtp extends DynamicArgsMap implements TabExecutor {
 
         // ↑ Check step | Teleport step ↓
 
-        GeneralUtil.teleportRandomlyWrapper(
-                playerToTp, rt,
-                rt.getRtpSettingsByWorld(destWorld),
+        new RandomTeleportAction(
+                randomTeleporter,
+                randomTeleporter.getRtpSettingsByWorld(destWorld),
                 playerToTp.getLocation().getWorld() == destWorld
                         ? playerToTp.getLocation()
                         : destWorld.getSpawnLocation(),
                 true,
-                true, true,
-                rt.logRtpOnForceCommand, "Rtp-from-force-command triggered!"
-        );
+                true,
+                randomTeleporter.logRtpOnForceCommand, "Rtp-from-force-command triggered!"
+        ).teleportAsync(playerToTp);
     }
 
     private void subForceRtpWithConfigAndWorld(CommandSender sender, String[] args) throws Exception {
@@ -103,7 +98,7 @@ public class CmdForceRtp extends DynamicArgsMap implements TabExecutor {
             sender.sendMessage("Could not find player " + args[0]);
             return;
         }
-        RtpSettings rtpSettings = rt.getRtpSettingsByName(args[1]);
+        RtpSettings rtpSettings = randomTeleporter.getRtpSettingsByName(args[1]);
         World destWorld = GeneralUtil.getWorldIgnoreCase(sender.getServer(), args[2]);
         if ((destWorld) == null) {
             sender.sendMessage("Could not find world " + args[2]);
@@ -125,13 +120,10 @@ public class CmdForceRtp extends DynamicArgsMap implements TabExecutor {
 
         // ↑ Check step | Teleport step ↓
 
-        GeneralUtil.teleportRandomlyWrapper(
-                playerToTp, rt,
-                rtpSettings, destWorld.getSpawnLocation(), true,
-                true, true,
-                rt.logRtpOnForceCommand, "Rtp-from-force-command triggered!"
-        );
-
+        new RandomTeleportAction(
+                randomTeleporter, rtpSettings, destWorld.getSpawnLocation(), true, true,
+                randomTeleporter.logRtpOnForceCommand, "Rtp-from-force-command triggered!"
+        ).teleportAsync(playerToTp);
     }
 
     @Override
@@ -150,7 +142,7 @@ public class CmdForceRtp extends DynamicArgsMap implements TabExecutor {
             switch (path[1]) {
                 case "-c":
                 case "-c-w":
-                    setResult(rt.getRtpSettingsNames());
+                    setResult(randomTeleporter.getRtpSettingsNames());
                     break;
                 case "-w":
                     List<String> worldNames = new ArrayList<>();

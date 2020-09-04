@@ -1,20 +1,15 @@
 package biz.donvi.jakesRTP;
 
-import io.papermc.lib.PaperLib;
-import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import static biz.donvi.jakesRTP.PluginMain.infoLog;
-
 public class CmdRtp implements CommandExecutor {
 
-    private final RandomTeleporter rt;
+    private final RandomTeleporter randomTeleporter;
 
-    public CmdRtp(RandomTeleporter rt) {this.rt = rt;}
+    public CmdRtp(RandomTeleporter randomTeleporter) {this.randomTeleporter = randomTeleporter;}
 
     /**
      * This is called when a player runs the in-game "/rtp" command.
@@ -26,22 +21,17 @@ public class CmdRtp implements CommandExecutor {
             if (args.length == 0 && sender instanceof Player) {
                 Player player = (Player) sender;
                 long callTime = System.currentTimeMillis();
-
-                CoolDownTracker coolDownTracker = rt.getRtpSettingsByWorldForPlayer(player).coolDown;
+                CoolDownTracker coolDownTracker = randomTeleporter.getRtpSettingsByWorldForPlayer(player).coolDown;
                 if (player.hasPermission("jakesRtp.noCooldown") || coolDownTracker.check(player.getName())) {
-                    long startTime = System.currentTimeMillis();
-
-                    Location rtpLocation = rt.getRtpLocation(player, false, true);
-                    PaperLib.teleportAsync(player, rtpLocation).thenAccept(teleported ->{
-                        long endTime = System.currentTimeMillis();
-                        if (rt.logRtpOnCommand) infoLog(
-                                "Rtp-from-command triggered! " +
-                                "Teleported player " + player.getName() +
-                                " to " + GeneralUtil.locationAsString(rtpLocation, 1, false) +
-                                " taking " + (endTime - startTime) + " ms.");
-                    });
+                    new RandomTeleportAction(
+                            randomTeleporter,
+                            randomTeleporter.getRtpSettingsByWorldForPlayer(player),
+                            player.getLocation(),
+                            true,
+                            true,
+                            randomTeleporter.logRtpOnCommand, "Rtp-from-command triggered!"
+                    ).teleportAsync(player);
                     coolDownTracker.log(player.getName(), callTime);
-
                 } else {
                     player.sendMessage("Need to wait for cooldown: " + coolDownTracker.timeLeftWords(player.getName()));
                 }

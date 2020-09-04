@@ -10,9 +10,9 @@ import static biz.donvi.jakesRTP.PluginMain.infoLog;
 
 public class RtpOnEvent implements Listener {
 
-    private final RandomTeleporter rt;
+    private final RandomTeleporter randomTeleporter;
 
-    public RtpOnEvent(RandomTeleporter rt) {this.rt = rt;}
+    public RtpOnEvent(RandomTeleporter randomTeleporter) {this.randomTeleporter = randomTeleporter;}
 
     /**
      * When {@code firstJoinRtp} is enabled, this will RTP a player when they join the server
@@ -22,24 +22,15 @@ public class RtpOnEvent implements Listener {
      */
     @EventHandler
     public void playerJoin(PlayerJoinEvent event) {
-        if (!rt.firstJoinRtp || event.getPlayer().hasPlayedBefore()) return;
+        if (!randomTeleporter.firstJoinRtp || event.getPlayer().hasPlayedBefore()) return;
         try {
-            long startTime = System.currentTimeMillis();
-
-            assert rt.firstJoinSettings != null;
-            assert rt.firstJoinWorld != null;
-            Location rtpLocation = rt.getRtpLocation(
-                    rt.firstJoinSettings,
-                    rt.firstJoinWorld.getSpawnLocation(),
-                    true);
-            event.getPlayer().teleport(rtpLocation);
-
-            long endTime = System.currentTimeMillis();
-            if (rt.logRtpOnPlayerJoin) infoLog(
-                    "Rtp-on-join triggered! " +
-                    "Teleported player " + event.getPlayer().getName() +
-                    " to " + GeneralUtil.locationAsString(rtpLocation, 1, false) +
-                    " taking " + (endTime - startTime) + " ms.");
+            assert randomTeleporter.firstJoinWorld != null;
+            new RandomTeleportAction(
+                    randomTeleporter, randomTeleporter.firstJoinSettings,
+                    randomTeleporter.firstJoinWorld.getSpawnLocation(),
+                    true, true,
+                    randomTeleporter.logRtpOnPlayerJoin, "Rtp-on-join triggered!"
+            ).teleportSync(event.getPlayer());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -57,26 +48,20 @@ public class RtpOnEvent implements Listener {
     @EventHandler
     public void playerRespawn(PlayerRespawnEvent event) {
         //All conditions must be met to continue
-        if (rt.onDeathRtp &&
-            (!rt.onDeathRequirePermission || event.getPlayer().hasPermission("jakesrtp.rtpondeath")) &&
-            (!rt.onDeathRespectBeds || !(event.isBedSpawn()/* || event.isAnchorSpawn()*/))
+        if (randomTeleporter.onDeathRtp &&
+            (!randomTeleporter.onDeathRequirePermission || event.getPlayer().hasPermission("jakesrtp.rtpondeath")) &&
+            (!randomTeleporter.onDeathRespectBeds || !(event.isBedSpawn()/* || event.isAnchorSpawn()*/))
         ) try {
-            long startTime = System.currentTimeMillis();
-            //TODO~Decide: Do I want the player's death location instead?
-            assert rt.onDeathSettings != null;
-            assert rt.onDeathWorld != null;
-            Location rtpLocation = rt.getRtpLocation(
-                    rt.onDeathSettings,
-                    rt.onDeathWorld.getSpawnLocation(),
-                    true);
-            event.setRespawnLocation(rtpLocation);
-
-            long endTime = System.currentTimeMillis();
-            if (rt.logRtpOnRespawn) infoLog(
-                    "Rtp-on-respawn triggered! " +
-                    "Teleported player " + event.getPlayer().getName() +
-                    " to " + GeneralUtil.locationAsString(rtpLocation, 1, false) +
-                    " taking " + (endTime - startTime) + " ms.");
+            assert randomTeleporter.onDeathWorld != null;
+            event.setRespawnLocation(
+                    new RandomTeleportAction(
+                            randomTeleporter, randomTeleporter.onDeathSettings,
+                            //TODO~Decide: Do I want the player's death location instead?
+                            randomTeleporter.onDeathWorld.getSpawnLocation(),
+                            true, true,
+                            randomTeleporter.logRtpOnRespawn, "Rtp-on-respawn triggered!"
+                    ).requestLocation()
+            );
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -10,11 +10,15 @@ import org.bukkit.entity.Player;
 
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static biz.donvi.jakesRTP.PluginMain.infoLog;
 
 public final class GeneralUtil {
 
+    public static final Pattern PLACEHOLDER_REGEX = Pattern.compile("(?=[^\\\\])%(.*?[^\\\\])%");
 
     /**
      * Returns a string representing the given location with generic formatting, leaving out the pitch and yaw,
@@ -68,61 +72,18 @@ public final class GeneralUtil {
     }
 
     /**
-     * Conveniently teleports a given player with a given rtpSettings in a given world, logging and timing if requested,
-     * and can be run sync or async.
+     * Replaces placeholders in a string with values stored in a map. Placeholders should be given in the format {@code
+     * %placeholder%}. Placeholders should be stored in lower case in the map, but may be in any case in the placeholder
+     * itself.
      *
-     * @param playerToTp The player to teleport.
-     * @param randomTeleporter The random teleporter to supply the random location.
-     * @param rtpSettings The rtpSettings to use.
-     * @param callFromLoc The location that the player called RTP from (used to decide where they land).
-     * @param takeFromQueue Should a location be taken from the queue (or generated on the spot).
-     * @param timed Should we time this?
-     * @param async Should we teleport the player asynchronously?
-     * @param doLog Should we log this teleport to console?
-     * @param logMsgStart The first line of the log message.
-     * @return The location that the player was teleported to.
-     * @throws Exception If something goes wrong.
+     * @param str          The string that contains the placeholders.
+     * @param placeholders The map of placeholders to actual values
+     * @return The string with all placeholders switched with the corresponding value in the map.
      */
-    public static Location teleportRandomlyWrapper( /*TODO use this more often*/
-            Player playerToTp,
-            RandomTeleporter randomTeleporter, RtpSettings rtpSettings, Location callFromLoc, boolean takeFromQueue,
-            boolean timed, boolean async, boolean doLog, String logMsgStart) throws Exception {
-        long startTime = timed ? System.currentTimeMillis() : 0;
-        Location rtpLocation =
-                randomTeleporter.getRtpLocation(
-                        rtpSettings,
-                        callFromLoc,
-                        true);
-        //TODO clean up message portion
-        if (async) {
-            PaperLib.teleportAsync(playerToTp, rtpLocation).thenAccept(teleported -> {
-                long endTime = timed ? System.currentTimeMillis() : 0;
-                if (doLog) infoLog(
-                        logMsgStart +
-                        " Teleported player " + playerToTp.getName() +
-                        " to " + locationAsString(rtpLocation, 1, false) +
-                        " taking " + (timed ? endTime - startTime : "N/A") + " ms.");
-            });
-        } else if (Bukkit.isPrimaryThread()) {
-            playerToTp.teleport(rtpLocation);
-            long endTime = timed ? System.currentTimeMillis() : 0;
-            if (doLog) infoLog(
-                    logMsgStart +
-                    " Teleported player " + playerToTp.getName() +
-                    " to " + locationAsString(rtpLocation, 1, false) +
-                    " taking " + (timed ? endTime - startTime : "N/A") + " ms.");
-        } else {
-            playerToTp.getServer().getScheduler().runTask(PluginMain.plugin, () -> {
-                playerToTp.teleport(rtpLocation);
-                long endTime = timed ? System.currentTimeMillis() : 0;
-                if (doLog) infoLog(
-                        logMsgStart +
-                        " Teleported player " + playerToTp.getName() +
-                        " to " + locationAsString(rtpLocation, 1, false) +
-                        " taking " + (timed ? endTime - startTime : "N/A") + " ms.");
-            });
-        }
-        return rtpLocation;
+    public static String fillPlaceholders(final String str, final Map<String, String> placeholders) {
+        final Matcher matcher = PLACEHOLDER_REGEX.matcher(str);
+        final StringBuffer sb = new StringBuffer();
+        while (matcher.find()) matcher.appendReplacement(sb, placeholders.get(matcher.group(1).toLowerCase()));
+        return matcher.appendTail(sb).toString();
     }
-
 }

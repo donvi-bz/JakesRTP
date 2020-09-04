@@ -289,36 +289,6 @@ public class RandomTeleporter {
     /**
      * Keeps getting potential teleport locations until one has been found.
      * A fail-safe is included to throw an exception if too many unsuccessful attempts have been made.
-     *
-     * @param player        The player to teleport. This is important as it lets us know which {@code RtpSettings} to
-     *                      use, and in the case that the teleport is relative to the player, it also gives the
-     *                      player's location.
-     * @param force         Should we "forcefully" teleport the player? Forceful teleporting <em>bypasses</em> any
-     *                      permission or command checks when teleporting, meaning that the player will teleport
-     *                      regardless of whether they have permission to or not or whether the settings can be used
-     *                      through a command.
-     * @param takeFromQueue Should we attempt to take the location from the queue before finding one on the spot?
-     *                      <p> - Set to {@code true} if all you care about is teleporting the player, as this method
-     *                      will fall back to using a Location not from the queue if required.
-     *                      <p> - Set to {@code false} if you are filling the queue,
-     *                      or it is known that the queue is empty.
-     * @return A random location that can be safely teleported to by a player.
-     * @throws Exception
-     */
-    public Location getRtpLocation(Player player, boolean force, boolean takeFromQueue) throws Exception {
-        if (force) return getRtpLocation( /*Type: Redirect*/
-                getRtpSettingsByWorld(player.getWorld()),
-                player.getLocation(),
-                takeFromQueue);
-        else return getRtpLocation( /*Type: Redirect*/
-                getRtpSettingsByWorldForPlayer(player),
-                player.getLocation(),
-                takeFromQueue);
-    }
-
-    /**
-     * Keeps getting potential teleport locations until one has been found.
-     * A fail-safe is included to throw an exception if too many unsuccessful attempts have been made.
      * This method can bypass explicit permission checks.
      *
      * @param rtpSettings   The specific RtpSettings to get the location with.
@@ -333,9 +303,8 @@ public class RandomTeleporter {
      *                   getWorldRtpSettings() will throw an exception if the world is not RTP enabled.
      *                   getRtpXZ() will throw an exception if the rtp shape is not defined.
      */
-    public Location getRtpLocation(final RtpSettings rtpSettings, Location callFromLoc,
-                                   final boolean takeFromQueue
-    ) throws Exception, SafeLocationFinder.PluginDisabledException {
+    public Location getRtpLocation(final RtpSettings rtpSettings, Location callFromLoc, final boolean takeFromQueue)
+            throws Exception, SafeLocationFinder.PluginDisabledException {
         //Part 1: Force destination world if not current world
         if (rtpSettings.forceDestinationWorld && callFromLoc.getWorld() != rtpSettings.destinationWorld)
             callFromLoc = rtpSettings.destinationWorld.getSpawnLocation();

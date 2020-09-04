@@ -43,6 +43,7 @@ public class RtpSettings {
     public final int maxAttempts;
     public final int cacheLocationCount;
     public final SafeLocationFinder.LocCheckProfiles checkProfile;
+    public String[] commandsToRun;
 
     /**
      * Creates an RtpSettings object. This primarily deals with reading in data from a YAML config,
@@ -97,6 +98,7 @@ public class RtpSettings {
         //Some important finalization work.
         useLocationQueue = centerLocation != CenterAllowedValues.PLAYER_LOCATION &&
                            cacheLocationCount > 0;
+        commandsToRun = config.getStringList("then-execute").toArray(new String[0]);
         infoLogSettings();
     }
 
