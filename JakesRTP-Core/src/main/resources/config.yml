@@ -92,7 +92,7 @@ random-teleport-settings default: # The name of this config section is 'default'
   cooldown:      # Cooldown between uses. Can be bypassed with permission node jakesrtp.nocooldown
     seconds: 30  # Default: 30
   then-execute: [] # Executes commands as console after a player is rtp'd. Note: remove the `[]` before adding commands.
-#    - 'tellraw %PLAYER% {"text":"You have been teleported to %LANDING_LOC% in %LANDING_WORLD%!"}'
+#    - 'tellraw %PLAYER% {"text":"You have been teleported to %LOCATION% in %WORLD%!"}'
 #    - 'tellraw %PLAYER% {"text":"All placeholders are listed at the bottom of this file."}'
   ############## # Everything past this point in the config probably does not need to get changed
   bounds:        # The lowest and highest points a player can be RTP'd to.

@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 public final class PluginMain extends JavaPlugin {
 
     public static PluginMain plugin;
+    public static Map<String, String> messages;
     static Logger logger;
     static Map<String, Object> cmdMap;
     static LocationCacheFiller locFinderRunnable;
@@ -60,6 +61,7 @@ public final class PluginMain extends JavaPlugin {
         //Register commands
         Objects.requireNonNull(getCommand("rtp-admin"))
                 .setExecutor(new CmdRtpAdmin(Util.getImpliedMap(cmdMap, "rtp-admin")));
+        loadMessageMap(); //DON'T REMOVE THIS LINE, it loads all the messages that get sent by the plugin
         loadRandomTeleporter(); //DON'T REMOVE THIS LINE, THE MAJORITY OF THE FUNCTIONALITY COMES FROM IT
         loadLocationCacheFiller(); //DON'T REMOVE THIS LINE, IT IS REQUIRED FOR LOCATION CACHING TO WORK
 
@@ -135,5 +137,9 @@ public final class PluginMain extends JavaPlugin {
 
     public RandomTeleporter getRandomTeleporter() {
         return theRandomTeleporter;
+    }
+
+    public void loadMessageMap() {
+        messages = new Yaml().load(this.getClassLoader().getResourceAsStream("lang_en.yml"));
     }
 }
