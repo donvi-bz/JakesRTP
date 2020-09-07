@@ -13,7 +13,7 @@ not-permitted-generic: 'Could not RTP for reason: {0}'
 # For when an RTP action is denied because an issue occurred. Ex: an exception occurs while waiting for an rtp location.
 #   {0} - The message from the exception that caused this message to appear.
 #   Note: This is always followed in console by a stack trace (which can not be configured)
-not-permitted-major-error: 'Error. Could not RTP for reason: \n{0} Please check console for more info on why teleportation failed.'
+not-permitted-major-error: 'Error. Could not RTP for reason: {0} \nPlease check console for more info on why teleportation failed.'
 # For when the reason an action is denied is that rtp is not enabled in the world.
 #   {0} - An identifier that helps with debugging
 not-enabled-in-this-world: 'RTP is not enabled in this world. {0}'

@@ -167,14 +167,10 @@ public final class PluginMain extends JavaPlugin {
             e.printStackTrace();
         }
         // Load default messages
-        try {
-            infoLog("Setting default messages.");
-            Messages.setMap(new Yaml().load(this.getClassLoader().getResourceAsStream(
-                    String.format(BLANK_LANG_FILE_NAME, "en"))));
-        } catch (JrtpBaseException e) {
-            e.printStackTrace();
-        }
-        // Load all the messages from the language file
+        infoLog("Setting default messages.");
+        Messages.setMap(new Yaml().load(this.getClassLoader().getResourceAsStream(
+                String.format(BLANK_LANG_FILE_NAME, "en"))));
+        // Load & add all the messages from the language file
         if (!messageOverrides.get("language").equals("en")) {
             languageOverrides = new Yaml().load(this.getClassLoader().getResourceAsStream(
                     String.format(BLANK_LANG_FILE_NAME, messageOverrides.get("language"))));

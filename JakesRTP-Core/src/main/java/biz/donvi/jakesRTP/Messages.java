@@ -28,21 +28,19 @@ public enum Messages {
     private static final String[] mappedValues = new String[Messages.values().length];
     final String key;
 
-    static void setMap(Map<String, String> newMap) throws JrtpBaseException {
+    static void setMap(Map<String, String> newMap)  {
         final ArrayList<String> emptyValues = new ArrayList<>();
         for (Messages m : Messages.values()) {
             mappedValues[m.ordinal()] = reformat(newMap.remove(m.key));
             if (mappedValues[m.ordinal()] == null) emptyValues.add(m.name() + " ~ " + m.key);
         }
         if (newMap.size() > 0) {
-            PluginMain.logger.log(WARNING, "Keys of extra values will appear between here and the stack trace:");
+            PluginMain.logger.log(WARNING, "More mappings were given than expected. Extra keys:");
             for (String extraValue : newMap.keySet()) PluginMain.logger.log(WARNING, extraValue);
-            throw new JrtpBaseException("More mappings were given than expected.");
         }
         if (emptyValues.size() > 0) {
-            PluginMain.logger.log(WARNING, "Keys of missing values will appear between here and the stack trace:");
+            PluginMain.logger.log(WARNING, "Some messages could not be assigned values. Missing keys:");
             for (String missingValue : emptyValues) PluginMain.logger.log(WARNING, missingValue);
-            throw new JrtpBaseException("Some messages could not be assigned values.");
         }
     }
 
