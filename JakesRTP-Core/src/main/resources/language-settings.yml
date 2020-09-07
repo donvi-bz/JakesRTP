@@ -16,7 +16,7 @@ language: 'en'
 #   To use a legacy color code, place an `&` in front of a hex digit (0-9|a-f) like this: &8
 #   You can use full hex codes (if you are in the right version of minecraft) like this: {#00FFC8}
 # Finally, if you know another language and would like to help translate this plugin, you can copy the `lang_en.yml`
-#   file found here https://github.com/JakeTS/JakesRTP/blob/master/JakesRTP-Core/src/main/resources/translations then
+#   file found here https://github.com/JakeTS/JakesRTP/tree/master/JakesRTP-Core/src/main/resources/translations then
 #   translate the new language and make a PR. Or you could send me the file another way. Either way, if you do this,
 #   thank you so much. ♥
 
