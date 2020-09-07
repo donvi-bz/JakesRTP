@@ -19,6 +19,12 @@ import static biz.donvi.jakesRTP.PluginMain.infoLog;
 public final class GeneralUtil {
 
     public static final Pattern PLACEHOLDER_REGEX = Pattern.compile("(?=[^\\\\])%(.*?[^\\\\])%");
+    public static final Pattern SLASH_N_REGEX_W_LOOKBEHIND = Pattern.compile("(?<!\\\\)\\\\n");
+    public static final Pattern SLASH_N_REGEX_DOUBLE = Pattern.compile("\\\\n");
+    public static final Pattern LEGACY_COLOR_REGEX_W_LOOKBEHIND = Pattern.compile("(?<!&)&([0-9a-fk-orx])");
+    public static final Pattern LEGACY_COLOR_REGEX_DOUBLE = Pattern.compile("&&([0-9a-fk-orx])");
+    public static final Pattern HEX_COLOR_REGEX = Pattern.compile(
+            "\\{#([\\da-fA-F])([\\da-fA-F])([\\da-fA-F])([\\da-fA-F])([\\da-fA-F])([\\da-fA-F])}");
 
     /**
      * Returns a string representing the given location with generic formatting, leaving out the pitch and yaw,
@@ -86,4 +92,22 @@ public final class GeneralUtil {
         while (matcher.find()) matcher.appendReplacement(sb, placeholders.get(matcher.group(1).toLowerCase()));
         return matcher.appendTail(sb).toString();
     }
+
+    public static String replaceWrittenLineBreaks(String s) {
+        return SLASH_N_REGEX_DOUBLE.matcher(SLASH_N_REGEX_W_LOOKBEHIND.matcher(s)
+                .replaceAll("\n"))
+                .replaceAll("\\n");
+    }
+
+    public static String replaceLegacyColors(String s) {
+        return LEGACY_COLOR_REGEX_DOUBLE.matcher(LEGACY_COLOR_REGEX_W_LOOKBEHIND.matcher(s)
+                .replaceAll("\u00A7$1"))
+                .replaceAll("&$1");
+    }
+
+    public static String replaceNewColors(String s) {
+        return HEX_COLOR_REGEX.matcher(s)
+                .replaceAll("\u00A7x\u00A7$1\u00A7$2\u00A7$3\u00A7$4\u00A7$5\u00A7$6");
+    }
+
 }

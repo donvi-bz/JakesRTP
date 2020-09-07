@@ -33,14 +33,13 @@ public class CmdRtp implements CommandExecutor {
                     ).teleportAsync(player);
                     coolDownTracker.log(player.getName(), callTime);
                 } else {
-                    player.sendMessage("Need to wait for cooldown: " + coolDownTracker.timeLeftWords(player.getName()));
+                    player.sendMessage(Messages.NEED_WAIT_COOLDOWN.format(coolDownTracker.timeLeftWords(player.getName())));
                 }
             }
         } catch (NotPermittedException npe) {
-            sender.sendMessage("Could not RTP for reason: " + npe.getMessage());
+            sender.sendMessage(Messages.NP_GENERIC.format(npe.getMessage()));
         } catch (Exception e) {
-            sender.sendMessage("Error. Could not RTP for reason: " + e.getMessage());
-            sender.sendMessage("Please check console for more info on why teleportation failed.");
+            sender.sendMessage(Messages.NP_UNEXPECTED_EXCEPTION.format(e.getMessage()));
             e.printStackTrace();
         }
         return true;

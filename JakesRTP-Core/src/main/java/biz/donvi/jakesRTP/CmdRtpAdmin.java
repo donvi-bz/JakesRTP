@@ -37,6 +37,8 @@ public class CmdRtpAdmin extends DynamicArgsMap implements TabExecutor {
             subReload();
         else if (argsChecker.matches(true, "status", null))
             subStatus(sender, argsChecker.getRemainingArgs());
+        else if (argsChecker.matches(true, "reload-messages"))
+            subReloadMessages(sender);
         else return false;
         return true;
     }
@@ -61,6 +63,10 @@ public class CmdRtpAdmin extends DynamicArgsMap implements TabExecutor {
     private void subReload() {
         PluginMain.plugin.loadRandomTeleporter();
         PluginMain.plugin.loadLocationCacheFiller();
+    }
+
+    private void subReloadMessages(CommandSender sender){
+        PluginMain.plugin.loadMessageMap();
     }
 
 

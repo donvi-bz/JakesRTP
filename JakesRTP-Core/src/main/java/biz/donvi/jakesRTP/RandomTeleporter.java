@@ -159,7 +159,7 @@ public class RandomTeleporter {
                     break;
                 }
         if (finSettings != null) return finSettings;
-        else throw new NotPermittedException("RTP is not enabled in this world. ~ECW");
+        else throw new NotPermittedException(Messages.NP_R_NOT_ENABLED.format("~ECW"));
     }
 
 
@@ -174,7 +174,7 @@ public class RandomTeleporter {
         for (RtpSettings settings : rtpSettings)
             if (settings.name.equals(name))
                 return settings;
-        throw new JrtpBaseException("No RTP settings found with name " + name);
+        throw new JrtpBaseException(Messages.NP_R_NO_RTPSETTINGS_NAME.format(name));
     }
 
     /**
@@ -203,7 +203,7 @@ public class RandomTeleporter {
                     break;
                 }
         if (finSettings != null) return finSettings;
-        else throw new NotPermittedException("RTP is not enabled in this world. ~ECP");
+        else throw new NotPermittedException(Messages.NP_R_NOT_ENABLED.format("~ECP"));
     }
 
     /* ================================================== *\
@@ -311,7 +311,7 @@ public class RandomTeleporter {
 
         //Part 2: Quick error checking
         if (!rtpSettings.getConfigWorlds().contains(callFromLoc.getWorld()))
-            throw new NotPermittedException("RTP is not enabled in this world. ~ECG");
+            throw new NotPermittedException(Messages.NP_R_NOT_ENABLED.format("~ECG"));
 
         //Part 3 option 1: The Queue Route.
         //If we want to take from the queue and the queue is enabled, go here.
@@ -344,7 +344,7 @@ public class RandomTeleporter {
             do {
                 potentialRtpLocation = getPotentialRtpLocation(callFromLoc, rtpSettings);
                 if (randAttemptCount++ > rtpSettings.maxAttempts)
-                    throw new JrtpBaseException("Too many failed attempts.");
+                    throw new JrtpBaseException(Messages.NP_R_TOO_MANY_FAILED_ATTEMPTS.format());
             } while (
                     Bukkit.isPrimaryThread() ?
                             !new SafeLocationFinderBukkitThread(

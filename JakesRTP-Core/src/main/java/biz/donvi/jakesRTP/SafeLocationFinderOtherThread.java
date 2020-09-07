@@ -63,7 +63,8 @@ public class SafeLocationFinderOtherThread extends SafeLocationFinder {
         SafeLocationUtils.util.dropToMiddle(loc, lowBound, highBound, getChunkForLocation(loc));
     }
 
-    private ChunkSnapshot getChunkForLocation(Location loc) throws TimeoutException, PluginDisabledException {
+    private ChunkSnapshot getChunkForLocation(Location loc)
+            throws TimeoutException, PluginDisabledException, IllegalStateException {
         String chunkKey = loc.getChunk().getX() + " " + loc.getChunk().getZ();
         ChunkSnapshot chunkSnapshot = chunkSnapshotMap.get(chunkKey);
         if (chunkSnapshot != null) return chunkSnapshot;

@@ -1,0 +1,49 @@
+# - - - - - - - - - - - - - -
+# - Messages File - English -
+# - - - - - - - - - - - - - -
+# All messages sent in game by this plugin are stored here (and in the future in other files for other languages as well).
+# This file should not be edited directly, but instead used as a reference for writing message overrides in
+#   `language-settings.yml`.
+# All messages will have a brief description, and an explanation of what each placeholder represents.
+# # # # # # # # # # # # # # # # #
+
+# For when an RTP action is denied such as trying to rtp in a world that does not allow rtp.
+#   {0} - The reason the action was denied.
+not-permitted-generic: 'Could not RTP for reason: {0}'
+# For when an RTP action is denied because an issue occurred. Ex: an exception occurs while waiting for an rtp location.
+#   {0} - The message from the exception that caused this message to appear.
+#   Note: This is always followed in console by a stack trace (which can not be configured)
+not-permitted-major-error: 'Error. Could not RTP for reason: \n{0} Please check console for more info on why teleportation failed.'
+# For when the reason an action is denied is that rtp is not enabled in the world.
+#   {0} - An identifier that helps with debugging
+not-enabled-in-this-world: 'RTP is not enabled in this world. {0}'
+# For no rtpSettings are found with a given name
+#   {0} - The given name
+no-settings-found-with-name: 'No RTP settings found with name {0}'
+# For when too many attempts are made by the plugin to find a point with no success.
+too-many-failed-attempts: 'Too many failed attempts.'
+# For any time the plugin expects a player's name but does not receive the name of a player.
+#   {0} - The name given that did not match a player.
+player-not-found: 'Could not find player {0}'
+# For when a world name is expected but not received.
+#   {0} - The given name that matched no world names.
+world-not-found: 'Could not find world {0}'
+# For when a given rtpSettings is expected to contain the given world, but does not.
+#   {0} - The rtpSetting's name
+#   {1} - The world's name
+rtp-settings-no-contain-world: 'Input mismatch: RtpSettings "{0}" does not contain the world "{1}" as one of its enabled worlds.'
+# For when a given rtpSettings can only land people in one world but another world is requested instead.
+#   {0} - The rtpSetting's name
+#   {1} - The only valid world name
+rtp-settings-must-use-world: 'Input mismatch: RtpSettings "{0}" can only teleport people in world "{1}"'
+# For when a player needs to wait for a cooldown before running the command again.
+#   {0} - The cooldown time (uses READABLE-TIME as defined below)
+need-to-wait-for-cooldown:  'Need to wait for cooldown: {0}'
+# READABLE-TIME - This is a special case message. Whenever a time needs to be displayed, it will use this for
+#   formatting. Also, each 'word' will only be displayed if the associated number value is greater than 0.
+# Example: 8675 seconds will be formatted as such: `2 hours, 24 minutes, 35 seconds.` Note the absence of days.
+readable-time: '{0}{1}{2}{3}'
+readable-time-word-days:    '{0} days, '
+readable-time-word-hours:   '{0} hours, '
+readable-time-word-minutes: '{0} minutes, '
+readable-time-word-seconds: '{0} seconds.'

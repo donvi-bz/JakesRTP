@@ -6,11 +6,10 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.MessageFormat;
 import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -19,11 +18,11 @@ import java.util.logging.Logger;
 public final class PluginMain extends JavaPlugin {
 
     public static PluginMain plugin;
-    public static Map<String, String> messages;
     static Logger logger;
     static Map<String, Object> cmdMap;
     static LocationCacheFiller locFinderRunnable;
 
+    private static Map<String, String> messages;
     private RandomTeleporter theRandomTeleporter;
     private String defaultConfigVersion = null;
 
@@ -70,6 +69,10 @@ public final class PluginMain extends JavaPlugin {
 
     public static void infoLog(String msg) {
         logger.log(Level.INFO, msg);
+    }
+
+    public static String getMessage(String key, Object... args) {
+        return MessageFormat.format(messages.get(key), args);
     }
 
     @Override
@@ -136,10 +139,51 @@ public final class PluginMain extends JavaPlugin {
     }
 
     public RandomTeleporter getRandomTeleporter() {
+
         return theRandomTeleporter;
     }
 
+
+    private static final String LANG_SETTINGS_FILE_NAME = "language-settings.yml";
+    private static final String BLANK_LANG_FILE_NAME = "translations/lang_%s.yml";
+
+    @SuppressWarnings("ConstantConditions")
     public void loadMessageMap() {
-        messages = new Yaml().load(this.getClassLoader().getResourceAsStream("lang_en.yml"));
+        // Copy the langSettingsFile if it doesn't already exist.
+        if (!Files.exists(Paths.get(getDataFolder().getPath(), LANG_SETTINGS_FILE_NAME)))
+            try {
+                Files.copy(
+                        getClassLoader().getResourceAsStream(LANG_SETTINGS_FILE_NAME),
+                        Paths.get(getDataFolder().getPath(), LANG_SETTINGS_FILE_NAME));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        // Read message overrides (this also tells us which language to use!)
+        Map<String, String> languageOverrides = null;
+        Map<String, String> messageOverrides = null;
+        try {
+            messageOverrides = new Yaml().load(new FileInputStream(new File(getDataFolder(), LANG_SETTINGS_FILE_NAME)));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        // Load default messages
+        try {
+            infoLog("Setting default messages.");
+            Messages.setMap(new Yaml().load(this.getClassLoader().getResourceAsStream(
+                    String.format(BLANK_LANG_FILE_NAME, "en"))));
+        } catch (JrtpBaseException e) {
+            e.printStackTrace();
+        }
+        // Load all the messages from the language file
+        if (!messageOverrides.get("language").equals("en")) {
+            languageOverrides = new Yaml().load(this.getClassLoader().getResourceAsStream(
+                    String.format(BLANK_LANG_FILE_NAME, messageOverrides.get("language"))));
+            infoLog("Overwriting default messages with translated messages.");
+            Messages.addMap(languageOverrides);
+        }
+        // Load message overrides.
+        messageOverrides.remove("language");
+        infoLog("Overwriting messages with custom messages.");
+        Messages.addMap(messageOverrides);
     }
 }

@@ -211,7 +211,7 @@ public class RtpSettings {
 
     public Queue<Location> getLocationQueue(World world) throws NotPermittedException {
         Queue<Location> locationQueue = configWorlds.get(world);
-        if (locationQueue == null) throw new NotPermittedException("RTP is not enabled in this world. ~ECQ");
+        if (locationQueue == null) throw new NotPermittedException(Messages.NP_R_NOT_ENABLED.format("~ECQ"));
         else return locationQueue;
     }
 

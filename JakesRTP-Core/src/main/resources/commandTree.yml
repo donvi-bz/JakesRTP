@@ -11,6 +11,7 @@ forcertp:
       worldName !dynamic:
 rtp-admin:
   reload:
+  reload-messages:
   status:
     "#static":
     configName !dynamic:

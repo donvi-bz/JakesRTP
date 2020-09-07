@@ -9,6 +9,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -39,12 +40,11 @@ public class CmdForceRtp extends DynamicArgsMap implements TabExecutor {
                 subForceRtpWithConfigAndWorld(sender, argsChecker.getRemainingArgs());
             else return false;
         } catch (NotPermittedException npe) {
-            sender.sendMessage("Could not RTP for reason: " + npe.getMessage());
+            sender.sendMessage(Messages.NP_GENERIC.format(npe.getMessage()));
         } catch (JrtpBaseException e) {
             sender.sendMessage(e.getMessage());
         } catch (Exception e) {
-            sender.sendMessage("Error. Could not RTP for reason: " + e.getMessage());
-            sender.sendMessage("Please check console for more info on why teleportation failed.");
+            sender.sendMessage(Messages.NP_UNEXPECTED_EXCEPTION.format(e.getMessage()));
             e.printStackTrace();
         }
         return true;
@@ -53,7 +53,7 @@ public class CmdForceRtp extends DynamicArgsMap implements TabExecutor {
     private void subForceRtpWithConfig(CommandSender sender, String[] args) throws Exception {
         Player playerToTp = sender.getServer().getPlayerExact(args[0]);
         if (playerToTp == null) {
-            sender.sendMessage("Could not find player " + args[0]);
+            sender.sendMessage(Messages.PLAYER_NOT_FOUND.format(args[0]));
             return;
         }
         RtpSettings rtpSettings = randomTeleporter.getRtpSettingsByName(args[1]);
@@ -69,12 +69,12 @@ public class CmdForceRtp extends DynamicArgsMap implements TabExecutor {
     private void subForceRtpWithWorld(CommandSender sender, String[] args) throws Exception {
         Player playerToTp = sender.getServer().getPlayerExact(args[0]);
         if (playerToTp == null) {
-            sender.sendMessage("Could not find player " + args[0]);
+            sender.sendMessage(Messages.PLAYER_NOT_FOUND.format(args[0]));
             return;
         }
         World destWorld = GeneralUtil.getWorldIgnoreCase(sender.getServer(), args[1]);
         if ((destWorld) == null) {
-            sender.sendMessage("Could not find world " + args[1]);
+            sender.sendMessage(Messages.WORLD_NOT_FOUND.format(args[1]));
             return;
         }
 
@@ -95,26 +95,22 @@ public class CmdForceRtp extends DynamicArgsMap implements TabExecutor {
     private void subForceRtpWithConfigAndWorld(CommandSender sender, String[] args) throws Exception {
         Player playerToTp = sender.getServer().getPlayerExact(args[0]);
         if (playerToTp == null) {
-            sender.sendMessage("Could not find player " + args[0]);
+            sender.sendMessage(Messages.PLAYER_NOT_FOUND.format(args[0]));
             return;
         }
         RtpSettings rtpSettings = randomTeleporter.getRtpSettingsByName(args[1]);
         World destWorld = GeneralUtil.getWorldIgnoreCase(sender.getServer(), args[2]);
         if ((destWorld) == null) {
-            sender.sendMessage("Could not find world " + args[2]);
+            sender.sendMessage(Messages.WORLD_NOT_FOUND.format(args[2]));
             return;
         }
 
         if (!rtpSettings.getConfigWorlds().contains(destWorld)) {
-            sender.sendMessage("Input mismatch: RtpSettings \"" + rtpSettings.name +
-                               "\" does not contain the world \" " + destWorld.getName() +
-                               "\"as one of its enabled worlds.");
+            sender.sendMessage(Messages.RTPSETTINGS_NO_CONTAIN_WORLD.format(rtpSettings.name, destWorld.getName()));
             return;
         } else if (rtpSettings.forceDestinationWorld && rtpSettings.destinationWorld != destWorld) {
             assert rtpSettings.destinationWorld != null; // Force destination world implies this.
-            sender.sendMessage("Input mismatch: RtpSettings \"" + rtpSettings.name +
-                               "\"can only teleport people in world \"" +
-                               rtpSettings.destinationWorld.getName() + "\"");
+            sender.sendMessage(Messages.RTPSETTINGS_MUST_USE_WORLD.format(rtpSettings.name, rtpSettings.destinationWorld.getName()));
             return;
         }
 

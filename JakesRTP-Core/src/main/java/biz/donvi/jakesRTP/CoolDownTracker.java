@@ -111,13 +111,15 @@ public class CoolDownTracker {
         minutes = (int) (millis / (1000 * 60)) % 60;
         hours = (int) (millis / (1000 * 60 * 60)) % 24;
         days = (int) (millis / (1000 * 60 * 60 * 24));
-        return (days > 0 ? days + " days, " : "") +
-               (hours > 0 ? hours + " hours, " : "") +
-               (minutes > 0 ? minutes + " minutes, " : "") +
-               (seconds > 0 ? seconds + " seconds." : "");
+        return Messages.READABLE_TIME.format(
+                (days > 0 ? Messages.READABLE_TIME_WORD_DAYS.format(days) : ""),
+                (hours > 0 ? Messages.READABLE_TIME_WORD_HOURS.format(hours) : ""),
+                (minutes > 0 ? Messages.READABLE_TIME_WORD_MINUTES.format(minutes) : ""),
+                (seconds > 0 ? Messages.READABLE_TIME_WORD_SECONDS.format(seconds) : ""));
     }
+
     //TODO - Make this method and the one above use a method instead of having duplicate code
-    public String coolDownTime(){
+    public String coolDownTime() {
         if (coolDownTime == 0) return "None.";
         int days, hours, minutes, seconds;
         long millis = coolDownTime;
@@ -125,9 +127,10 @@ public class CoolDownTracker {
         minutes = (int) (millis / (1000 * 60)) % 60;
         hours = (int) (millis / (1000 * 60 * 60)) % 24;
         days = (int) (millis / (1000 * 60 * 60 * 24));
-        return (days > 0 ? days + " days, " : "") +
-               (hours > 0 ? hours + " hours, " : "") +
-               (minutes > 0 ? minutes + " minutes, " : "") +
-               (seconds > 0 ? seconds + " seconds." : "");
+        return Messages.READABLE_TIME.format( //TODO - This is ugly. This needs to not be ugly.
+                (days > 0 ? Messages.READABLE_TIME_WORD_DAYS.format(days) : ""),
+                (hours > 0 ? Messages.READABLE_TIME_WORD_HOURS.format(hours) : ""),
+                (minutes > 0 ? Messages.READABLE_TIME_WORD_MINUTES.format(minutes) : ""),
+                (seconds > 0 ? Messages.READABLE_TIME_WORD_SECONDS.format(seconds) : ""));
     }
 }
