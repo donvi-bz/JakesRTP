@@ -1,5 +1,3 @@
-rtp:
-  configName !dynamic:
 forcertp:
   playerName !dynamic:
     -c:

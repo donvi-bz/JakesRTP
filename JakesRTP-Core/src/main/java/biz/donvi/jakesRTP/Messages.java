@@ -12,6 +12,7 @@ public enum Messages {
     NP_UNEXPECTED_EXCEPTION("not-permitted-major-error"),
     NP_R_NOT_ENABLED("not-enabled-in-this-world"),
     NP_R_NO_RTPSETTINGS_NAME("no-settings-found-with-name"),
+    NP_R_NO_RTPSETTINGS_NAME_FOR_PLAYER("no-settings-found-with-name-for-player"),
     NP_R_TOO_MANY_FAILED_ATTEMPTS("too-many-failed-attempts"),
     PLAYER_NOT_FOUND("player-not-found"),
     WORLD_NOT_FOUND("world-not-found"),

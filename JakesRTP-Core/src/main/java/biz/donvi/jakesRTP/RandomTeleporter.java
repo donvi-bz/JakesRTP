@@ -140,6 +140,21 @@ public class RandomTeleporter {
     }
 
     /**
+     * Gets the names of all {@code rtpSettings} usable by the given player.
+     * @param player The player to check for settings with.
+     * @return All the names of rtpSettings that the given player can use.
+     */
+    public ArrayList<String> getRtpSettingsNamesForPlayer(Player player) {
+        ArrayList<String> rtpSettings = new ArrayList<>();
+        for (RtpSettings rtpSetting : this.rtpSettings)
+            if (rtpSetting.commandEnabled &&
+                (!rtpSetting.requireExplicitPermission ||
+                 player.hasPermission(explicitPermPrefix + rtpSetting.name))
+            ) rtpSettings.add(rtpSetting.name);
+        return rtpSettings;
+    }
+
+    /**
      * Gets the {@code RtpSettings} that are being used by the given world. If more then one {@code RtpSettings}
      * objects are valid, the one with the highest priority will be returned.
      *
@@ -206,6 +221,29 @@ public class RandomTeleporter {
         else throw new NotPermittedException(Messages.NP_R_NOT_ENABLED.format("~ECP"));
     }
 
+    /**
+     * Gets the RtpSettings object that has the given name (as defined in the config) IF AND ONLY IF the settings with
+     * the given name have property {@code commandEnabled} set to {@code true}, and the player either has the necessary
+     * explicit permission for the settings, or the settings does not require one.
+     *
+     * @param player The player to find the settings for. Only settings this player can use will be returned.
+     * @param name   The name of the settings to find.
+     * @return The {@code rtpSettings} object with the matching name. If no valid {@code rtpSettings} is found, an
+     * an exception will be thrown.
+     * @throws NotPermittedException if no valid {@code rtpSettings} object is found.
+     */
+    public RtpSettings getRtpSettingsByNameForPlayer(Player player, String name) throws NotPermittedException {
+        for (RtpSettings settings : rtpSettings)
+            // First check if this settings can be called by a player command
+            if (settings.commandEnabled &&
+                // Then we need the names to match
+                settings.name.equalsIgnoreCase(name) &&
+                //Then we check if we require explicit perms
+                (!settings.requireExplicitPermission || player.hasPermission(explicitPermPrefix + settings.name)))
+                // Note: We never check priority because the name must be unique
+                return settings;
+        throw new NotPermittedException(Messages.NP_R_NO_RTPSETTINGS_NAME_FOR_PLAYER.format(name));
+    }
     /* ================================================== *\
                     Rtp Locations ← Getters
     \* ================================================== */
@@ -382,7 +420,8 @@ public class RandomTeleporter {
      * @throws NotPermittedException Should not realistically get thrown, but may occur if the world is not
      *                               enabled in the settings.
      */
-    public int fillQueue(RtpSettings settings, World world) throws JrtpBaseException, SafeLocationFinder.PluginDisabledException {
+    public int fillQueue(RtpSettings settings, World world) throws
+            JrtpBaseException, SafeLocationFinder.PluginDisabledException {
         try {
             int changesMade = 0;
             for (Queue<Location> locationQueue = settings.getLocationQueue(world);

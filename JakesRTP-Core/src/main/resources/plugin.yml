@@ -2,7 +2,7 @@ name: JakesRTP
 author: JakeTS
 main: biz.donvi.jakesRTP.PluginMain
 prefix: 'J-RTP'
-version: '0.8.4'
+version: '0.9'
 api-version: '1.13'
 
 softdepend:
@@ -33,6 +33,9 @@ permissions:
   jakesrtp.use:
     description: 'Allows the use of the base "/rtp" command'
     default: true
+  jakesrtp.usebyname:
+    description: 'Allows players to give a rtpSettings name after rtp as such: "/rtp <settingsName>"'
+    default: false
   jakesrtp.rtpondeath:
     description: 'If rtp-on-death is enabled, players with this node will be respawn in a random location'
     default: false

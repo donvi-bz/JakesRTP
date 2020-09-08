@@ -1,15 +1,19 @@
 package biz.donvi.jakesRTP;
 
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 
-public class CmdRtp implements CommandExecutor {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+public class CmdRtp implements TabExecutor {
 
     private final RandomTeleporter randomTeleporter;
 
-    public CmdRtp(RandomTeleporter randomTeleporter) {this.randomTeleporter = randomTeleporter;}
+    public CmdRtp(RandomTeleporter randomTeleporter) { this.randomTeleporter = randomTeleporter; }
 
     /**
      * This is called when a player runs the in-game "/rtp" command.
@@ -18,22 +22,29 @@ public class CmdRtp implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         try {
-            if (args.length == 0 && sender instanceof Player) {
+            if ((args.length == 0 || args.length == 1) && sender instanceof Player) {
                 Player player = (Player) sender;
-                long callTime = System.currentTimeMillis();
-                CoolDownTracker coolDownTracker = randomTeleporter.getRtpSettingsByWorldForPlayer(player).coolDown;
-                if (player.hasPermission("jakesRtp.noCooldown") || coolDownTracker.check(player.getName())) {
+                if (args.length == 1 && !sender.hasPermission("jakesrtp.usebyname"))
+                    return false;
+                RtpSettings relSettings = args.length == 0
+                        ? randomTeleporter.getRtpSettingsByWorldForPlayer(player)
+                        : randomTeleporter.getRtpSettingsByNameForPlayer(player, args[0]);
+                if (player.hasPermission("jakesRtp.noCooldown") || relSettings.coolDown.check(player.getName())) {
+                    long callTime = System.currentTimeMillis();
                     new RandomTeleportAction(
                             randomTeleporter,
-                            randomTeleporter.getRtpSettingsByWorldForPlayer(player),
+                            relSettings,
                             player.getLocation(),
                             true,
                             true,
                             randomTeleporter.logRtpOnCommand, "Rtp-from-command triggered!"
                     ).teleportAsync(player);
-                    coolDownTracker.log(player.getName(), callTime);
+                    relSettings.coolDown.log(player.getName(), callTime);
                 } else {
-                    player.sendMessage(Messages.NEED_WAIT_COOLDOWN.format(coolDownTracker.timeLeftWords(player.getName())));
+                    player.sendMessage(Messages.
+                            NEED_WAIT_COOLDOWN.format(
+                            relSettings.coolDown.timeLeftWords(player.getName())
+                    ));
                 }
             }
         } catch (NotPermittedException npe) {
@@ -43,5 +54,18 @@ public class CmdRtp implements CommandExecutor {
             e.printStackTrace();
         }
         return true;
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        ArrayList<String> validSearches = new ArrayList<>();
+        if (args.length == 0 ||
+            !(sender instanceof Player) ||
+            !sender.hasPermission("jakesrtp.usebyname")
+        ) return validSearches;
+        for (String name : randomTeleporter.getRtpSettingsNamesForPlayer((Player) sender))
+            if (name.contains(args[0]))
+                validSearches.add(name);
+        return validSearches;
     }
 }

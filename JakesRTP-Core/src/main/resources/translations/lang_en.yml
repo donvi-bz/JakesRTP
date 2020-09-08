@@ -20,6 +20,11 @@ not-enabled-in-this-world: 'RTP is not enabled in this world. {0}'
 # For no rtpSettings are found with a given name
 #   {0} - The given name
 no-settings-found-with-name: 'No RTP settings found with name {0}'
+# For no rtpSettings are found with a given name WHEN SEARCHED BY A SPECIFIC PLAYER
+# This will both be displayed when the rtpSettings with the given name do not exist, or the player who ran
+#   the `/rtp <settingsName>` command did not have permission to use the settings found.
+#   {0} - The given name
+no-settings-found-with-name-for-player: 'No RTP settings found with name {0}'
 # For when too many attempts are made by the plugin to find a point with no success.
 too-many-failed-attempts: 'Too many failed attempts.'
 # For any time the plugin expects a player's name but does not receive the name of a player.
