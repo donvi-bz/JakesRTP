@@ -10,7 +10,7 @@ import java.util.logging.Level;
 
 import static biz.donvi.jakesRTP.PluginMain.infoLog;
 import static biz.donvi.jakesRTP.PluginMain.plugin;
-import static biz.donvi.jakesRTP.RandomTeleporter.explicitPermPrefix;
+import static biz.donvi.jakesRTP.RandomTeleporter.EXPLICIT_PERM_PREFIX;
 
 public class RtpSettings {
 
@@ -110,7 +110,7 @@ public class RtpSettings {
         String name = "[" + this.name + "] ";
         infoLog(name + "Command " + (commandEnabled ? "enabled" : "disabled"));
         infoLog(name + (requireExplicitPermission ?
-                "Requires permission node [" + explicitPermPrefix + this.name + "] to use" :
+                "Requires permission node [" + EXPLICIT_PERM_PREFIX + this.name + "] to use" :
                 "No explicit named permission required"));
         infoLog(name + "Priority: " + priority);
         infoLog(name + "Rtp enabled in the following worlds: " + getWorldsAsString());

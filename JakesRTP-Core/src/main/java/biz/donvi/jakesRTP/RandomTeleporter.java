@@ -1,22 +1,13 @@
 package biz.donvi.jakesRTP;
 
 import biz.donvi.evenDistribution.RandomCords;
-import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
 
@@ -25,10 +16,9 @@ import static biz.donvi.jakesRTP.PluginMain.plugin;
 
 public class RandomTeleporter {
 
-    final static String explicitPermPrefix = "jakesrtp.use.";
+    final static String EXPLICIT_PERM_PREFIX = "jakesrtp.use.";
 
     private final ArrayList<RtpSettings> rtpSettings;
-
     public final boolean firstJoinRtp;
     public final RtpSettings firstJoinSettings;
     public final World firstJoinWorld;
@@ -141,6 +131,7 @@ public class RandomTeleporter {
 
     /**
      * Gets the names of all {@code rtpSettings} usable by the given player.
+     *
      * @param player The player to check for settings with.
      * @return All the names of rtpSettings that the given player can use.
      */
@@ -149,7 +140,7 @@ public class RandomTeleporter {
         for (RtpSettings rtpSetting : this.rtpSettings)
             if (rtpSetting.commandEnabled &&
                 (!rtpSetting.requireExplicitPermission ||
-                 player.hasPermission(explicitPermPrefix + rtpSetting.name))
+                 player.hasPermission(EXPLICIT_PERM_PREFIX + rtpSetting.name))
             ) rtpSettings.add(rtpSetting.name);
         return rtpSettings;
     }
@@ -212,7 +203,7 @@ public class RandomTeleporter {
                     //Then we check the priority
                     (finSettings == null || finSettings.priority < settings.priority) &&
                     //Then we check if we require explicit perms
-                    (!settings.requireExplicitPermission || player.hasPermission(explicitPermPrefix + settings.name))
+                    (!settings.requireExplicitPermission || player.hasPermission(EXPLICIT_PERM_PREFIX + settings.name))
                 ) {
                     finSettings = settings;
                     break;
@@ -239,7 +230,7 @@ public class RandomTeleporter {
                 // Then we need the names to match
                 settings.name.equalsIgnoreCase(name) &&
                 //Then we check if we require explicit perms
-                (!settings.requireExplicitPermission || player.hasPermission(explicitPermPrefix + settings.name)))
+                (!settings.requireExplicitPermission || player.hasPermission(EXPLICIT_PERM_PREFIX + settings.name)))
                 // Note: We never check priority because the name must be unique
                 return settings;
         throw new NotPermittedException(Messages.NP_R_NO_RTPSETTINGS_NAME_FOR_PLAYER.format(name));

@@ -6,10 +6,6 @@ import biz.donvi.argsChecker.DynamicArgsMap;
 import io.papermc.lib.PaperLib;
 import javafx.util.Pair;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -18,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static biz.donvi.jakesRTP.RandomTeleporter.explicitPermPrefix;
+import static biz.donvi.jakesRTP.RandomTeleporter.EXPLICIT_PERM_PREFIX;
 
 public class CmdRtpAdmin extends DynamicArgsMap implements TabExecutor {
 
@@ -151,7 +147,7 @@ public class CmdRtpAdmin extends DynamicArgsMap implements TabExecutor {
                     COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Max teleport attempts: " + COLOR_IL[2] + settings.maxAttempts + "\n" +
                     COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Command enabled: " + COLOR_IL[2] + settings.commandEnabled + "\n" +
                     COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Require explicit permission: " +
-                    COLOR_IL[2] + settings.requireExplicitPermission + " \u00A7o[" + explicitPermPrefix + settings.name + "]\u00A7r\n" +
+                    COLOR_IL[2] + settings.requireExplicitPermission + " \u00A7o[" + EXPLICIT_PERM_PREFIX + settings.name + "]\u00A7r\n" +
                     COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Priority: " + COLOR_IL[2] + settings.priority + "\n" +
                     COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Location cache count: " + COLOR_IL[2] + settings.cacheLocationCount +
                     (settings.cacheLocationCount == 0 ? "\n" :

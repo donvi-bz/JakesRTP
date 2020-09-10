@@ -110,4 +110,17 @@ public final class GeneralUtil {
                 .replaceAll("\u00A7x\u00A7$1\u00A7$2\u00A7$3\u00A7$4\u00A7$5\u00A7$6");
     }
 
+    public static String readableTime(long milliseconds){
+        int days, hours, minutes, seconds;
+        seconds = (int) (milliseconds / 1000) % 60;
+        minutes = (int) (milliseconds / (1000 * 60)) % 60;
+        hours = (int) (milliseconds / (1000 * 60 * 60)) % 24;
+        days = (int) (milliseconds / (1000 * 60 * 60 * 24));
+        return Messages.READABLE_TIME.format(
+                (days > 0 ? Messages.READABLE_TIME_WORD_DAYS.format(days) : ""),
+                (hours > 0 ? Messages.READABLE_TIME_WORD_HOURS.format(hours) : ""),
+                (minutes > 0 ? Messages.READABLE_TIME_WORD_MINUTES.format(minutes) : ""),
+                (seconds > 0 ? Messages.READABLE_TIME_WORD_SECONDS.format(seconds) : ""));
+    }
+
 }

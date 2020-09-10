@@ -99,38 +99,17 @@ public class CoolDownTracker {
     }
 
     /**
-     * Returns the amount of time that the given player must wait, formatted in a reasonable manor.
+     * Returns the amount of time left to wait before calling rtp again, formatted in a reasonable manor.
      *
      * @param playerName The player to check.
      * @return A string describing the time left until the cooldown is over. Human readable.
      */
-    String timeLeftWords(String playerName) {
-        int days, hours, minutes, seconds;
-        long millis = timeLeft(playerName);
-        seconds = (int) (millis / 1000) % 60;
-        minutes = (int) (millis / (1000 * 60)) % 60;
-        hours = (int) (millis / (1000 * 60 * 60)) % 24;
-        days = (int) (millis / (1000 * 60 * 60 * 24));
-        return Messages.READABLE_TIME.format(
-                (days > 0 ? Messages.READABLE_TIME_WORD_DAYS.format(days) : ""),
-                (hours > 0 ? Messages.READABLE_TIME_WORD_HOURS.format(hours) : ""),
-                (minutes > 0 ? Messages.READABLE_TIME_WORD_MINUTES.format(minutes) : ""),
-                (seconds > 0 ? Messages.READABLE_TIME_WORD_SECONDS.format(seconds) : ""));
-    }
+    String timeLeftWords(String playerName) { return GeneralUtil.readableTime(timeLeft(playerName)); }
 
-    //TODO - Make this method and the one above use a method instead of having duplicate code
-    public String coolDownTime() {
-        if (coolDownTime == 0) return "None.";
-        int days, hours, minutes, seconds;
-        long millis = coolDownTime;
-        seconds = (int) (millis / 1000) % 60;
-        minutes = (int) (millis / (1000 * 60)) % 60;
-        hours = (int) (millis / (1000 * 60 * 60)) % 24;
-        days = (int) (millis / (1000 * 60 * 60 * 24));
-        return Messages.READABLE_TIME.format( //TODO - This is ugly. This needs to not be ugly.
-                (days > 0 ? Messages.READABLE_TIME_WORD_DAYS.format(days) : ""),
-                (hours > 0 ? Messages.READABLE_TIME_WORD_HOURS.format(hours) : ""),
-                (minutes > 0 ? Messages.READABLE_TIME_WORD_MINUTES.format(minutes) : ""),
-                (seconds > 0 ? Messages.READABLE_TIME_WORD_SECONDS.format(seconds) : ""));
-    }
+    /**
+     * Returns the amount of time that a player must wait between rtp calls, formatted in a reasonable manor.
+     *
+     * @return A human readable string of the cooldown time.
+     */
+    String coolDownTime() { return coolDownTime == 0 ? "None." : GeneralUtil.readableTime(coolDownTime); }
 }
