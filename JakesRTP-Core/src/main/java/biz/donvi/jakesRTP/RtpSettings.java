@@ -1,5 +1,6 @@
 package biz.donvi.jakesRTP;
 
+import biz.donvi.jakesRTP.SafeLocationFinder.LocCheckProfiles;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
@@ -19,31 +20,32 @@ public class RtpSettings {
      * of which worlds are enabled in the config.
      */
     private final Map<World, ConcurrentLinkedQueue<Location>> configWorlds = new HashMap<>();
-    public final boolean useLocationQueue;
+    public final  boolean                                     useLocationQueue;
+
     /* All settings below are read directly from the config */
-    public final String name;
-    public final boolean commandEnabled;
-    public final boolean requireExplicitPermission;
-    public final float priority;
-    public final boolean forceDestinationWorld;
-    public final World destinationWorld;
-    public final RtpRegionShape rtpRegionShape;
-    public final int maxRadius;
-    public final int minRadius;
-    public final CenterAllowedValues centerLocation;
-    public final int centerX;
-    public final int centerZ;
-    public final double gaussianShrink;
-    public final double gaussianCenter;
-    final CoolDownTracker coolDown;
-    public final int lowBound;
-    public final int highBound;
-    public final int checkRadiusXZ;
-    public final int checkRadiusVert;
-    public final int maxAttempts;
-    public final int cacheLocationCount;
-    public final SafeLocationFinder.LocCheckProfiles checkProfile;
-    public String[] commandsToRun;
+    public final String           name;
+    public final boolean          commandEnabled;
+    public final boolean          requireExplicitPermission;
+    public final float            priority;
+    public final boolean          forceDestinationWorld;
+    public final World            destinationWorld;
+    public final RtpRegionShape   rtpRegionShape;
+    public final int              maxRadius;
+    public final int              minRadius;
+    public final CenterTypes      centerLocation;
+    public final int              centerX;
+    public final int              centerZ;
+    public final double           gaussianShrink;
+    public final double           gaussianCenter;
+    final        CoolDownTracker  coolDown;
+    public final int              lowBound;
+    public final int              highBound;
+    public final int              checkRadiusXZ;
+    public final int              checkRadiusVert;
+    public final int              maxAttempts;
+    public final int              cacheLocationCount;
+    public final LocCheckProfiles checkProfile;
+    public       String[]         commandsToRun;
 
     /**
      * Creates an RtpSettings object. This primarily deals with reading in data from a YAML config,
@@ -62,7 +64,7 @@ public class RtpSettings {
         forceDestinationWorld = config.getBoolean("force-destination-world.enabled", false);
         if (forceDestinationWorld) {
             destinationWorld = plugin.getServer().getWorld(config.getString(
-                    "force-destination-world.destination", null));
+                "force-destination-world.destination", null));
             if (destinationWorld == null) throw new JrtpBaseException("Force destination world not recognised.");
             configWorlds.putIfAbsent(destinationWorld, new ConcurrentLinkedQueue<>());
         } else destinationWorld = null;
@@ -70,17 +72,17 @@ public class RtpSettings {
         for (String worldName : config.getStringList("enabled-worlds"))
             try {
                 configWorlds.put(
-                        Objects.requireNonNull(plugin.getServer().getWorld(worldName)),
-                        new ConcurrentLinkedQueue<>());
+                    Objects.requireNonNull(plugin.getServer().getWorld(worldName)),
+                    new ConcurrentLinkedQueue<>());
             } catch (NullPointerException e) {
-                PluginMain.logger.log(Level.WARNING, "![" + name + "] World " + worldName + " not recognised.");
+                PluginMain.log(Level.WARNING, "![" + name + "] World " + worldName + " not recognised.");
             }
         rtpRegionShape = RtpRegionShape.values()[config.getString(
-                "shape.value").toLowerCase().charAt(0) - 'a'];
+            "shape.value").toLowerCase().charAt(0) - 'a'];
         maxRadius = config.getInt("defining-points.radius-center.radius.max", 2000);
         minRadius = config.getInt("defining-points.radius-center.radius.min", 1000);
-        centerLocation = CenterAllowedValues.values()[config.getString(
-                "defining-points.radius-center.center.value").toLowerCase().charAt(0) - 'a'];
+        centerLocation = CenterTypes.values()[config.getString(
+            "defining-points.radius-center.center.value").toLowerCase().charAt(0) - 'a'];
         centerX = config.getInt("defining-points.radius-center.center.x", 0);
         centerZ = config.getInt("defining-points.radius-center.center.z", 0);
         if (config.getBoolean("defining-points.radius-center.gaussian-distribution.enabled", false)) {
@@ -88,15 +90,15 @@ public class RtpSettings {
             gaussianCenter = config.getDouble("defining-points.radius-center.gaussian-distribution.center", 0.25);
         } else gaussianShrink = gaussianCenter = 0;
         coolDown = new CoolDownTracker(config.getInt("cooldown.seconds", 30));
-        checkProfile = SafeLocationFinder.LocCheckProfiles.values()[config.getString(
-                "location-checking-profile.value").toLowerCase().charAt(0) - 'a'];
+        checkProfile = LocCheckProfiles.values()[config.getString(
+            "location-checking-profile.value").toLowerCase().charAt(0) - 'a'];
         lowBound = config.getInt("bounds.low", 32);
         highBound = config.getInt("bounds.high", 255);
         checkRadiusXZ = config.getInt("check-radius.x-z", 2);
         checkRadiusVert = config.getInt("check-radius.vert", 2);
         maxAttempts = config.getInt("max-attempts.value", 10);
         //Some important finalization work.
-        useLocationQueue = centerLocation != CenterAllowedValues.PLAYER_LOCATION &&
+        useLocationQueue = centerLocation != CenterTypes.PLAYER_LOCATION &&
                            cacheLocationCount > 0;
         commandsToRun = config.getStringList("then-execute").toArray(new String[0]);
         infoLogSettings();
@@ -109,7 +111,8 @@ public class RtpSettings {
         // In the current context, we always need the name in square brackets.
         String name = "[" + this.name + "] ";
         infoLog(name + "Command " + (commandEnabled ? "enabled" : "disabled"));
-        infoLog(name + (requireExplicitPermission ?
+        infoLog(name + (
+            requireExplicitPermission ?
                 "Requires permission node [" + EXPLICIT_PERM_PREFIX + this.name + "] to use" :
                 "No explicit named permission required"));
         infoLog(name + "Priority: " + priority);
@@ -117,16 +120,19 @@ public class RtpSettings {
         infoLog(name + "Rtp region shape set to " + rtpRegionShape.toString());
         infoLog(name + "Min radius set to " + minRadius + " | Max Radius set to " + maxRadius);
         infoLog(name + "Rtp Region center is set to " + getRtpRegionCenterAsString(false));
-        infoLog(name + (gaussianCenter == 0 && gaussianShrink == 0 ?
+        infoLog(name + (
+            gaussianCenter == 0 && gaussianShrink == 0 ?
                 "Using even distribution." :
                 "Gaussian distribution enabled. Shrink: " + gaussianShrink + " Center: " + gaussianCenter));
-        infoLog(name + (coolDown.coolDownTime == 0 ?
+        infoLog(name + (
+            coolDown.coolDownTime == 0 ?
                 "Cooldown disabled" :
                 "Cooldown time: " + coolDown.coolDownTime / 1000 + " seconds."));
         infoLog(name + "Low bound: " + lowBound + " | High bound: " + highBound);
         infoLog(name + "Check radius x and z set to " + checkRadiusXZ + " and vert set to " + checkRadiusVert);
         infoLog(name + "Max attempts set to " + maxAttempts);
-        infoLog(name + "Location caching " + (useLocationQueue ?
+        infoLog(name + "Location caching " + (
+            useLocationQueue ?
                 "disabled." :
                 "Enabled. Caching " + cacheLocationCount + " location per world."));
     }
@@ -135,23 +141,23 @@ public class RtpSettings {
         switch (centerLocation) {
             case WORLD_SPAWN:
                 StringBuilder spawnLocation = new StringBuilder("World Spawn ")
-                        .append(mcFormat ? "\u00A7o" : "")
-                        .append("[");
+                    .append(mcFormat ? "\u00A7o" : "")
+                    .append("[");
                 for (Iterator<World> iterator = getConfigWorlds().iterator(); iterator.hasNext(); ) {
                     World world = iterator.next();
                     spawnLocation
-                            .append("(")
-                            .append((int) world.getSpawnLocation().getX())
-                            .append(", ")
-                            .append((int) world.getSpawnLocation().getZ())
-                            .append(") in ")
-                            .append(world.getName())
-                            .append(iterator.hasNext() ? "; " : "");
+                        .append("(")
+                        .append((int) world.getSpawnLocation().getX())
+                        .append(", ")
+                        .append((int) world.getSpawnLocation().getZ())
+                        .append(") in ")
+                        .append(world.getName())
+                        .append(iterator.hasNext() ? "; " : "");
                 }
                 return spawnLocation
-                        .append("]")
-                        .append(mcFormat ? "\u00A7r" : "")
-                        .toString();
+                    .append("]")
+                    .append(mcFormat ? "\u00A7r" : "")
+                    .toString();
             case PRESET_VALUE:
                 return "Specified in Config " + (mcFormat ? "\u00A7o" : "") +
                        "(" + centerX + ", " + centerZ + ")" + (mcFormat ? "\u00A7r" : "");
@@ -221,5 +227,5 @@ public class RtpSettings {
      */
     enum RtpRegionShape {SQUARE, CIRCLE, RECTANGLE;}
 
-    enum CenterAllowedValues {WORLD_SPAWN, PLAYER_LOCATION, PRESET_VALUE}
+    enum CenterTypes {WORLD_SPAWN, PLAYER_LOCATION, PRESET_VALUE}
 }

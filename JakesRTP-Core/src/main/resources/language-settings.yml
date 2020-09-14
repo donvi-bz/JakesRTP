@@ -1,6 +1,7 @@
 # All settings related to language and the content of messages will be in this file.
 # Currently supported languages:
 #  • English (en)
+#  • Íslenska (is)
 # Note: You MUST type the letters in the parentheses
 language: 'en'
 

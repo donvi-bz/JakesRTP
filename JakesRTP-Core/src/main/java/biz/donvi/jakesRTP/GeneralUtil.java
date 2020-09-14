@@ -18,13 +18,13 @@ import static biz.donvi.jakesRTP.PluginMain.infoLog;
 
 public final class GeneralUtil {
 
-    public static final Pattern PLACEHOLDER_REGEX = Pattern.compile("(?=[^\\\\])%(.*?[^\\\\])%");
-    public static final Pattern SLASH_N_REGEX_W_LOOKBEHIND = Pattern.compile("(?<!\\\\)\\\\n");
-    public static final Pattern SLASH_N_REGEX_DOUBLE = Pattern.compile("\\\\n");
+    public static final Pattern PLACEHOLDER_REGEX               = Pattern.compile("(?=[^\\\\])%(.*?[^\\\\])%");
+    public static final Pattern SLASH_N_REGEX_W_LOOKBEHIND      = Pattern.compile("(?<!\\\\)\\\\n");
+    public static final Pattern SLASH_N_REGEX_DOUBLE            = Pattern.compile("\\\\n");
     public static final Pattern LEGACY_COLOR_REGEX_W_LOOKBEHIND = Pattern.compile("(?<!&)&([0-9a-fk-orx])");
-    public static final Pattern LEGACY_COLOR_REGEX_DOUBLE = Pattern.compile("&&([0-9a-fk-orx])");
-    public static final Pattern HEX_COLOR_REGEX = Pattern.compile(
-            "\\{#([\\da-fA-F])([\\da-fA-F])([\\da-fA-F])([\\da-fA-F])([\\da-fA-F])([\\da-fA-F])}");
+    public static final Pattern LEGACY_COLOR_REGEX_DOUBLE       = Pattern.compile("&&([0-9a-fk-orx])");
+    public static final Pattern HEX_COLOR_REGEX                 = Pattern.compile(
+        "\\{#([\\da-fA-F])([\\da-fA-F])([\\da-fA-F])([\\da-fA-F])([\\da-fA-F])([\\da-fA-F])}");
 
     /**
      * Returns a string representing the given location with generic formatting, leaving out the pitch and yaw,
@@ -39,8 +39,8 @@ public final class GeneralUtil {
         double[] pos = {loc.getX(), loc.getY(), loc.getZ()};
         String[] posS = new String[3];
         String worldName = loc.getWorld() == null ? "" : loc.getWorld().getName();
-        DecimalFormat decimalFormat = decimalPlaces == 0 ? new DecimalFormat("0") :
-                new DecimalFormat(new StrBuilder("0.").append(stringOf('#', decimalPlaces)).toString());
+        DecimalFormat decimalFormat = decimalPlaces == 0 ? new DecimalFormat("0")
+            : new DecimalFormat(new StrBuilder("0.").append(stringOf('#', decimalPlaces)).toString());
         for (int i = 0; i < pos.length; i++) posS[i] = decimalFormat.format(pos[i]);
         return worldName + " (" + posS[0] + ", " + posS[1] + ", " + posS[2] + ")";
     }
@@ -94,33 +94,38 @@ public final class GeneralUtil {
     }
 
     public static String replaceWrittenLineBreaks(String s) {
-        return SLASH_N_REGEX_DOUBLE.matcher(SLASH_N_REGEX_W_LOOKBEHIND.matcher(s)
-                .replaceAll("\n"))
-                .replaceAll("\\n");
+        return
+            SLASH_N_REGEX_DOUBLE.matcher(
+                SLASH_N_REGEX_W_LOOKBEHIND.matcher(s
+                ).replaceAll("\n")
+            ).replaceAll("\\n");
     }
 
     public static String replaceLegacyColors(String s) {
-        return LEGACY_COLOR_REGEX_DOUBLE.matcher(LEGACY_COLOR_REGEX_W_LOOKBEHIND.matcher(s)
-                .replaceAll("\u00A7$1"))
-                .replaceAll("&$1");
+        return
+            LEGACY_COLOR_REGEX_DOUBLE.matcher(
+                LEGACY_COLOR_REGEX_W_LOOKBEHIND.matcher(s
+                ).replaceAll("\u00A7$1")
+            ).replaceAll("&$1");
     }
 
     public static String replaceNewColors(String s) {
-        return HEX_COLOR_REGEX.matcher(s)
-                .replaceAll("\u00A7x\u00A7$1\u00A7$2\u00A7$3\u00A7$4\u00A7$5\u00A7$6");
+        return
+            HEX_COLOR_REGEX.matcher(s
+            ).replaceAll("\u00A7x\u00A7$1\u00A7$2\u00A7$3\u00A7$4\u00A7$5\u00A7$6");
     }
 
-    public static String readableTime(long milliseconds){
+    public static String readableTime(long milliseconds) {
         int days, hours, minutes, seconds;
         seconds = (int) (milliseconds / 1000) % 60;
         minutes = (int) (milliseconds / (1000 * 60)) % 60;
         hours = (int) (milliseconds / (1000 * 60 * 60)) % 24;
         days = (int) (milliseconds / (1000 * 60 * 60 * 24));
         return Messages.READABLE_TIME.format(
-                (days > 0 ? Messages.READABLE_TIME_WORD_DAYS.format(days) : ""),
-                (hours > 0 ? Messages.READABLE_TIME_WORD_HOURS.format(hours) : ""),
-                (minutes > 0 ? Messages.READABLE_TIME_WORD_MINUTES.format(minutes) : ""),
-                (seconds > 0 ? Messages.READABLE_TIME_WORD_SECONDS.format(seconds) : ""));
+            (days > 0 ? Messages.READABLE_TIME_WORD_DAYS.format(days) : ""),
+            (hours > 0 ? Messages.READABLE_TIME_WORD_HOURS.format(hours) : ""),
+            (minutes > 0 ? Messages.READABLE_TIME_WORD_MINUTES.format(minutes) : ""),
+            (seconds > 0 ? Messages.READABLE_TIME_WORD_SECONDS.format(seconds) : ""));
     }
 
 }

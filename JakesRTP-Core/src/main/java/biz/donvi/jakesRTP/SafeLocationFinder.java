@@ -7,28 +7,25 @@ import org.bukkit.World;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
-import static biz.donvi.jakesRTP.PluginMain.logger;
-
 /**
  * An object that can be given a location in a spigot world, and will try
  * and move around until it finds a spot that a player can safely stand on.
  */
 public abstract class SafeLocationFinder {
 
-    public final Location loc;
-    protected final int lowBound;
-    protected int highBound;
-    protected final boolean enableSelfChecking;
-    protected final int checkRadiusXZ;
-    protected final int checkRadiusVert;
+    public final    Location loc;
+    protected final int      lowBound;
+    protected       int      highBound;
+    protected final boolean  enableSelfChecking;
+    protected final int      checkRadiusXZ;
+    protected final int      checkRadiusVert;
 
     /* Small set of variables just for nextInSpiral */
-    protected boolean xNotY = true;
-    protected int
-            flip = 1,
-            count = 0,
-            subCount = 0,
-            stretch = 1;
+    protected boolean xNotY    = true;
+    protected int     flip     = 1;
+    protected int     count    = 0;
+    protected int     subCount = 0;
+    protected int     stretch  = 1;
 
     /**
      * Just constructs the {@code SafeLocationFinder}, use {@code checkSafety} to check if
@@ -88,8 +85,8 @@ public abstract class SafeLocationFinder {
                     return true;
                 } else nextInSpiral();
         } catch (TimeoutException e) {
-            logger.log(Level.WARNING, "Request to make location safe timed out. " +
-                                      "This is only an issue if this warning is common.");
+            PluginMain.log(Level.WARNING, "Request to make location safe timed out. " +
+                                          "This is only an issue if this warning is common.");
         }
         return false;
     }

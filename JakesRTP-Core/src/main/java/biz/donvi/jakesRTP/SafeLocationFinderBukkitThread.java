@@ -7,7 +7,6 @@ import org.bukkit.World;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
-import static biz.donvi.jakesRTP.PluginMain.logger;
 import static biz.donvi.jakesRTP.SafeLocationUtils.requireMainThread;
 
 public class SafeLocationFinderBukkitThread extends SafeLocationFinder {

@@ -4,7 +4,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
+
+import static biz.donvi.jakesRTP.PluginMain.infoLog;
 
 //DEBUG ↓
 
@@ -28,9 +29,11 @@ public class LocationCacheFiller implements Runnable {
 
     @Override
     public void run() {
+        final String threadOldName = Thread.currentThread().getName();
+        Thread.currentThread().setName("[J-RTP] Loc Cache Filler");
         try {
             SimpleLagTimer.blockingTimer(pluginMain(), 5000);
-            System.out.println("[J-RTP] LCF Started.");
+            infoLog("[J-RTP] LCF Started.");
             while (keepRunning && isPluginLoaded())
                 try {
                     beginning:
@@ -43,20 +46,21 @@ public class LocationCacheFiller implements Runnable {
                     patientlyWait(recheckTime);
                 } catch (JrtpBaseException ex) {
                     if (ex instanceof NotPermittedException)
-                        PluginMain.infoLog("An exception has occurred that should be impossible to occur. Please report this.");
+                        infoLog("An exception has occurred that should be impossible to occur. Please report this.");
                     else
-                        PluginMain.infoLog("Something has gone wrong, but this is most likely not an issue.");
+                        infoLog("Something has gone wrong, but this is most likely not an issue.");
                     ex.printStackTrace();
                 }
         } catch (SafeLocationFinderOtherThread.PluginDisabledException ignored) {
-            System.out.println("[J-RTP] Plugin disabled while finding a location. Location scrapped.");
+            infoLog("[J-RTP] Plugin disabled while finding a location. Location scrapped.");
         } catch (ReferenceNonExistentException ignored) {
-            System.out.println("[J-RTP] Plugin no longer exists.");
+            infoLog("[J-RTP] Plugin no longer exists.");
         } catch (Exception e) {
-            System.out.println("Something unexpected went wrong.");
+            infoLog("Something unexpected went wrong.");
             e.printStackTrace();
         }
-        System.out.println("[J-RTP] Shutting location caching thread down.");
+        infoLog("[J-RTP] Shutting location caching thread down.");
+        Thread.currentThread().setName(threadOldName);
     }
 
     /**

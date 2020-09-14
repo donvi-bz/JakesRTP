@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;
 
+import static biz.donvi.jakesRTP.PluginMain.infoLog;
+
 
 public class SafeLocationFinderOtherThread extends SafeLocationFinder {
 
@@ -76,11 +78,11 @@ public class SafeLocationFinderOtherThread extends SafeLocationFinder {
                     PluginMain.plugin,
                     () -> PaperLib.getChunkAtAsync(loc).thenApply(Chunk::getChunkSnapshot)
             ).get(timeout, TimeUnit.SECONDS).get(timeout, TimeUnit.SECONDS));
-//            System.out.println("LOADED CHUNK SNAPSHOT USING PAPER");
+//            PluginMain.infoLog("LOADED CHUNK SNAPSHOT USING PAPER");
         } catch (CancellationException ignored) {
             throw new PluginDisabledException();
         } catch (InterruptedException e) {
-            System.out.println("Caught an unexpected interrupt.");
+            infoLog("Caught an unexpected interrupt.");
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
