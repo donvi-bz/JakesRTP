@@ -1,20 +1,15 @@
 package biz.donvi.jakesRTP;
 
-import io.papermc.lib.PaperLib;
 import org.apache.commons.lang.text.StrBuilder;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Server;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
 
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static biz.donvi.jakesRTP.PluginMain.infoLog;
 
 public final class GeneralUtil {
 

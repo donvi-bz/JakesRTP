@@ -27,9 +27,9 @@ public enum Messages {
 
 
     private static final String[] mappedValues = new String[Messages.values().length];
-    final String key;
+    final                String   key;
 
-    static void setMap(Map<String, String> newMap)  {
+    static void setMap(Map<String, String> newMap) {
         final ArrayList<String> emptyValues = new ArrayList<>();
         for (Messages m : Messages.values()) {
             mappedValues[m.ordinal()] = reformat(newMap.remove(m.key));
@@ -60,7 +60,7 @@ public enum Messages {
         return s == null ? null : replaceNewColors(replaceLegacyColors(replaceWrittenLineBreaks(s)));
     }
 
-    private Messages(String key) { this.key = key; }
+    Messages(String key) { this.key = key; }
 
 
     String getKey() { return key; }

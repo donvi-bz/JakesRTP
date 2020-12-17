@@ -1,10 +1,8 @@
 package biz.donvi.jakesRTP;
 
-import biz.donvi.gnuPlotter.Plotter;
 import org.bukkit.Server;
 import org.bukkit.plugin.Plugin;
 
-import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -30,11 +28,11 @@ public class SimpleLagTimer {
      * ANY TICKS LESS THAN OR EQUAL TO THIS WILL BE DISCARDED as they are considered "make up ticks"  (ticks after a
      * spike in lag that are only quick to make up for lost time)
      */
-    protected static int MIN_REC_TIME = 48;
+    protected static int MIN_REC_TIME         = 48;
     /**
      * The time (in milliseconds) that a tick must be equal to or less than to be considered lag free.
      */
-    protected static int MIN_LAG_TIME = 55;
+    protected static int MIN_LAG_TIME         = 55;
     /**
      * Applicable only to the static {@code blockingTimer()} method, this is how many ticks to wait regardless of
      * whether the server is lagging or not.
@@ -42,14 +40,14 @@ public class SimpleLagTimer {
     protected static int TICKS_TO_ALWAYS_WAIT = 20;
 
 
-    protected final Server server;
+    protected final Server          server;
     protected final Queue<TickInfo> tickInfoQueue;
-    protected final long startTime;
-    final int taskNumber;
+    protected final long            startTime;
+    final           int             taskNumber;
 
     protected TickInfo lastTick;
-    protected long tickQueueTimeSum;
-    protected boolean running = true;
+    protected long     tickQueueTimeSum;
+    protected boolean  running = true;
 
     /**
      * Constructs a new simple lag timer. This registers a repeating task in the bukkit scheduler to measure how long
@@ -67,9 +65,10 @@ public class SimpleLagTimer {
         lastTick = new TickInfo(0);
         startTime = System.currentTimeMillis();
         taskNumber = server.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
-            TickInfo currentTick = new TickInfo(System.currentTimeMillis(),
-                    System.currentTimeMillis() - lastTick.timeOf,
-                    lastTick.number + 1);
+            TickInfo currentTick = new TickInfo(
+                System.currentTimeMillis(),
+                System.currentTimeMillis() - lastTick.timeOf,
+                lastTick.number + 1);
             lastTick = currentTick;
             TickInfo oldestTick;
 
@@ -107,8 +106,8 @@ public class SimpleLagTimer {
      */
     public float getAverageTick() {
         return tickInfoQueue.size() == 0
-                ? Float.MAX_VALUE
-                : (float) tickQueueTimeSum / tickInfoQueue.size();
+            ? Float.MAX_VALUE
+            : (float) tickQueueTimeSum / tickInfoQueue.size();
     }
 
     /**

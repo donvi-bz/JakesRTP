@@ -9,7 +9,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -61,8 +60,8 @@ public class CmdForceRtp extends DynamicArgsMap implements TabExecutor {
         // ↑ Check step | Teleport step ↓
 
         new RandomTeleportAction(
-                randomTeleporter, rtpSettings, playerToTp.getLocation(), true, true,
-                randomTeleporter.logRtpOnForceCommand, "Rtp-from-force-command triggered!"
+            randomTeleporter, rtpSettings, playerToTp.getLocation(), true, true,
+            randomTeleporter.logRtpOnForceCommand, "Rtp-from-force-command triggered!"
         ).teleportAsync(playerToTp);
     }
 
@@ -81,14 +80,14 @@ public class CmdForceRtp extends DynamicArgsMap implements TabExecutor {
         // ↑ Check step | Teleport step ↓
 
         new RandomTeleportAction(
-                randomTeleporter,
-                randomTeleporter.getRtpSettingsByWorld(destWorld),
-                playerToTp.getLocation().getWorld() == destWorld
-                        ? playerToTp.getLocation()
-                        : destWorld.getSpawnLocation(),
-                true,
-                true,
-                randomTeleporter.logRtpOnForceCommand, "Rtp-from-force-command triggered!"
+            randomTeleporter,
+            randomTeleporter.getRtpSettingsByWorld(destWorld),
+            playerToTp.getLocation().getWorld() == destWorld
+                ? playerToTp.getLocation()
+                : destWorld.getSpawnLocation(),
+            true,
+            true,
+            randomTeleporter.logRtpOnForceCommand, "Rtp-from-force-command triggered!"
         ).teleportAsync(playerToTp);
     }
 
@@ -110,15 +109,16 @@ public class CmdForceRtp extends DynamicArgsMap implements TabExecutor {
             return;
         } else if (rtpSettings.forceDestinationWorld && rtpSettings.destinationWorld != destWorld) {
             assert rtpSettings.destinationWorld != null; // Force destination world implies this.
-            sender.sendMessage(Messages.RTPSETTINGS_MUST_USE_WORLD.format(rtpSettings.name, rtpSettings.destinationWorld.getName()));
+            sender.sendMessage(
+                Messages.RTPSETTINGS_MUST_USE_WORLD.format(rtpSettings.name, rtpSettings.destinationWorld.getName()));
             return;
         }
 
         // ↑ Check step | Teleport step ↓
 
         new RandomTeleportAction(
-                randomTeleporter, rtpSettings, destWorld.getSpawnLocation(), true, true,
-                randomTeleporter.logRtpOnForceCommand, "Rtp-from-force-command triggered!"
+            randomTeleporter, rtpSettings, destWorld.getSpawnLocation(), true, true,
+            randomTeleporter.logRtpOnForceCommand, "Rtp-from-force-command triggered!"
         ).teleportAsync(playerToTp);
     }
 

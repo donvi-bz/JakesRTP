@@ -5,6 +5,7 @@ import java.util.HashMap;
 public class CoolDownTracker {
 
     private final HashMap<String, Long> tracker = new HashMap<>();
+
     final long coolDownTime;
 
     /**

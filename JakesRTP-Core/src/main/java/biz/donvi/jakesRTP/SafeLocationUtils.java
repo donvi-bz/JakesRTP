@@ -1,7 +1,10 @@
 package biz.donvi.jakesRTP;
 
 import io.papermc.lib.PaperLib;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChunkSnapshot;
+import org.bukkit.Location;
+import org.bukkit.Material;
 
 public class SafeLocationUtils {
 
@@ -17,8 +20,8 @@ public class SafeLocationUtils {
             if (PaperLib.getMinecraftVersion() <= 12) {
                 //noinspection unchecked
                 patchClass = (Class<SafeLocationUtils_Patch>) Class
-                        .forName("biz.donvi.jakesRTP.SafeLocationUtils_12")
-                        .asSubclass(SafeLocationUtils_Patch.class);
+                    .forName("biz.donvi.jakesRTP.SafeLocationUtils_12")
+                    .asSubclass(SafeLocationUtils_Patch.class);
             }
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
@@ -144,8 +147,8 @@ public class SafeLocationUtils {
     boolean isInATree(final Location loc) {
         requireMainThread();
         for (Material material : new Material[]{
-                loc.clone().add(0, 1, 0).getBlock().getType(),
-                loc.clone().add(0, 2, 0).getBlock().getType()})
+            loc.clone().add(0, 1, 0).getBlock().getType(),
+            loc.clone().add(0, 2, 0).getBlock().getType()})
             if (isTreeLeaves(material)) return true;
         return false;
     }
@@ -160,8 +163,8 @@ public class SafeLocationUtils {
      */
     boolean isInTree(final Location loc, ChunkSnapshot chunk) {
         for (Material material : new Material[]{
-                locMatFromSnapshot(loc.clone().add(0, 1, 0), chunk),
-                locMatFromSnapshot(loc.clone().add(0, 2, 0), chunk)})
+            locMatFromSnapshot(loc.clone().add(0, 1, 0), chunk),
+            locMatFromSnapshot(loc.clone().add(0, 2, 0), chunk)})
             if (isTreeLeaves(material)) return true;
         return false;
     }
@@ -192,8 +195,7 @@ public class SafeLocationUtils {
      * @param chunk The chunk snapshot that contains the {@code Location}'s data.
      */
     void dropToGround(final Location loc, ChunkSnapshot chunk) {
-        while (isSafeToBeIn(locMatFromSnapshot(loc, chunk))
-               || isSafeToGoThrough(locMatFromSnapshot(loc, chunk)))
+        while (isSafeToBeIn(locMatFromSnapshot(loc, chunk)) || isSafeToGoThrough(locMatFromSnapshot(loc, chunk)))
             loc.add(0, -1, 0);
     }
 
@@ -208,9 +210,9 @@ public class SafeLocationUtils {
     void dropToGround(final Location loc, int lowBound) {
         requireMainThread();
         while (loc.getBlockY() > lowBound && (
-                isSafeToBeIn(loc.getBlock().getType())
-                || isSafeToGoThrough(loc.getBlock().getType())))
-            loc.add(0, -1, 0);
+            isSafeToBeIn(loc.getBlock().getType())
+            || isSafeToGoThrough(loc.getBlock().getType()))
+        ) loc.add(0, -1, 0);
     }
 
     /**
@@ -224,9 +226,9 @@ public class SafeLocationUtils {
      */
     void dropToGround(final Location loc, int lowBound, ChunkSnapshot chunk) {
         while (loc.getBlockY() > lowBound && (
-                isSafeToBeIn(locMatFromSnapshot(loc, chunk))
-                || isSafeToGoThrough(locMatFromSnapshot(loc, chunk))))
-            loc.add(0, -1, 0);
+            isSafeToBeIn(locMatFromSnapshot(loc, chunk))
+            || isSafeToGoThrough(locMatFromSnapshot(loc, chunk)))
+        ) loc.add(0, -1, 0);
     }
 
     void dropToMiddle(final Location loc, int lowBound, int highBound) {
@@ -236,24 +238,25 @@ public class SafeLocationUtils {
     void dropToMiddle(final Location loc, int lowBound, int highBound, ChunkSnapshot chunk) {
         loc.setY((highBound + lowBound) / 2d);      //Set starting point
         Material mat = (chunk == null)              //Set starting material
-                ? loc.getBlock().getType()          //  If we are on the bukkit thread, we should be called without a
-                : locMatFromSnapshot(loc, chunk);   //  snapshot. If we are off it, we should have a snapshot.
+            ? loc.getBlock().getType()          //  If we are on the bukkit thread, we should be called without a
+            : locMatFromSnapshot(loc, chunk);   //  snapshot. If we are off it, we should have a snapshot.
 
         int change = 0;     //For movement control
         int direction = 1;  //For movement control
         boolean upWasSolid = false, //For escaping while
-                downWasAir = false; //For escaping while
+            downWasAir = false; //For escaping while
 
         //While [we are unsafe] check the next spot for partial safety
-        while (((direction == -1)
-                ? !(upWasSolid && isSafeToBeIn(mat))
-                : !(downWasAir && isSafeToBeOn(mat)))
+        while ((
+                   (direction == -1)
+                       ? !(upWasSolid && isSafeToBeIn(mat))
+                       : !(downWasAir && isSafeToBeOn(mat)))
                && loc.getY() > 0
                && loc.getY() < 128
         ) {
             mat = (chunk == null)
-                    ? loc.getBlock().getType()
-                    : locMatFromSnapshot(loc, chunk);
+                ? loc.getBlock().getType()
+                : locMatFromSnapshot(loc, chunk);
             //Preparing testing variables
             if (direction == 1)
                 upWasSolid = isSafeToBeOn(mat);
@@ -266,8 +269,8 @@ public class SafeLocationUtils {
             direction *= -1;
             loc.add(0, -change * direction, 0);
             mat = (chunk == null)
-                    ? loc.getBlock().getType()
-                    : locMatFromSnapshot(loc, chunk);
+                ? loc.getBlock().getType()
+                : locMatFromSnapshot(loc, chunk);
         }
     }
 

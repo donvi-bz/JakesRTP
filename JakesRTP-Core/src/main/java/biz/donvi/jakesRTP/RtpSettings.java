@@ -20,7 +20,8 @@ public class RtpSettings {
      * of which worlds are enabled in the config.
      */
     private final Map<World, ConcurrentLinkedQueue<Location>> configWorlds = new HashMap<>();
-    public final  boolean                                     useLocationQueue;
+
+    public final boolean useLocationQueue;
 
     /* All settings below are read directly from the config */
     public final String           name;
@@ -225,7 +226,7 @@ public class RtpSettings {
     /**
      * Small enum to define the types of shapes that this plugin can RTP in
      */
-    enum RtpRegionShape {SQUARE, CIRCLE, RECTANGLE;}
+    enum RtpRegionShape {SQUARE, CIRCLE, RECTANGLE}
 
     enum CenterTypes {WORLD_SPAWN, PLAYER_LOCATION, PRESET_VALUE}
 }

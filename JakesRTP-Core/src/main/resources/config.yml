@@ -54,7 +54,6 @@ random-teleport-settings default: # The name of this config section is 'default'
   # Only useful if there are overlapping configurations (multiple configs that include the same worlds).
   priority: 1
   # Which worlds will this configuration apply to?
-  # The nether is not currently supported. The end works, but is inefficient and requires a higher max-attempt value.
   enabled-worlds:
     - world
     - yer  # You can remove this one, it's here as an example

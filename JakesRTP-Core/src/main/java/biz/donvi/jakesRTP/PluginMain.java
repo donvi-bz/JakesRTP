@@ -2,23 +2,18 @@ package biz.donvi.jakesRTP;
 
 import biz.donvi.argsChecker.Util;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.charset.spi.CharsetProvider;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static java.nio.charset.StandardCharsets.*;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public final class PluginMain extends JavaPlugin {
 
@@ -44,21 +39,19 @@ public final class PluginMain extends JavaPlugin {
         logger = plugin.getLogger();
         cmdMap = new Yaml().load(this.getClassLoader().getResourceAsStream("commandTree.yml"));
 
-
         try {
             //If there is no config file, save the default one
             if (!Files.exists(Paths.get(this.getDataFolder().getPath(), "config.yml")))
                 saveDefaultConfig();
-            else if (!getCurrentConfigVersion().equals(getDefaultConfigVersion())
-                     && !getConfig().getBoolean("run-old-configs")) {
-                log(Level.WARNING,
-                    "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
-                log(Level.WARNING, "A new plugin-level config file is available.");
-                log(Level.WARNING, "Automatically backing up the old config file, and using the new default one.");
-                log(Level.WARNING,
-                    "You may want to copy any values from the old config to the new one if you customized it at all.");
-                log(Level.WARNING,
-                    "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
+            else if (!getCurrentConfigVersion().equals(getDefaultConfigVersion()) &&
+                     !getConfig().getBoolean("run-old-configs")) {
+                for (String msg : new String[]{
+                    "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -",
+                    "A new plugin-level config file is available.",
+                    "Automatically backing up the old config file, and using the new default one.",
+                    "You may want to copy any values from the old config to the new one if you customized it at all.",
+                    "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"})
+                    log(Level.WARNING, msg);
                 Files.move(
                     Paths.get(getDataFolder().getPath() + "/config.yml"),
                     Paths.get(getDataFolder().getPath() + "/config-" + getCurrentConfigVersion() + "-old.yml")
@@ -68,7 +61,6 @@ public final class PluginMain extends JavaPlugin {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
 
         //Register commands
         Objects.requireNonNull(getCommand("rtp-admin"))

@@ -8,8 +8,6 @@ import org.bukkit.entity.Player;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 
 import static biz.donvi.jakesRTP.GeneralUtil.fillPlaceholders;
 import static biz.donvi.jakesRTP.GeneralUtil.locationAsString;
@@ -18,24 +16,26 @@ import static biz.donvi.jakesRTP.PluginMain.infoLog;
 public class RandomTeleportAction {
 
     public final RandomTeleporter randomTeleporter;
-    public final RtpSettings rtpSettings;
-    public final Location callFromLoc;
-    public final boolean takeFromQueue;
-    public final boolean timed;
-    public final boolean log;
-    public final String logMessage;
+    public final RtpSettings      rtpSettings;
+    public final Location         callFromLoc;
+    public final boolean          takeFromQueue;
+    public final boolean          timed;
+    public final boolean          log;
+    public final String           logMessage;
 
     private final Map<String, String> placeholders = new HashMap<>();
 
-    private boolean used = false;
-    private boolean completed = false;
-    private long timeStart;
-    private long timeEnd;
-    private Player player;
+    private boolean  used      = false;
+    private boolean  completed = false;
+    private long     timeStart;
+    private long     timeEnd;
+    private Player   player;
     private Location landingLoc;
 
-    public RandomTeleportAction(RandomTeleporter randomTeleporter, RtpSettings rtpSettings, Location callFromLoc,
-                                boolean takeFromQueue, boolean timed, boolean log, String logMessage) {
+    public RandomTeleportAction(
+        RandomTeleporter randomTeleporter, RtpSettings rtpSettings, Location callFromLoc,
+        boolean takeFromQueue, boolean timed, boolean log, String logMessage
+    ) {
         this.randomTeleporter = randomTeleporter;
         this.rtpSettings = rtpSettings;
         this.callFromLoc = callFromLoc;
@@ -74,9 +74,9 @@ public class RandomTeleportAction {
         completed = true;
         if (timed) timeEnd = System.currentTimeMillis();
         if (log) infoLog(
-                logMessage +
-                " Generated location: " + locationAsString(landingLoc, 1, false) +
-                " taking " + (timed ? timeEnd - timeStart : "N/A") + " ms.");
+            logMessage +
+            " Generated location: " + locationAsString(landingLoc, 1, false) +
+            " taking " + (timed ? timeEnd - timeStart : "N/A") + " ms.");
         return landingLoc;
     }
 
@@ -111,9 +111,9 @@ public class RandomTeleportAction {
         else used = true;
         if (timed) timeStart = System.currentTimeMillis();
         landingLoc = randomTeleporter.getRtpLocation(
-                rtpSettings,
-                callFromLoc,
-                takeFromQueue);
+            rtpSettings,
+            callFromLoc,
+            takeFromQueue);
         this.player = player;
         //<editor-fold desc="setPlaceholders();">
         if (rtpSettings.commandsToRun.length != 0) {
@@ -140,13 +140,13 @@ public class RandomTeleportAction {
         if (timed) timeEnd = System.currentTimeMillis();
         if (log)
             if (teleported) infoLog(
-                    logMessage +
-                    " Teleported player " + player.getName() +
-                    " to " + locationAsString(landingLoc, 1, false) +
-                    " taking " + (timed ? timeEnd - timeStart : "N/A") + " ms.");
+                logMessage +
+                " Teleported player " + player.getName() +
+                " to " + locationAsString(landingLoc, 1, false) +
+                " taking " + (timed ? timeEnd - timeStart : "N/A") + " ms.");
             else infoLog(
-                    logMessage +
-                    "Player did not teleport.");
+                logMessage +
+                "Player did not teleport.");
 
         if (rtpSettings.commandsToRun.length != 0)
             for (String command : rtpSettings.commandsToRun)

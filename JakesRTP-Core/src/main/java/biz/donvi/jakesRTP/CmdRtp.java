@@ -7,7 +7,6 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class CmdRtp implements TabExecutor {
 
@@ -27,23 +26,23 @@ public class CmdRtp implements TabExecutor {
                 if (args.length == 1 && !sender.hasPermission("jakesrtp.usebyname"))
                     return false;
                 RtpSettings relSettings = args.length == 0
-                        ? randomTeleporter.getRtpSettingsByWorldForPlayer(player)
-                        : randomTeleporter.getRtpSettingsByNameForPlayer(player, args[0]);
+                    ? randomTeleporter.getRtpSettingsByWorldForPlayer(player)
+                    : randomTeleporter.getRtpSettingsByNameForPlayer(player, args[0]);
                 if (player.hasPermission("jakesRtp.noCooldown") || relSettings.coolDown.check(player.getName())) {
                     long callTime = System.currentTimeMillis();
                     new RandomTeleportAction(
-                            randomTeleporter,
-                            relSettings,
-                            player.getLocation(),
-                            true,
-                            true,
-                            randomTeleporter.logRtpOnCommand, "Rtp-from-command triggered!"
+                        randomTeleporter,
+                        relSettings,
+                        player.getLocation(),
+                        true,
+                        true,
+                        randomTeleporter.logRtpOnCommand, "Rtp-from-command triggered!"
                     ).teleportAsync(player);
                     relSettings.coolDown.log(player.getName(), callTime);
                 } else {
                     player.sendMessage(Messages.
-                            NEED_WAIT_COOLDOWN.format(
-                            relSettings.coolDown.timeLeftWords(player.getName())
+                        NEED_WAIT_COOLDOWN.format(
+                        relSettings.coolDown.timeLeftWords(player.getName())
                     ));
                 }
             }

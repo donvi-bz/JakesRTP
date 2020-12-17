@@ -5,7 +5,10 @@ import org.bukkit.*;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import static biz.donvi.jakesRTP.PluginMain.infoLog;
 
@@ -13,7 +16,7 @@ import static biz.donvi.jakesRTP.PluginMain.infoLog;
 public class SafeLocationFinderOtherThread extends SafeLocationFinder {
 
     private final Map<String, ChunkSnapshot> chunkSnapshotMap = new HashMap<>();
-    private final int timeout;
+    private final int                        timeout;
 
     /**
      * Just constructs the {@code SafeLocationFinder}, use {@code checkSafety} to check if
@@ -37,8 +40,10 @@ public class SafeLocationFinderOtherThread extends SafeLocationFinder {
      * @param lowBound        The lowest Y value the location can have.
      * @param timeout         The max number of seconds to wait for data from another thread
      */
-    public SafeLocationFinderOtherThread(Location loc, int checkRadiusXZ, int checkRadiusVert,
-                                         int lowBound, int highBound, int timeout) {
+    public SafeLocationFinderOtherThread(
+        Location loc, int checkRadiusXZ, int checkRadiusVert,
+        int lowBound, int highBound, int timeout
+    ) {
         super(loc, checkRadiusXZ, checkRadiusVert, lowBound, highBound);
         this.timeout = timeout;
     }
@@ -66,7 +71,7 @@ public class SafeLocationFinderOtherThread extends SafeLocationFinder {
     }
 
     private ChunkSnapshot getChunkForLocation(Location loc)
-            throws TimeoutException, PluginDisabledException, IllegalStateException {
+    throws TimeoutException, PluginDisabledException, IllegalStateException {
         String chunkKey = loc.getChunk().getX() + " " + loc.getChunk().getZ();
         ChunkSnapshot chunkSnapshot = chunkSnapshotMap.get(chunkKey);
         if (chunkSnapshot != null) return chunkSnapshot;
@@ -74,10 +79,12 @@ public class SafeLocationFinderOtherThread extends SafeLocationFinder {
             // TODO - Don't run this code when the plugin is disabled. Oh, and deal with the consequences.
             //  Now make sure this solution works well.
             if (!PluginMain.plugin.isEnabled()) throw new PluginDisabledException();
-            chunkSnapshotMap.put(chunkKey, chunkSnapshot = Bukkit.getScheduler().callSyncMethod(
+            chunkSnapshotMap.put(
+                chunkKey,
+                chunkSnapshot = Bukkit.getScheduler().callSyncMethod(
                     PluginMain.plugin,
                     () -> PaperLib.getChunkAtAsync(loc).thenApply(Chunk::getChunkSnapshot)
-            ).get(timeout, TimeUnit.SECONDS).get(timeout, TimeUnit.SECONDS));
+                ).get(timeout, TimeUnit.SECONDS).get(timeout, TimeUnit.SECONDS));
 //            PluginMain.infoLog("LOADED CHUNK SNAPSHOT USING PAPER");
         } catch (CancellationException ignored) {
             throw new PluginDisabledException();
