@@ -1,7 +1,8 @@
 # - - - - - - - - - - - - - - - - -
 # → JakesRTP Global/Static Config ←
 # - - - - - - - - - - - - - - - - -
-# Scroll to the bottom for info on non-global settings...
+# For information on how to work with the non-global settings, look at `profiles.md` at
+# https://github.com/donvi-bz/JakesRTP/blob/master/doc
 # Old configs may not run correctly. Please don't edit config-version.
 config-version: 2.0
 
@@ -13,7 +14,7 @@ config-version: 2.0
 # The world given for `world` MUST be listed as an `enabled-world` in the given rtpSettings.
 rtp-on-first-join:
   enabled: false
-  settings: 'default'
+  settings: 'default-settings'
   world: 'world'
 
 #### rtp-on-death
@@ -27,7 +28,7 @@ rtp-on-first-join:
 # The world given for `world` MUST be listed as an `enabled-world` in the given rtpSettings.
 rtp-on-death:
   enabled: false
-  settings: 'default'
+  settings: 'default-settings'
   world: 'world'
   respect-beds: true
   require-permission: true

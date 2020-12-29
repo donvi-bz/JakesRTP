@@ -1,15 +1,16 @@
 package biz.donvi.jakesRTP;
 
+import biz.donvi.jakesRTP.GeneralUtil.Pair;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import java.util.*;
 import java.util.logging.Level;
 
-import static biz.donvi.jakesRTP.DistributionSettings.CenterTypes.*;
 import static biz.donvi.jakesRTP.PluginMain.*;
 
 public class RandomTeleporter {
@@ -45,47 +46,41 @@ public class RandomTeleporter {
      * Creating an instance of the RandomTeleporter object is required to be able to use the command.
      * On creation, all relevant parts of the config are loaded into memory.
      *
-     * @param rtpSettings The configurationSection that holds the relevant data for RTPing
      * @throws Exception A generic exception for any issue had when creating the object.
      *                   I have NOT made my own exceptions, but instead have written different messages.
      */
-    public RandomTeleporter(ConfigurationSection rtpSettings, ConfigurationSection distributions) throws Exception {
+    public RandomTeleporter(
+        ConfigurationSection globalConfig,
+        List<Pair<String, FileConfiguration>> rtpSections,
+        List<Pair<String, FileConfiguration>> distributions
+    ) throws Exception {
         // Distributions:
         this.distributionSettings = new HashMap<>();
-        for (String key : distributions.getKeys(false))
+        for (Pair<String, FileConfiguration> item : distributions) //todo replace this with a for each over files
             try {
-                distributionSettings.put(
-                    key, // The key doubles as the settings name
-                    new DistributionSettings(distributions.getConfigurationSection(key))
-                );
+                distributionSettings.put(item.key, new DistributionSettings(item.value));
             } catch (NullPointerException e) {
-                log(Level.WARNING, "Could not load distribution settings " + key);
+                log(Level.WARNING, "Could not load distribution settings " + item.key);
                 e.printStackTrace();
             }
         // Modular settings:
         this.rtpSettings = new ArrayList<>();
-        for (String key : rtpSettings.getKeys(false))
-            if (key.startsWith("random-teleport-settings"))
-                try {
-                    ConfigurationSection configSection = rtpSettings.getConfigurationSection(key);
-                    String configName = key.substring("random-teleport-settings".length() + 1);
-                    if (configSection != null && configSection.getBoolean("enabled"))
-                        this.rtpSettings.add(new RtpSettings(
-                            configSection,
-                            configName,
-                            distributionSettings));
-                    else infoLog("Not loading config " + configName + " since it is marked disabled.");
-                } catch (NullPointerException | JrtpBaseException e) {
-                    PluginMain.infoLog(
-                        (e instanceof JrtpBaseException ? "Error: " + e.getMessage() + '\n' : "") +
-                        "Whoops! Something in the config wasn't right, " +
-                        this.rtpSettings.size() + " configs have been loaded thus far.");
-                }
+        for (Pair<String, FileConfiguration> item : rtpSections) //todo replace this with a for each over files
+            try {
+                if (item.value.getBoolean("enabled"))
+                    this.rtpSettings.add(new RtpSettings(item.value, item.key, distributionSettings));
+                else infoLog("Not loading config " + item.key + " since it is marked disabled.");
+            } catch (NullPointerException | JrtpBaseException e) {
+                PluginMain.infoLog(
+                    (e instanceof JrtpBaseException ? "Error: " + e.getMessage() + '\n' : "") +
+                    "Whoops! Something in the config wasn't right, " +
+                    this.rtpSettings.size() + " configs have been loaded thus far.");
+            }
         // Static settings:
-        if (firstJoinRtp = rtpSettings.getBoolean("rtp-on-first-join.enabled", false)) {
-            firstJoinSettings = getRtpSettingsByName(rtpSettings.getString("rtp-on-first-join.settings"));
+        if (firstJoinRtp = globalConfig.getBoolean("rtp-on-first-join.enabled", false)) {
+            firstJoinSettings = getRtpSettingsByName(globalConfig.getString("rtp-on-first-join.settings"));
             World world = PluginMain.plugin.getServer().getWorld(
-                Objects.requireNonNull(rtpSettings.getString("rtp-on-first-join.world")));
+                Objects.requireNonNull(globalConfig.getString("rtp-on-first-join.world")));
             if (firstJoinSettings.getConfigWorlds().contains(world))
                 firstJoinWorld = world;
             else throw new Exception("The RTP first join world is not an enabled world in the config's settings!");
@@ -93,12 +88,12 @@ public class RandomTeleporter {
             firstJoinSettings = null;
             firstJoinWorld = null;
         }
-        if (onDeathRtp = rtpSettings.getBoolean("rtp-on-death.enabled", false)) {
-            onDeathRespectBeds = rtpSettings.getBoolean("rtp-on-death.respect-beds", true);
-            onDeathSettings = getRtpSettingsByName(rtpSettings.getString("rtp-on-death.settings"));
-            onDeathRequirePermission = rtpSettings.getBoolean("rtp-on-death.require-permission", true);
+        if (onDeathRtp = globalConfig.getBoolean("rtp-on-death.enabled", false)) {
+            onDeathRespectBeds = globalConfig.getBoolean("rtp-on-death.respect-beds", true);
+            onDeathSettings = getRtpSettingsByName(globalConfig.getString("rtp-on-death.settings"));
+            onDeathRequirePermission = globalConfig.getBoolean("rtp-on-death.require-permission", true);
             World world = PluginMain.plugin.getServer().getWorld(
-                Objects.requireNonNull(rtpSettings.getString("rtp-on-death.world")));
+                Objects.requireNonNull(globalConfig.getString("rtp-on-death.world")));
             if (onDeathSettings.getConfigWorlds().contains(world))
                 onDeathWorld = world;
             else throw new Exception("The RTP first join world is not an enabled world in the config's settings!");
@@ -108,16 +103,16 @@ public class RandomTeleporter {
             onDeathSettings = null;
             onDeathWorld = null;
         }
-        if (rtpSettings.getBoolean("location-cache-filler.enabled", true))
-            asyncWaitTimeout = rtpSettings.getInt("location-cache-filler.async-wait-timeout", 5);
+        if (globalConfig.getBoolean("location-cache-filler.enabled", true))
+            asyncWaitTimeout = globalConfig.getInt("location-cache-filler.async-wait-timeout", 5);
         else
             asyncWaitTimeout = 1; //Yes a hard coded default. If set to 0 and accidentally used, there would be issues.
         //So much logging...
-        logRtpOnPlayerJoin = rtpSettings.getBoolean("logging.rtp-on-player-join", true);
-        logRtpOnRespawn = rtpSettings.getBoolean("logging.rtp-on-respawn", true);
-        logRtpOnCommand = rtpSettings.getBoolean("logging.rtp-on-command", true);
-        logRtpOnForceCommand = rtpSettings.getBoolean("logging.rtp-on-force-command", true);
-        logRtpForQueue = rtpSettings.getBoolean("logging.rtp-for-queue", false);
+        logRtpOnPlayerJoin = globalConfig.getBoolean("logging.rtp-on-player-join", true);
+        logRtpOnRespawn = globalConfig.getBoolean("logging.rtp-on-respawn", true);
+        logRtpOnCommand = globalConfig.getBoolean("logging.rtp-on-command", true);
+        logRtpOnForceCommand = globalConfig.getBoolean("logging.rtp-on-force-command", true);
+        logRtpForQueue = globalConfig.getBoolean("logging.rtp-for-queue", false);
     }
 
     /* ================================================== *\

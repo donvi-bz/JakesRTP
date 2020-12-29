@@ -1,0 +1,17 @@
+shape: rectangle
+center:
+  option: a
+  a: 'world spawn'
+  b: 'players current location'
+  c-custom:
+    x: 0
+    z: 0
+size:
+  x-width: 2000
+  z-width: 1600
+gap:
+  enabled: true
+  x-width: 700
+  z-width: 700
+  x-center: 150
+  z-center: 150

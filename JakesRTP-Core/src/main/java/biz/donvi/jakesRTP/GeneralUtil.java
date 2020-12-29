@@ -4,8 +4,16 @@ import org.apache.commons.lang.text.StrBuilder;
 import org.bukkit.Location;
 import org.bukkit.Server;
 import org.bukkit.World;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -123,9 +131,26 @@ public final class GeneralUtil {
             (seconds > 0 ? Messages.READABLE_TIME_WORD_SECONDS.format(seconds) : ""));
     }
 
+    public static boolean isDirEmpty(final Path directory) throws IOException {
+        try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(directory)) {
+            return !dirStream.iterator().hasNext();
+        }
+    }
+
+    public static List<Pair<String, FileConfiguration>> getFileConfigFromFile(File[] files) {
+        List<Pair<String, FileConfiguration>> configs = new ArrayList<>();
+        for (File f : files)
+            configs.add(new Pair<String, FileConfiguration>(
+                f.getName().substring(0, f.getName().lastIndexOf(".")),
+                YamlConfiguration.loadConfiguration(f)
+            ));
+        return configs;
+    }
+
     public static class Pair<K, V> {
         public K key;
         public V value;
+
         Pair(K key, V value) {
             this.key = key;
             this.value = value;

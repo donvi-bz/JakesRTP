@@ -72,7 +72,7 @@ public class RtpSettings {
             } catch (NullPointerException e) {
                 PluginMain.log(Level.WARNING, "![" + name + "] World " + worldName + " not recognised.");
             }
-        distribution = distributions.get(config.getString("distributions"));
+        distribution = distributions.get(config.getString("distribution"));//todo surround with try catch for error message
         coolDown = new CoolDownTracker(config.getInt("cooldown.seconds", 30));
         checkProfile = LocCheckProfiles.values()[config.getString(
             "location-checking-profile.value").toLowerCase().charAt(0) - 'a'];

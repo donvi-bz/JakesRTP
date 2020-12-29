@@ -21,7 +21,7 @@ enabled-worlds:
 force-destination-world: # Forces the world that the RTP will land you in. If this is true, then 'enabled worlds' no
   enabled: false         #   longer represents worlds that you can RTP IN, but worlds you can RTP FROM, always
   destination: 'world'   #   landing you in the world specified by 'destination'.
-distribution: 'default-symmetric' # Create/edit a distribution in the `distributions.yml` file, and put the name here.
+distribution: 'default-symmetric' # Create/edit a distribution in the `default-symmetric.yml` file, and put the name here.
 location-checking-profile: # Which method should we use to find a safe location? Since this plugin is meant to work
   allowed-values: #        #   'out-of-the-box' without need of configuring, the 'auto' option has been included.
     a: "Auto"              # Auto chooses middle-out for the nether and top-down for everything else.
