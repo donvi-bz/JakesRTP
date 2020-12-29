@@ -1,7 +1,6 @@
 # [J-RTP] Documentation ~ RTP Profiles Overview
 ###### The even more in depth guide to configuring J-RTP
 
-# Intro
 An RTP Profile is made of two parts: The `distribution` portion and the `rtpSettings` portion.
 
 A `distribution` file contains all settings related to *how* the random location is selected. This is where you define

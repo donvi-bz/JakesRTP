@@ -12,6 +12,7 @@ patterns
 * What shape that the points will appear in...
     * Square
     * Circle
+    * Rectangle
 * The maximum distance to take a player from the center
 * The minimum distance to take a player from the center
 * Where the random teleport is centered...
@@ -28,9 +29,7 @@ patterns
 * The lowest y-value that a player can get teleported to
 * Some stuff about how many spots to check for safety, though these shouldn't need to be modified for a normal world.
 
-###### _* <sub>Denotes static settings. (Settings that are not per config, and generally are only applicable to one
-
-config at a time)</sub>_
+###### _* <sub>Denotes static settings. (Settings that are not per config, and generally are only applicable to one config at a time)</sub>_
 
 ###### _All of this is per individual config. Multiple configs can exist at the same time_
 
@@ -40,17 +39,18 @@ have 2! An example of this is sitting at the bottom of the default generated con
 ## The configs (and all their documentation)
 
 * The [main config](JakesRTP-Core/src/main/resources/config.yml)
-* Some info on [profiles/rtpSettings](doc/profiles.md)
-* Two different default distribution
-  profiles ([one](JakesRTP-Core/src/main/resources/distributions/default-symmetric.yml)
-  for circles and squares,
-  and [another](JakesRTP-Core/src/main/resources/distributions/default-rectangle.yml)
-  for rectangles)
+* Some info on [profiles/rtpSettings and distributions](doc/profiles.md)
+* The default [rtpSettings](JakesRTP-Core/src/main/resources/rtpSettings/default-settings.yml) config
+* Two different default distribution profiles
+    * [one](JakesRTP-Core/src/main/resources/distributions/default-symmetric.yml) for circles and squares
+    * [another](JakesRTP-Core/src/main/resources/distributions/default-rectangle.yml) for rectangles
 
 ## Commands overview
 
 `/rtp` and `/wild` both make the user randomly teleport  
-`/forcertp [playerName]` will randomly teleport the given player (assuming you have permission)  
+`/forcertp <playerName>` will randomly teleport the given player (assuming you have permission)  
+`/forcertp <playerName> [-c <rtpConfigName> | -w <destinedWorld> | -c-w <rtpConfigName> <destinedWorld>]` (extra
+settings)  
 `/rtp-admin reload` will reload the config from the file(assuming you have permission)
 
 Go [here](doc/commands.md) for a more detailed explination.
@@ -60,6 +60,9 @@ Go [here](doc/commands.md) for a more detailed explination.
 * jakesrtp.use
     * description: Allows the use of the base "/rtp" command
     * default: true
+* jakesrtp.usebyname:
+    * description: Allows players to give a rtpSettings name after rtp as such: "/rtp \<settingsName>"
+    * default: false
 * jakesrtp.rtpondeath
     * description: If rtp-on-death is enabled, players with this node will be respawn in a random location
     * default: false
