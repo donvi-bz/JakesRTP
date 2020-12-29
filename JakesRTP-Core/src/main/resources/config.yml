@@ -1,101 +1,66 @@
-# - - - - - - - - - - - - - - - - - - - - - -
-# → JakesRTP Config!  Have fun configuring! ←
-# - - - - - - - - - - - - - - - - - - - - - -
-# Old configs may not run correctly.
-# Please don't edit config-version.
-config-version: 1.13
-# Should the plugin try and load an old config? Whenever a change is made to the structure of the config, the
-#   version is increased. On startup, the plugin compares the version of the existing config to the version
-#   that it is expecting, and will either (a) attempt to load the older version of the config regardless of
-#   if the versions match, or (b) back up the existing config, and load the new one in its place.
-# If this is set to true, there is a large chance that the plugin will crash on load, BUT that may actually be
-#   the preferred course of action as it makes it very apparent that the config needs to be updated. Then it
-#   can be temporarily set to false so that the plugin can load in the new config, and all the old values that
-#   still apply can be copied over.
-run-old-configs: false
-# ↑ IMPORTANT SETTING ↑
-rtp-on-first-join: #  # Should new players get randomly teleported when they first join?
-  enabled: false      # If this is false, they will not, and the values of 'world' and 'settings' will not be read.
-  settings: 'default' # The rtp settings by name to teleport the player with.
-  world: 'world'      # The world the player will land in. This world MUST be included in the settings enabled worlds.
-rtp-on-death: #       # Should a player get randomly teleported when they die?
-  enabled: false      # These settings follow the same structure as the settings above.
+# - - - - - - - - - - - - - - - - -
+# → JakesRTP Global/Static Config ←
+# - - - - - - - - - - - - - - - - -
+# Scroll to the bottom for info on non-global settings...
+# Old configs may not run correctly. Please don't edit config-version.
+config-version: 2.0
+
+#### rtp-on-first-join
+# If enabled, when a new player joins the server, they will be teleported according to the given rtpSettings, and will
+#   land in the given world.
+## Notes:
+# The rtpSettings given for `settings` MUST be set to a valid rtpSettings file defined in the folder `/rtpSettings`.
+# The world given for `world` MUST be listed as an `enabled-world` in the given rtpSettings.
+rtp-on-first-join:
+  enabled: false
   settings: 'default'
   world: 'world'
-  respect-beds: true        # If true, the player will NOT be teleported if they have a valid home bed or anchor
-  require-permission: true  # The permission node tied to this setting is jakesrtp.rtpondeath
-location-cache-filler: #    # Should we cache RTP locations beforehand? Unless you specifically don't want this, it
-  enabled: true             #   should be enabled as it improves performance like crazy! Use Paper for best results.
-  recheck-time: 1800        # [The amount of] Time to wait before trying to refill the cache (In seconds)
-  between-time: 2           # Time to wait between each location search (In seconds). Paper users, set this to 0.
-  async-wait-timeout: 5     # Time to wait for the completion of an async function (Mostly chunk loading) (In seconds)
-logging: # Which messages do you want to log? You can ignore log messages for settings that are disabled.
+
+#### rtp-on-death
+# Should we have players respawn at a random location after dying?
+# For a player to be rtp-d on death, the following items must be true:
+#   This setting is enabled (`enabled` is set to true)
+#   Either the player has no bed to respawn at OR `respect-beds` is set to false.
+#   Either the player has the permission `jakesrtp.rtpondeath` OR `require-permission` is set to false.
+## Notes:
+# The rtpSettings given for `settings` MUST be set to a valid rtpSettings file defined in the folder `/rtpSettings`.
+# The world given for `world` MUST be listed as an `enabled-world` in the given rtpSettings.
+rtp-on-death:
+  enabled: false
+  settings: 'default'
+  world: 'world'
+  respect-beds: true
+  require-permission: true
+
+#### location-cache-filler
+# Should we cache RTP locations beforehand?
+#   recheck-time      : The amount of time to wait before trying to refill the cache.
+#   between-time      : The amount of time to wait between each location search.
+#   async-wait-timeout: The amount of time to wait for the completion of an async function (Mostly chunk loading)
+## Notes:
+# In all three settings, the unit of time is `seconds`.
+# Unless you specifically don't want this, it should be enabled as it improves performance like crazy!
+# The defaults for this are pretty good, though if you don't use Paper or frequently have people rtp-ing at the same
+#   time, then you may want to increase `between-time` up to `1` or `2`.
+# MAKE SURE TO USE PAPER! No joke, because of this feature, JakesRTP is about 10x faster on paper than plain spigot.
+location-cache-filler:
+  enabled: true
+  recheck-time: 1800
+  between-time: 0
+  async-wait-timeout: 5
+
+#### logging
+# Which messages do you want to log? You can ignore log messages for settings that are disabled.
+#   rtp-on-player-join  : Obvious
+#   rtp-on-respawn      : Obvious
+#   rtp-on-command      : When a player runs a command on themselves. Ex: `/rtp`
+#   rtp-on-force-command: When a player is FORCED to rtp through something like this: `/forcertp Steve`
+#   rtp-for-queue       : This logs when a new location is cached. (This is the annoying one that can be turned off)
+## Notes:
+# Very little for notes here as all this is for is log messages.
+logging:
   rtp-on-player-join: true
   rtp-on-respawn: true
-  rtp-on-command: true        # Rtp-on-command example:  `/rtp`
-  rtp-on-force-command: true  # Rtp-on-force-command ex: `/rtp Steve`
+  rtp-on-command: true
+  rtp-on-force-command: true
   rtp-for-queue: false
-# End of static settings. All settings below are modular
-# To use the modular rtp settings, simply copy and paste the 'random-teleport-settings default' section (including all
-#   child elements), change the name of the settings (ie, change 'default' to 'potato' or something), and your done!
-random-teleport-settings default: # The name of this config section is 'default', each section must have a unique name
-  # Should we load this config? If false, this config will not be usable anywhere.
-  # For finer control, enable or disable command-enabled and require-explicit-permission.
-  enabled: true
-  # Can a player use this config with `/rtp`?
-  # Set to false if you plan on having this config exclusively for rtp-on-first-join or rtp-on-death.
-  command-enabled: true
-  # The player will only be able to use this config if they have the permission:
-  #   'jakesrtp.use.[name]' where the default config would be 'jakesrtp.use.default'.
-  # This setting is most useful when there are overlapping configurations.
-  # Note: If used along side `rtp-on-death.require-permission` then the player will need both permissions.
-  require-explicit-permission: false
-  # The priority of the config. Higher priority are preferred over lower ones.
-  # Only useful if there are overlapping configurations (multiple configs that include the same worlds).
-  priority: 1
-  # Which worlds will this configuration apply to?
-  enabled-worlds:
-    - 'world'
-    - 'yer'  # You can remove this one, it's here as an example
-  force-destination-world: # Forces the world that the RTP will land you in. If this is true, then 'enabled worlds' no
-    enabled: false         #   longer represents worlds that you can RTP IN, but worlds you can RTP FROM, always
-    destination: 'world'   #   landing you in the world specified by 'destination'.
-  distribution: 'default-symmetric' # Create/edit a distribution in the `distributions.yml` file, and put the name here.
-  location-checking-profile: # Which method should we use to find a safe location? Since this plugin is meant to work
-    allowed-values: #        #   'out-of-the-box' without need of configuring, the 'auto' option has been included.
-      a: "Auto"              # Auto chooses middle-out for the nether and top-down for everything else.
-      b: "Top down"          # Starts the search at the high bound and moves down until it finds the ground.
-      c: "Middle out"        # Starts the search between high and low and moves up and down to find land.
-    value: a              # Top-down will never spawn you in a cave. Middle-out is intended for underground teleports.
-  cooldown: # Cooldown between uses. Can be bypassed with permission node jakesrtp.nocooldown
-    seconds: 30  # Default: 30
-  then-execute: [ ] # Executes commands as console after a player is rtp'd. Note: remove the `[]` before adding commands.
-  #    - 'tellraw %PLAYER% {"text":"You have been teleported to %LOCATION% in %WORLD%!"}'
-  #    - 'tellraw %PLAYER% {"text":"All placeholders are listed at the bottom of this file."}'
-  ############## # Everything past this point in the config probably does not need to get changed
-  bounds: # The lowest and highest points a player can be RTP'd to.
-    low: 32     # Default: 32
-    high: 255   # Default: 255  | SET THIS TO 127 FOR NETHER WORLDS IF location-checking-profile IS NOT ON AUTO
-  check-radius: # How many blocks away from the initial spot to check.
-    x-z: 2      # Default: 2    | Max spots to check per attempt is equal to:
-    vert: 2     # Default: 2    | (2*vert+1)*(2*(x-z)+1)^2
-  max-attempts: # If the random location, and all (by default 125) close spots are found to be unsafe,
-    value: 10   #   how many attempts can we make? Minimum: 1; Default: 10
-  preparations: # Preparing spots to teleport to. Note: These will be ignored if the center is players location.
-    cache-locations: 10 # The number of safe rtp spots to hold on to. For best performance, keep this larger than 2.
-
-
-#     = = = = = = = = = = = = = = =
-#     = End of the document notes =
-#     = = = = = = = = = = = = = = =
-#
-# Placeholders - These can be used only in rtpSettings `then-execute` list items. Typing a placeholder wrong will
-# result in the word 'null' instead of the placeholders value. Placeholders may be in upper or lower case.
-#   %player%              The players minecraft name
-#   %player_display_name% The players 'display-name' or nickname
-#   %location%            The location the player landed, formatted like this: world (867, 53, -9)
-#   %world%               The world the player landed in, formatted like this: world
-#   %x% or %y% or %z%     Each of these will give its corresponding value, formatted like this: 86
-#   %location_old%        The location of the player before they moved.
-#   %world_old%           The world the player was in before they are moved.
-#   %x_old% or %y_old% or %z_old% The x or y or z location of the player before they were moved.

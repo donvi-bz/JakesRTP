@@ -123,4 +123,14 @@ public final class GeneralUtil {
             (seconds > 0 ? Messages.READABLE_TIME_WORD_SECONDS.format(seconds) : ""));
     }
 
+    public static class Pair<K, V> {
+        public K key;
+        public V value;
+        Pair(K key, V value) {
+            this.key = key;
+            this.value = value;
+        }
+
+    }
+
 }

@@ -3,8 +3,8 @@ package biz.donvi.jakesRTP;
 import biz.donvi.argsChecker.ArgsChecker;
 import biz.donvi.argsChecker.ArgsTester;
 import biz.donvi.argsChecker.DynamicArgsMap;
+import biz.donvi.jakesRTP.GeneralUtil.Pair;
 import io.papermc.lib.PaperLib;
-import javafx.util.Pair;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -82,14 +82,14 @@ public class CmdRtpAdmin extends DynamicArgsMap implements TabExecutor {
      * @return A list of the names of the RTP configs.
      */
     private List<String> getConfigNames() {
-        if (getConfigNamesResults == null || getConfigNamesResults.getKey() < System.currentTimeMillis()) {
+        if (getConfigNamesResults == null || getConfigNamesResults.key < System.currentTimeMillis()) {
             ArrayList<String> settingsNames = new ArrayList<>();
             for (RtpSettings settings : PluginMain.plugin.getRandomTeleporter().getRtpSettings()) {
                 settingsNames.add(settings.name);
             }
             getConfigNamesResults = new Pair<>(System.currentTimeMillis() + 1000, settingsNames);
         }
-        return getConfigNamesResults.getValue();
+        return getConfigNamesResults.value;
     }
 
     @SuppressWarnings("SpellCheckingInspection")
@@ -144,21 +144,21 @@ public class CmdRtpAdmin extends DynamicArgsMap implements TabExecutor {
                 COLOR_IL[0] + "┃ [J-RTP] " + COLOR_IL[1] + "Displaying config: " + COLOR_IL[2] + args[0] + "\n" +
                 COLOR_IL[0] + "┣\u00A7l\u00A7m╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍\u00A7r\n" +
                 COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Enabled worlds: " + COLOR_IL[2] + settings.getWorldsAsString() +
-                "\n" +
-                COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Region shape: " + COLOR_IL[2] + settings.rtpRegionShape.toString() +
-                "\n" +
-                COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Region center: " + COLOR_IL[2] +
-                settings.getRtpRegionCenterAsString(true) + "\n" +
-                COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Radius min: " + COLOR_IL[2] + settings.minRadius +
-                COLOR_IL[0] + " ┃ " + COLOR_IL[1] + "Radius max: " + COLOR_IL[2] + settings.maxRadius + "\n" +
-                COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Distribution style: " + COLOR_IL[2] + (
-                    settings.gaussianShrink == 0 && settings.gaussianCenter == 0
-                        ? "Even Distribution\n"
-                        : "Gaussian Distribution\n" +
-                          COLOR_IL[0] + "┃ • " + COLOR_IL[1] + "Gaussian shrink: " + COLOR_IL[2] +
-                          settings.gaussianShrink + "\n" +
-                          COLOR_IL[0] + "┃ • " + COLOR_IL[1] + "Gaussian center: " + COLOR_IL[2] +
-                          settings.gaussianCenter + "\n") +
+//                "\n" + //TODO FIIIIIIIIIX
+//                COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Region shape: " + COLOR_IL[2] + settings.rtpRegionShape.toString() +
+//                "\n" +
+//                COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Region center: " + COLOR_IL[2] +
+//                settings.getRtpRegionCenterAsString(true) + "\n" +
+//                COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Radius min: " + COLOR_IL[2] + settings.minRadius +
+//                COLOR_IL[0] + " ┃ " + COLOR_IL[1] + "Radius max: " + COLOR_IL[2] + settings.maxRadius + "\n" +
+//                COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Distribution style: " + COLOR_IL[2] + (
+//                    settings.gaussianShrink == 0 && settings.gaussianCenter == 0
+//                        ? "Even Distribution\n"
+//                        : "Gaussian Distribution\n" +
+//                          COLOR_IL[0] + "┃ • " + COLOR_IL[1] + "Gaussian shrink: " + COLOR_IL[2] +
+//                          settings.gaussianShrink + "\n" +
+//                          COLOR_IL[0] + "┃ • " + COLOR_IL[1] + "Gaussian center: " + COLOR_IL[2] +
+//                          settings.gaussianCenter + "\n") +
                 COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Cooldown: " + COLOR_IL[2] + settings.coolDown.coolDownTime() +
                 "\n" +
                 COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Max teleport attempts: " + COLOR_IL[2] + settings.maxAttempts +

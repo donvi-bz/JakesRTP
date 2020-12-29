@@ -26,10 +26,10 @@ default-asymmetric:
       z: 0
   size:
     x-width: 2000
-    z-width: 1000
+    z-width: 1600
   gap:
     enabled: true
-    x-width: 100
-    z-width: 200
-    x-center: 100
-    z-center: 100
+    x-width: 700
+    z-width: 700
+    x-center: 150
+    z-center: 150

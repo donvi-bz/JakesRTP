@@ -2,6 +2,7 @@ package biz.donvi.jakesRTP;
 
 import biz.donvi.argsChecker.Util;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.yaml.snakeyaml.Yaml;
@@ -32,6 +33,7 @@ public final class PluginMain extends JavaPlugin {
     private RandomTeleporter theRandomTeleporter  = null;
     private String           defaultConfigVersion = null;
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     public void onEnable() {
         //Set up the reference for some objects
@@ -39,6 +41,29 @@ public final class PluginMain extends JavaPlugin {
         logger = plugin.getLogger();
         cmdMap = new Yaml().load(this.getClassLoader().getResourceAsStream("commandTree.yml"));
 
+        loadConfig(); // Loads the
+        getCommand("rtp-admin").setExecutor(new CmdRtpAdmin(Util.getImpliedMap(cmdMap, "rtp-admin")));
+        loadMessageMap(); // Loads all the messages that get sent by the plugin
+        loadRandomTeleporter(); // Loads the random teleporter
+        loadLocationCacheFiller(); // Loads the location cache filler
+
+        infoLog("Loading complete.");
+    }
+
+    @Override
+    public void onDisable() {
+        HandlerList.unregisterAll(this);
+        theRandomTeleporter = null;
+        defaultConfigVersion = null;
+        locFinderRunnable.markAsOver();
+        Bukkit.getScheduler().cancelTasks(this);
+    }
+
+    /* ================================================== *\
+                    Loading methods
+    \* ================================================== */
+
+    private void loadConfig(){
         try {
             //If there is no config file, save the default one
             if (!Files.exists(Paths.get(this.getDataFolder().getPath(), "config.yml")))
@@ -61,29 +86,7 @@ public final class PluginMain extends JavaPlugin {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        //Register commands
-        Objects.requireNonNull(getCommand("rtp-admin"))
-               .setExecutor(new CmdRtpAdmin(Util.getImpliedMap(cmdMap, "rtp-admin")));
-        loadMessageMap(); //DON'T REMOVE THIS LINE, it loads all the messages that get sent by the plugin
-        loadRandomTeleporter(); //DON'T REMOVE THIS LINE, THE MAJORITY OF THE FUNCTIONALITY COMES FROM IT
-        loadLocationCacheFiller(); //DON'T REMOVE THIS LINE, IT IS REQUIRED FOR LOCATION CACHING TO WORK
-
-        infoLog("Loading complete.");
     }
-
-    @Override
-    public void onDisable() {
-        HandlerList.unregisterAll(this);
-        theRandomTeleporter = null;
-        defaultConfigVersion = null;
-        locFinderRunnable.markAsOver();
-        Bukkit.getScheduler().cancelTasks(this);
-    }
-
-    /* ================================================== *\
-                    Loading methods
-    \* ================================================== */
 
     @SuppressWarnings("ConstantConditions")
     public void loadRandomTeleporter() {
@@ -91,8 +94,10 @@ public final class PluginMain extends JavaPlugin {
         try {
             theRandomTeleporter = new RandomTeleporter(
                 this.getConfig(),
-                new Yaml().load(this.getClassLoader().getResourceAsStream("distributions.yml")));
-            getCommand("rtp").setExecutor(
+                YamlConfiguration.loadConfiguration(
+                    new InputStreamReader(
+                        this.getClassLoader().getResourceAsStream("distributions/distributions.yml")))); //TODO make read from file
+            getCommand("rtpSettings").setExecutor(
                 new CmdRtp(theRandomTeleporter));
             getCommand("forcertp").setExecutor(
                 new CmdForceRtp(theRandomTeleporter, Util.getImpliedMap(cmdMap, "forcertp")));
@@ -113,14 +118,8 @@ public final class PluginMain extends JavaPlugin {
             Bukkit.getScheduler().runTaskAsynchronously(this, (
                 locFinderRunnable = new LocationCacheFiller(
                     this,
-                    (long) (
-                        getConfig()
-                            .getDouble("location-cache-filler.recheck-time",
-                                       2) * 1000),
-                    (long) (
-                        getConfig()
-                            .getDouble("location-cache-filler.between-time",
-                                       0.5) * 1000))
+                    (long) (getConfig().getDouble("location-cache-filler.recheck-time", 2) * 1000),
+                    (long) (getConfig().getDouble("location-cache-filler.between-time", 0.5) * 1000))
             ));
         }
     }
