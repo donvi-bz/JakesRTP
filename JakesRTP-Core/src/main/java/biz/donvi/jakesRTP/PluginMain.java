@@ -89,7 +89,9 @@ public final class PluginMain extends JavaPlugin {
     public void loadRandomTeleporter() {
         this.reloadConfig();
         try {
-            theRandomTeleporter = new RandomTeleporter(this.getConfig());
+            theRandomTeleporter = new RandomTeleporter(
+                this.getConfig(),
+                new Yaml().load(this.getClassLoader().getResourceAsStream("distributions.yml")));
             getCommand("rtp").setExecutor(
                 new CmdRtp(theRandomTeleporter));
             getCommand("forcertp").setExecutor(

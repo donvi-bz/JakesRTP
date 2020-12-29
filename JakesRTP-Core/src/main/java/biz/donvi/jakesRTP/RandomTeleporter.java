@@ -1,25 +1,24 @@
 package biz.donvi.jakesRTP;
 
-import biz.donvi.evenDistribution.RandomCords;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.Queue;
+import java.util.*;
+import java.util.logging.Level;
 
-import static biz.donvi.jakesRTP.PluginMain.infoLog;
-import static biz.donvi.jakesRTP.PluginMain.plugin;
+import static biz.donvi.jakesRTP.DistributionSettings.CenterTypes.*;
+import static biz.donvi.jakesRTP.PluginMain.*;
 
 public class RandomTeleporter {
 
     final static String EXPLICIT_PERM_PREFIX = "jakesrtp.use.";
 
     // Dynamic settings
-    private final ArrayList<RtpSettings> rtpSettings;
+    public final  Map<String, DistributionSettings> distributionSettings;
+    private final ArrayList<RtpSettings>            rtpSettings;
 
     // First join settings
     public final boolean     firstJoinRtp;
@@ -46,34 +45,47 @@ public class RandomTeleporter {
      * Creating an instance of the RandomTeleporter object is required to be able to use the command.
      * On creation, all relevant parts of the config are loaded into memory.
      *
-     * @param config The configurationSection that holds the relevant data for RTPing
+     * @param rtpSettings The configurationSection that holds the relevant data for RTPing
      * @throws Exception A generic exception for any issue had when creating the object.
      *                   I have NOT made my own exceptions, but instead have written different messages.
      */
-    public RandomTeleporter(ConfigurationSection config) throws Exception {
+    public RandomTeleporter(ConfigurationSection rtpSettings, ConfigurationSection distributions) throws Exception {
+        // Distributions:
+        this.distributionSettings = new HashMap<>();
+        for (String key : distributions.getKeys(false))
+            try {
+                distributionSettings.put(
+                    key, // The key doubles as the settings name
+                    new DistributionSettings(distributions.getConfigurationSection(key))
+                );
+            } catch (NullPointerException e) {
+                log(Level.WARNING, "Could not load distribution settings " + key);
+                e.printStackTrace();
+            }
         // Modular settings:
-        rtpSettings = new ArrayList<>();
-        for (String key : config.getKeys(false))
+        this.rtpSettings = new ArrayList<>();
+        for (String key : rtpSettings.getKeys(false))
             if (key.startsWith("random-teleport-settings"))
                 try {
-                    ConfigurationSection configSection = config.getConfigurationSection(key);
+                    ConfigurationSection configSection = rtpSettings.getConfigurationSection(key);
                     String configName = key.substring("random-teleport-settings".length() + 1);
                     if (configSection != null && configSection.getBoolean("enabled"))
-                        rtpSettings.add(new RtpSettings(
+                        this.rtpSettings.add(new RtpSettings(
                             configSection,
-                            configName));
+                            configName,
+                            distributionSettings));
                     else infoLog("Not loading config " + configName + " since it is marked disabled.");
                 } catch (NullPointerException | JrtpBaseException e) {
                     PluginMain.infoLog(
                         (e instanceof JrtpBaseException ? "Error: " + e.getMessage() + '\n' : "") +
                         "Whoops! Something in the config wasn't right, " +
-                        rtpSettings.size() + " configs have been loaded thus far.");
+                        this.rtpSettings.size() + " configs have been loaded thus far.");
                 }
         // Static settings:
-        if (firstJoinRtp = config.getBoolean("rtp-on-first-join.enabled", false)) {
-            firstJoinSettings = getRtpSettingsByName(config.getString("rtp-on-first-join.settings"));
+        if (firstJoinRtp = rtpSettings.getBoolean("rtp-on-first-join.enabled", false)) {
+            firstJoinSettings = getRtpSettingsByName(rtpSettings.getString("rtp-on-first-join.settings"));
             World world = PluginMain.plugin.getServer().getWorld(
-                Objects.requireNonNull(config.getString("rtp-on-first-join.world")));
+                Objects.requireNonNull(rtpSettings.getString("rtp-on-first-join.world")));
             if (firstJoinSettings.getConfigWorlds().contains(world))
                 firstJoinWorld = world;
             else throw new Exception("The RTP first join world is not an enabled world in the config's settings!");
@@ -81,12 +93,12 @@ public class RandomTeleporter {
             firstJoinSettings = null;
             firstJoinWorld = null;
         }
-        if (onDeathRtp = config.getBoolean("rtp-on-death.enabled", false)) {
-            onDeathRespectBeds = config.getBoolean("rtp-on-death.respect-beds", true);
-            onDeathSettings = getRtpSettingsByName(config.getString("rtp-on-death.settings"));
-            onDeathRequirePermission = config.getBoolean("rtp-on-death.require-permission", true);
+        if (onDeathRtp = rtpSettings.getBoolean("rtp-on-death.enabled", false)) {
+            onDeathRespectBeds = rtpSettings.getBoolean("rtp-on-death.respect-beds", true);
+            onDeathSettings = getRtpSettingsByName(rtpSettings.getString("rtp-on-death.settings"));
+            onDeathRequirePermission = rtpSettings.getBoolean("rtp-on-death.require-permission", true);
             World world = PluginMain.plugin.getServer().getWorld(
-                Objects.requireNonNull(config.getString("rtp-on-death.world")));
+                Objects.requireNonNull(rtpSettings.getString("rtp-on-death.world")));
             if (onDeathSettings.getConfigWorlds().contains(world))
                 onDeathWorld = world;
             else throw new Exception("The RTP first join world is not an enabled world in the config's settings!");
@@ -96,16 +108,16 @@ public class RandomTeleporter {
             onDeathSettings = null;
             onDeathWorld = null;
         }
-        if (config.getBoolean("location-cache-filler.enabled", true))
-            asyncWaitTimeout = config.getInt("location-cache-filler.async-wait-timeout", 5);
+        if (rtpSettings.getBoolean("location-cache-filler.enabled", true))
+            asyncWaitTimeout = rtpSettings.getInt("location-cache-filler.async-wait-timeout", 5);
         else
             asyncWaitTimeout = 1; //Yes a hard coded default. If set to 0 and accidentally used, there would be issues.
         //So much logging...
-        logRtpOnPlayerJoin = config.getBoolean("logging.rtp-on-player-join", true);
-        logRtpOnRespawn = config.getBoolean("logging.rtp-on-respawn", true);
-        logRtpOnCommand = config.getBoolean("logging.rtp-on-command", true);
-        logRtpOnForceCommand = config.getBoolean("logging.rtp-on-force-command", true);
-        logRtpForQueue = config.getBoolean("logging.rtp-for-queue", false);
+        logRtpOnPlayerJoin = rtpSettings.getBoolean("logging.rtp-on-player-join", true);
+        logRtpOnRespawn = rtpSettings.getBoolean("logging.rtp-on-respawn", true);
+        logRtpOnCommand = rtpSettings.getBoolean("logging.rtp-on-command", true);
+        logRtpOnForceCommand = rtpSettings.getBoolean("logging.rtp-on-force-command", true);
+        logRtpForQueue = rtpSettings.getBoolean("logging.rtp-for-queue", false);
     }
 
     /* ================================================== *\
@@ -241,39 +253,39 @@ public class RandomTeleporter {
                     Rtp Locations ← Getters
     \* ================================================== */
 
-    /**
-     * This method acts as a bridge between this Minecraft specific class and my evenDistribution package
-     * by calling the appropriate method from the package, and forwarding the relevant configuration
-     * settings that have been saved in memory.
-     *
-     * @param rtpSettings The Rtp settings to use to get the random points
-     * @return A random X and Z coordinate pair.
-     * @throws Exception if a shape is not properly defined,
-     *                   though realistic error checking beforehand should prevent this issue
-     */
-    private int[] getRtpXZ(RtpSettings rtpSettings) throws Exception {
-        switch (rtpSettings.rtpRegionShape) {
-            case SQUARE:
-                if (rtpSettings.gaussianShrink == 0) return RandomCords.getRandXySquare(
-                    rtpSettings.maxRadius,
-                    rtpSettings.minRadius);
-                else return RandomCords.getRandXySquare(
-                    rtpSettings.maxRadius,
-                    rtpSettings.minRadius,
-                    rtpSettings.gaussianShrink,
-                    rtpSettings.gaussianCenter);
-            case CIRCLE:
-                return RandomCords.getRandXyCircle(
-                    rtpSettings.maxRadius,
-                    rtpSettings.minRadius,
-                    rtpSettings.gaussianShrink,
-                    rtpSettings.gaussianCenter);
-            case RECTANGLE:
-                //return getRtpXzRectangle(); //This will get un-commented once I write a method for rectangles
-            default:
-                throw new Exception("RTP Region shape not properly defined.");
-        }
-    }
+//    /**
+//     * This method acts as a bridge between this Minecraft specific class and my evenDistribution package
+//     * by calling the appropriate method from the package, and forwarding the relevant configuration
+//     * settings that have been saved in memory.
+//     *
+//     * @param rtpSettings The Rtp settings to use to get the random points
+//     * @return A random X and Z coordinate pair.
+//     * @throws Exception if a shape is not properly defined,
+//     *                   though realistic error checking beforehand should prevent this issue
+//     */
+//    private int[] getRtpXZ(RtpSettings rtpSettings) throws Exception {
+//        switch (rtpSettings.rtpRegionShape) {
+//            case SQUARE:
+//                if (rtpSettings.gaussianShrink == 0) return RandomCords.getRandXySquare(
+//                    rtpSettings.maxRadius,
+//                    rtpSettings.minRadius);
+//                else return RandomCords.getRandXySquare(
+//                    rtpSettings.maxRadius,
+//                    rtpSettings.minRadius,
+//                    rtpSettings.gaussianShrink,
+//                    rtpSettings.gaussianCenter);
+//            case CIRCLE:
+//                return RandomCords.getRandXyCircle(
+//                    rtpSettings.maxRadius,
+//                    rtpSettings.minRadius,
+//                    rtpSettings.gaussianShrink,
+//                    rtpSettings.gaussianCenter);
+//            case RECTANGLE:
+//                //return getRtpXzRectangle(); //This will get un-commented once I write a method for rectangles
+//            default:
+//                throw new Exception("RTP Region shape not properly defined.");
+//        }
+//    }
 
     /**
      * Creates the potential RTP location. If this location happens to be safe, is will be the exact location that
@@ -289,9 +301,9 @@ public class RandomTeleporter {
      */
     @SuppressWarnings("ConstantConditions")
     private Location getPotentialRtpLocation(Location callFromLoc, RtpSettings rtpSettings) throws Exception {
-        int[] xz = getRtpXZ(rtpSettings);
+        int[] xz = rtpSettings.distribution.shape.getCords();
         int[] xzOffset;
-        switch (rtpSettings.centerLocation) {
+        switch (rtpSettings.distribution.center) {
             case PLAYER_LOCATION:
                 xzOffset = new int[]{
                     (int) callFromLoc.getX(),
@@ -305,8 +317,8 @@ public class RandomTeleporter {
             case PRESET_VALUE:
             default:
                 xzOffset = new int[]{
-                    rtpSettings.centerX,
-                    rtpSettings.centerZ};
+                    rtpSettings.distribution.centerX,
+                    rtpSettings.distribution.centerZ};
         }
 
         return new Location(

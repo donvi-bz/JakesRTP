@@ -1,0 +1,35 @@
+default-symmetric:
+  shape: square # or 'circle'
+  center:
+    option: a
+    a: 'world spawn'
+    b: 'players current location'
+    c-custom:
+      x: 0
+      z: 0
+  radius:
+    max: 2000
+    min: 1000
+  gaussian-distribution: # Enabling this will make the points no longer evenly distributed, but instead follow a
+    enabled: false       #   gaussian centered between the min and max radius (represented by setting center to
+    shrink: 4            #   0 for min, 1 for max, or anything in between). Shrink makes the distribution denser,
+    center: 0.25         #   my preference is to keep it near 3 for a center of 0 or 1, and 6 for a center of 0.5
+
+default-asymmetric:
+  shape: rectangle
+  center:
+    option: a
+    a: 'world spawn'
+    b: 'players current location'
+    c-custom:
+      x: 0
+      z: 0
+  size:
+    x-width: 2000
+    z-width: 1000
+  gap:
+    enabled: true
+    x-width: 100
+    z-width: 200
+    x-center: 100
+    z-center: 100
