@@ -72,10 +72,18 @@ public class RtpSettings {
             } catch (NullPointerException e) {
                 PluginMain.log(Level.WARNING, "![" + name + "] World " + worldName + " not recognised.");
             }
-        distribution = distributions.get(config.getString("distribution"));//todo surround with try catch for error message
+        try {
+            distribution = distributions.get(config.getString("distribution"));
+        } catch (NullPointerException e) {
+            StringBuilder strb = new StringBuilder();
+            for (String s : distributions.keySet()) strb.append(" ").append(s);
+            throw new JrtpBaseException(
+                "Distribution not found. Distribution given: '" + config.getString("distribution") +
+                "', distributions available:" + strb.toString());
+        }
         coolDown = new CoolDownTracker(config.getInt("cooldown.seconds", 30));
         checkProfile = LocCheckProfiles.values()[config.getString(
-            "location-checking-profile.value").toLowerCase().charAt(0) - 'a'];
+            "location-checking-profile.value", "a").toLowerCase().charAt(0) - 'a'];
         lowBound = config.getInt("bounds.low", 32);
         highBound = config.getInt("bounds.high", 255);
         checkRadiusXZ = config.getInt("check-radius.x-z", 2);
@@ -85,43 +93,35 @@ public class RtpSettings {
         useLocationQueue = distribution.center != DistributionSettings.CenterTypes.PLAYER_LOCATION &&
                            cacheLocationCount > 0;
         commandsToRun = config.getStringList("then-execute").toArray(new String[0]);
-        infoLogSettings();
+        infoLogSettings(true);
     }
 
     /**
      * Running this will log all settings loaded in the config to console.
      */
-    public void infoLogSettings() {
+    public void infoLogSettings(boolean full) {
         // In the current context, we always need the name in square brackets.
         String name = "[" + this.name + "] ";
-        for (String s : Arrays.asList(
-            "Command " + (commandEnabled ? "enabled" : "disabled"),
-            requireExplicitPermission
-                ? "Requires permission node [" + EXPLICIT_PERM_PREFIX + this.name + "] to use"
-                : "No explicit named permission required",
-            "Priority: " + priority,
-            "Rtp enabled in the following worlds: " + getWorldsAsString(),
-
-            "TODO: ADD MISSING INFORMATION", //TODO: Add missing information
-//            "Rtp region shape set to " + rtpRegionShape.toString(),
-//            "Min radius set to " + minRadius + " | Max Radius set to " + maxRadius,
-//            "Rtp Region center is set to " + getRtpRegionCenterAsString(false),
-//            gaussianCenter == 0 && gaussianShrink == 0
-//                ? "Using even distribution."
-//                : "Gaussian distribution enabled. Shrink: " + gaussianShrink + " Center: " + gaussianCenter,
-
-            coolDown.coolDownTime == 0
-                ? "Cooldown disabled"
-                : "Cooldown time: " + coolDown.coolDownTime / 1000 + " seconds.",
-            "Low bound: " + lowBound + " | High bound: " + highBound,
-            "Check radius x and z set to " + checkRadiusXZ + " and vert set to " + checkRadiusVert,
-            "Max attempts set to " + maxAttempts,
-            "Location caching " + (
-                useLocationQueue
-                    ? "disabled."
-                    : "Enabled. Caching " + cacheLocationCount + " location per world."))
-        ) { infoLog(name + s); }
+        ArrayList<String> lines = new ArrayList<>();
+        // Always log
+        lines.add(infoStringCommandEnabled(false));
+        lines.add(infoStringRequireExplicitPermission(false));
+        lines.add(infoStringPriority(false));
+        lines.add(infoStringEnabledWorlds(false));
+        lines.addAll(distribution.shape.infoStrings(false));
+        lines.add(infoStringRegionCenter(false));
+        // Kinda useless
+        if (full) {
+            lines.add(infoStringCooldown(false));
+            lines.add(infoStringLowBound(false));
+            lines.add(infoStringCheckRadius(false));
+            lines.add(infoStringMaxAttempts(false));
+            lines.add(infoStringLocationCaching(false));
+        }
+        // Now log it all!
+        for (String line : lines) infoLog(name + line);
     }
+
 
     public String getRtpRegionCenterAsString(final boolean mcFormat) {
         switch (distribution.center) {
@@ -179,5 +179,56 @@ public class RtpSettings {
         Queue<Location> locationQueue = configWorlds.get(world);
         if (locationQueue == null) throw new NotPermittedException(Messages.NP_R_NOT_ENABLED.format("~ECQ"));
         else return locationQueue;
+    }
+
+    /* ================================================== *\
+                    Info Strings... todo respect mcFormat
+    \* ================================================== */
+
+    public String infoStringCommandEnabled(boolean mcFormat) {
+        return "Command " + (commandEnabled ? "enabled" : "disabled");
+    }
+
+    public String infoStringRequireExplicitPermission(boolean mcFormat) {
+        return requireExplicitPermission
+            ? "Requires permission node [" + EXPLICIT_PERM_PREFIX + this.name + "] to use"
+            : "No explicit named permission required";
+    }
+
+    public String infoStringPriority(boolean mcFormat) {
+        return "Priority: " + priority;
+    }
+
+    public String infoStringEnabledWorlds(boolean mcFormat) {
+        return "Rtp enabled in the following worlds: " + getWorldsAsString();
+    }
+
+    public String infoStringRegionCenter(boolean mcFormat) {
+        return "Rtp Region center is set to " + getRtpRegionCenterAsString(false);
+    }
+
+    public String infoStringCooldown(boolean mcFormat) {
+        return coolDown.coolDownTime == 0
+            ? "Cooldown disabled"
+            : "Cooldown time: " + coolDown.coolDownTime / 1000 + " seconds.";
+    }
+
+    public String infoStringLowBound(boolean mcFormat) {
+        return "Low bound: " + lowBound + " | High bound: " + highBound;
+    }
+
+    public String infoStringCheckRadius(boolean mcFormat) {
+        return "Check radius x and z set to " + checkRadiusXZ + " and vert set to " + checkRadiusVert;
+    }
+
+    public String infoStringMaxAttempts(boolean mcFormat) {
+        return "Max attempts set to " + maxAttempts;
+    }
+
+    public String infoStringLocationCaching(boolean mcFormat) {
+        return "Location caching " + (
+            useLocationQueue
+                ? "disabled."
+                : "Enabled. Caching " + cacheLocationCount + " location per world.");
     }
 }

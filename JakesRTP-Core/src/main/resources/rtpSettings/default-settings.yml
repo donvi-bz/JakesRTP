@@ -1,4 +1,4 @@
-# The name of this config section is 'default', each section must have a unique name
+# The name of this config section is 'default-settings', each section must have a unique name
 
 # Should we load this config? If false, this config will not be usable anywhere.
 # For finer control, enable or disable command-enabled and require-explicit-permission.
@@ -17,7 +17,6 @@ priority: 1
 # Which worlds will this configuration apply to?
 enabled-worlds:
   - 'world'
-# - 'yer'  # You can remove this one, it's here as an example
 force-destination-world: # Forces the world that the RTP will land you in. If this is true, then 'enabled worlds' no
   enabled: false         #   longer represents worlds that you can RTP IN, but worlds you can RTP FROM, always
   destination: 'world'   #   landing you in the world specified by 'destination'.

@@ -56,7 +56,7 @@ public class RandomTeleporter {
     ) throws Exception {
         // Distributions:
         this.distributionSettings = new HashMap<>();
-        for (Pair<String, FileConfiguration> item : distributions) //todo replace this with a for each over files
+        for (Pair<String, FileConfiguration> item : distributions)
             try {
                 distributionSettings.put(item.key, new DistributionSettings(item.value));
             } catch (NullPointerException e) {
@@ -65,7 +65,7 @@ public class RandomTeleporter {
             }
         // Modular settings:
         this.rtpSettings = new ArrayList<>();
-        for (Pair<String, FileConfiguration> item : rtpSections) //todo replace this with a for each over files
+        for (Pair<String, FileConfiguration> item : rtpSections)
             try {
                 if (item.value.getBoolean("enabled"))
                     this.rtpSettings.add(new RtpSettings(item.value, item.key, distributionSettings));
@@ -247,40 +247,6 @@ public class RandomTeleporter {
     /* ================================================== *\
                     Rtp Locations ← Getters
     \* ================================================== */
-
-//    /**
-//     * This method acts as a bridge between this Minecraft specific class and my evenDistribution package
-//     * by calling the appropriate method from the package, and forwarding the relevant configuration
-//     * settings that have been saved in memory.
-//     *
-//     * @param rtpSettings The Rtp settings to use to get the random points
-//     * @return A random X and Z coordinate pair.
-//     * @throws Exception if a shape is not properly defined,
-//     *                   though realistic error checking beforehand should prevent this issue
-//     */
-//    private int[] getRtpXZ(RtpSettings rtpSettings) throws Exception {
-//        switch (rtpSettings.rtpRegionShape) {
-//            case SQUARE:
-//                if (rtpSettings.gaussianShrink == 0) return RandomCords.getRandXySquare(
-//                    rtpSettings.maxRadius,
-//                    rtpSettings.minRadius);
-//                else return RandomCords.getRandXySquare(
-//                    rtpSettings.maxRadius,
-//                    rtpSettings.minRadius,
-//                    rtpSettings.gaussianShrink,
-//                    rtpSettings.gaussianCenter);
-//            case CIRCLE:
-//                return RandomCords.getRandXyCircle(
-//                    rtpSettings.maxRadius,
-//                    rtpSettings.minRadius,
-//                    rtpSettings.gaussianShrink,
-//                    rtpSettings.gaussianCenter);
-//            case RECTANGLE:
-//                //return getRtpXzRectangle(); //This will get un-commented once I write a method for rectangles
-//            default:
-//                throw new Exception("RTP Region shape not properly defined.");
-//        }
-//    }
 
     /**
      * Creates the potential RTP location. If this location happens to be safe, is will be the exact location that

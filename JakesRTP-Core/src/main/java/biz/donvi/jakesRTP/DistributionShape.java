@@ -2,11 +2,22 @@ package biz.donvi.jakesRTP;
 
 import org.bukkit.configuration.ConfigurationSection;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static biz.donvi.evenDistribution.RandomCords.*;
 
 abstract class DistributionShape {
 
+    public abstract String shape();
+
     public abstract int[] getCords();
+
+    public abstract List<String> infoStrings(boolean mcFormat);
+
+    /* ================================================== *\
+                    All the simple subclasses
+    \* ================================================== */
 
     public static abstract class Symmetric extends DistributionShape {
         final int     radiusMax;
@@ -22,10 +33,27 @@ abstract class DistributionShape {
             gaussianShrink = settings.getDouble("gaussian-distribution.shrink");
             gaussianCenter = settings.getDouble("gaussian-distribution.center");
         }
+
+
+        @Override
+        public List<String> infoStrings(boolean mcFormat) {  //todo respect mcFormat
+            ArrayList<String> list = new ArrayList<>();
+            list.add("Distribution shape: " + shape());
+            list.add("Radius Max: " + radiusMax + " | Radius Min: " + radiusMin);
+            list.add("Distribution style: " + (gaussianDistribution ? "Gaussian" : "Even"));
+            if (gaussianDistribution) {
+                list.add("Gaussian shrink: " + gaussianShrink);
+                list.add("Gaussian Center: " + gaussianCenter);
+            }
+            return list;
+        }
     }
 
     public static class Circle extends Symmetric {
         public Circle(ConfigurationSection settings) { super(settings); }
+
+        @Override
+        public String shape() { return "Circle"; }
 
         @Override
         public int[] getCords() {
@@ -37,6 +65,9 @@ abstract class DistributionShape {
 
     public static class Square extends Symmetric {
         public Square(ConfigurationSection settings) { super(settings); }
+
+        @Override
+        public String shape() { return "Square"; }
 
         @Override
         public int[] getCords() {
@@ -73,12 +104,28 @@ abstract class DistributionShape {
         }
 
         @Override
+        public String shape() { return "Rectangle"; }
+
+        @Override
         public int[] getCords() {
             return asIntArray2w(
                 !gapEnabled
                     ? getRandXyRectangle(xRadius, zRadius)
                     : getRandXyRectangle(xRadius, zRadius, gapZRadius, gapZRadius, gapXCenter, gapZCenter)
             );
+        }
+
+        @Override
+        public List<String> infoStrings(boolean mcFormat) { //todo respect mcFormat
+            ArrayList<String> list = new ArrayList<>();
+            list.add("Distribution shape: " + shape());
+            list.add("X Radius: " + xRadius + " | Z Radius: " + zRadius);
+            list.add("There is " + (gapEnabled ? "a gap at..." : "no gap."));
+            if (gapEnabled) {
+                list.add("Gap center X: " + gapXCenter + " | Gap center Z: " + gapZCenter);
+                list.add("Gap X Radius: " + gapXRadius + " | Gap Z Radius: " + gapZRadius);
+            }
+            return list;
         }
     }
 
