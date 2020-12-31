@@ -46,7 +46,7 @@ public class CmdRtp implements TabExecutor {
                     ));
                 }
             }
-        } catch (NotPermittedException npe) {
+        } catch (JrtpBaseException.NotPermittedException npe) {
             sender.sendMessage(Messages.NP_GENERIC.format(npe.getMessage()));
         } catch (Exception e) {
             sender.sendMessage(Messages.NP_UNEXPECTED_EXCEPTION.format(e.getMessage()));

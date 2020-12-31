@@ -1,5 +1,6 @@
 package biz.donvi.jakesRTP;
 
+import biz.donvi.jakesRTP.JrtpBaseException.PluginDisabledException;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -69,12 +70,11 @@ public abstract class SafeLocationFinder {
      *
      * @param checkProfile Which method to use to find the starting point.
      * @return True if the location is now safe, false if it could not be made safe.
-     * @throws Exception if this method was called from an object with no checking bounds.
      */
-    public boolean tryAndMakeSafe(LocCheckProfiles checkProfile) throws Exception {
+    public boolean tryAndMakeSafe(LocCheckProfiles checkProfile) throws JrtpBaseException {
         try {
             if (!enableSelfChecking)
-                throw new Exception("Tried to use self checking on an object that can not self check.");
+                throw new JrtpBaseException("Tried to use self checking on an object that can not self check.");
 
             moveToStart(checkProfile);
 
@@ -99,9 +99,8 @@ public abstract class SafeLocationFinder {
      * @param avm Allowed Vertical Movement - How much (up or down) can we look to find a safe spot.<p>
      *            Ex: if {@code avm = 1}, the block itself, 1 up, and 1 down will be checked.
      * @return True if the location is safe, false if it is not.
-     * @throws Exception if the location, and most likely all proceeding locations, can not be checked for safety.
      */
-    public final boolean checkSafety(int avm) throws Exception {
+    public final boolean checkSafety(int avm) throws TimeoutException, JrtpBaseException.PluginDisabledException {
         if (avm < 0) throw new IllegalArgumentException("Avm can not be less than 0.");
         //Make a temporary location so we don't edit the main one unless its safe.
         Location tempLoc = loc.clone().add(0, avm + 1, 0);
@@ -145,9 +144,8 @@ public abstract class SafeLocationFinder {
      * This should only ever need to be called once.
      *
      * @param checkProfile The profile setting. This determines which method will be called.
-     * @throws Exception Any exception thrown will be passed along.
      */
-    private void moveToStart(LocCheckProfiles checkProfile) throws Exception {
+    private void moveToStart(LocCheckProfiles checkProfile) throws TimeoutException, PluginDisabledException {
         if (checkProfile == LocCheckProfiles.TOP_DOWN)
             dropToGround();
         else if (checkProfile == LocCheckProfiles.MIDDLE_OUT)
@@ -192,17 +190,13 @@ public abstract class SafeLocationFinder {
      * Gets the material of the location as if by {@code loc.getBlock().getType()}.
      *
      * @param loc The location to get the material for.
-     * @throws Exception This method will never throw an exception, but it is important to allow overrides
-     *                   to be able to throw an exception if necessary
      */
-    protected abstract Material getLocMaterial(Location loc) throws Exception;
+    protected abstract Material getLocMaterial(Location loc) throws TimeoutException, PluginDisabledException;
 
-    protected abstract void dropToGround() throws Exception;
+    protected abstract void dropToGround() throws TimeoutException, PluginDisabledException;
 
-    protected abstract void dropToMiddle() throws Exception;
+    protected abstract void dropToMiddle() throws TimeoutException, PluginDisabledException;
 
     public enum LocCheckProfiles {AUTO, TOP_DOWN, MIDDLE_OUT}
-
-    static class PluginDisabledException extends Exception {}
 
 }

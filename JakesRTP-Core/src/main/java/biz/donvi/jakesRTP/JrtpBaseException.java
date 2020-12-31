@@ -12,4 +12,12 @@ class JrtpBaseException extends Exception {
     public JrtpBaseException(String message, Throwable cause) { super(message, cause); }
 
     public JrtpBaseException(Throwable cause) { super(cause); }
+
+    static class PluginDisabledException extends JrtpBaseException {}
+
+    static class NotPermittedException extends JrtpBaseException {
+
+        public NotPermittedException(String message) { super(message); }
+
+    }
 }

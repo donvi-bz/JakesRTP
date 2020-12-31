@@ -13,6 +13,10 @@ import static biz.donvi.jakesRTP.GeneralUtil.fillPlaceholders;
 import static biz.donvi.jakesRTP.GeneralUtil.locationAsString;
 import static biz.donvi.jakesRTP.PluginMain.infoLog;
 
+/**
+ * Class used for interfacing with the random teleport functionality. This class was made majority for internal use,
+ * though it could possibly be used from other plugins if they can acquire the random teleporter and an rtpSettings.
+ */
 public class RandomTeleportAction {
 
     public final RandomTeleporter randomTeleporter;
@@ -32,6 +36,22 @@ public class RandomTeleportAction {
     private Player   player;
     private Location landingLoc;
 
+    /**
+     * Creates a new RandomTeleporterAction. Creating the action does nothing on its own, when you are ready to use
+     * the action, use one of the four following methods:
+     * {@link #teleportSync(Player) teleportSync},
+     * {@link #teleportSyncNonPrimaryThread(Player) teleportSyncNonPrimaryThread},
+     * {@link #teleportAsync(Player) teleportAsync},
+     * or if you just want the location, use {@link #requestLocation()} (which does not require a player).
+     *
+     * @param randomTeleporter The randomTeleporter instance that does the heavy lifting.
+     * @param rtpSettings      The settings to respect while finding the location.
+     * @param callFromLoc      The initial location.
+     * @param takeFromQueue    Take a location from the queue (if possible).
+     * @param timed            Should we time this?
+     * @param log              Should we log this teleport to console?
+     * @param logMessage       A prefix to the standard log message. Helpful for which bit of code called this.
+     */
     public RandomTeleportAction(
         RandomTeleporter randomTeleporter, RtpSettings rtpSettings, Location callFromLoc,
         boolean takeFromQueue, boolean timed, boolean log, String logMessage
@@ -45,8 +65,16 @@ public class RandomTeleportAction {
         this.logMessage = logMessage;
     }
 
-
-    public RandomTeleportAction teleportSync(Player player) throws Exception {
+    /**
+     * Teleports a player <b>synchronously</b> on the main thread. This method should <b> only be called from the main
+     * thread</b>, and will throw an exception if it is not. Use {@link #teleportSyncNonPrimaryThread(Player)} if you
+     * need to teleport the player synchronously but are not on the main thread.
+     *
+     * @param player The player to teleport.
+     * @return A reference to this object.
+     * @throws JrtpBaseException If anything goes wrong...
+     */
+    public RandomTeleportAction teleportSync(Player player) throws JrtpBaseException {
         SafeLocationUtils.requireMainThread();
         preTeleport(player);
         player.teleport(landingLoc);
@@ -54,7 +82,14 @@ public class RandomTeleportAction {
         return this;
     }
 
-    public RandomTeleportAction teleportSyncNonPrimaryThread(Player player) throws Exception {
+    /**
+     * Teleports a player <b>synchronously</b> on the main thread. This method <b> can be called from any thread</b>.
+     *
+     * @param player The player to teleport.
+     * @return A reference to this object.
+     * @throws JrtpBaseException If anything goes wrong...
+     */
+    public RandomTeleportAction teleportSyncNonPrimaryThread(Player player) throws JrtpBaseException {
         preTeleport(player);
         player.getServer().getScheduler().runTask(PluginMain.plugin, () -> {
             player.teleport(landingLoc);
@@ -63,13 +98,28 @@ public class RandomTeleportAction {
         return this;
     }
 
-    public RandomTeleportAction teleportAsync(Player player) throws Exception {
+    /**
+     * Teleports a player <b>asynchronously</b> with the help of Paper. This is generally the preferred method to use,
+     * though there are times when the other methods are required instead.
+     *
+     * @param player The player to teleport.
+     * @return A reference to this object.
+     * @throws JrtpBaseException If anything goes wrong...
+     */
+    public RandomTeleportAction teleportAsync(Player player) throws JrtpBaseException {
         preTeleport(player);
         PaperLib.teleportAsync(player, landingLoc).thenAccept(this::postTeleport);
         return this;
     }
 
-    public Location requestLocation() throws Exception {
+    /**
+     * For when you just want a location and don't want to teleport anyone. This essentially allows you to use the
+     * <code>randomTeleporter</code> as a super efficient random-safe-location generator.
+     *
+     * @return A random location generated using the given <code>rtpSettings</code>
+     * @throws JrtpBaseException If anything goes wrong...
+     */
+    public Location requestLocation() throws JrtpBaseException {
         preTeleport(null);
         completed = true;
         if (timed) timeEnd = System.currentTimeMillis();
@@ -106,7 +156,13 @@ public class RandomTeleportAction {
     }
     //</editor-fold>
 
-    private void preTeleport(Player player) throws Exception {
+    /**
+     * This is everything that has to be done <i>before</i> the actual teleport happens. Mainly getting the point,
+     * and filling in placeholders for user commands.
+     * @param player The player to get the random location for.
+     * @throws JrtpBaseException If something goes wrong...
+     */
+    private void preTeleport(Player player) throws JrtpBaseException {
         if (used) throw new RandomTeleportActionAlreadyUsedException();
         else used = true;
         if (timed) timeStart = System.currentTimeMillis();
@@ -135,6 +191,11 @@ public class RandomTeleportAction {
         //</editor-fold>
     }
 
+    /**
+     * This is everything that needs to be done <i>after</i> the actual teleport happens. Mainly logging that it
+     * happened, and potentially running commands.
+     * @param teleported If the teleport succeeded or not.
+     */
     private void postTeleport(boolean teleported) {
         completed = true;
         if (timed) timeEnd = System.currentTimeMillis();
@@ -156,4 +217,5 @@ public class RandomTeleportAction {
     static class RandomTeleportActionAlreadyUsedException extends RuntimeException {}
 
     static class RandomTeleportActionNotYetUsedException extends RuntimeException {}
+
 }

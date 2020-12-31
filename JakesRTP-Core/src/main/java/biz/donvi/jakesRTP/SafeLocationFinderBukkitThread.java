@@ -15,19 +15,19 @@ public class SafeLocationFinderBukkitThread extends SafeLocationFinder {
     ) { super(loc, checkRadiusXZ, checkRadiusVert, lowBound, highBound); }
 
     @Override
-    protected Material getLocMaterial(Location loc) throws Exception {
+    protected Material getLocMaterial(Location loc) {
         requireMainThread();
         return loc.getBlock().getType();
     }
 
     @Override
-    protected void dropToGround() throws Exception {
+    protected void dropToGround() {
         requireMainThread();
         SafeLocationUtils.util.dropToGround(loc, lowBound);
     }
 
     @Override
-    protected void dropToMiddle() throws Exception {
+    protected void dropToMiddle() {
         requireMainThread();
         SafeLocationUtils.util.dropToMiddle(loc, lowBound, highBound);
     }

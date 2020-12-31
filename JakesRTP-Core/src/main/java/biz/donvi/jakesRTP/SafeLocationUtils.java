@@ -279,7 +279,8 @@ public class SafeLocationUtils {
     \* ================================================== */
 
     Material locMatFromSnapshot(Location loc, ChunkSnapshot chunk) {
-        if (!isLocationInsideChunk(loc, chunk)) throw new Error("The given location is not within given chunk!");
+        if (!isLocationInsideChunk(loc, chunk))
+            throw new RuntimeException("The given location is not within given chunk!");
         int x = loc.getBlockX() % 16;
         int z = loc.getBlockZ() % 16;
         if (x < 0) x += 16;
@@ -312,5 +313,5 @@ public class SafeLocationUtils {
      * Exists purely to throw an exception before an attempt is made
      * to access the Bukkit API from a thread other than the main
      */
-    private static class AccessFromNonMainThreadError extends Error {}
+    private static class AccessFromNonMainThreadError extends RuntimeException {}
 }

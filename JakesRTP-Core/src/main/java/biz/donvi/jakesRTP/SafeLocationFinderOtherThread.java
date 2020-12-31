@@ -56,29 +56,29 @@ public class SafeLocationFinderOtherThread extends SafeLocationFinder {
      * @param loc The location to get the material for.
      */
     @Override
-    protected Material getLocMaterial(Location loc) throws TimeoutException, PluginDisabledException {
+    protected Material getLocMaterial(Location loc) throws TimeoutException, JrtpBaseException.PluginDisabledException {
         return SafeLocationUtils.util.locMatFromSnapshot(loc, getChunkForLocation(loc));
     }
 
     @Override
-    protected void dropToGround() throws TimeoutException, PluginDisabledException {
+    protected void dropToGround() throws TimeoutException, JrtpBaseException.PluginDisabledException {
         SafeLocationUtils.util.dropToGround(loc, lowBound, getChunkForLocation(loc));
     }
 
     @Override
-    protected void dropToMiddle() throws TimeoutException, PluginDisabledException {
+    protected void dropToMiddle() throws TimeoutException, JrtpBaseException.PluginDisabledException {
         SafeLocationUtils.util.dropToMiddle(loc, lowBound, highBound, getChunkForLocation(loc));
     }
 
     private ChunkSnapshot getChunkForLocation(Location loc)
-    throws TimeoutException, PluginDisabledException, IllegalStateException {
+    throws TimeoutException, JrtpBaseException.PluginDisabledException, IllegalStateException {
         String chunkKey = loc.getChunk().getX() + " " + loc.getChunk().getZ();
         ChunkSnapshot chunkSnapshot = chunkSnapshotMap.get(chunkKey);
         if (chunkSnapshot != null) return chunkSnapshot;
         try {
             // TODO - Don't run this code when the plugin is disabled. Oh, and deal with the consequences.
             //  Now make sure this solution works well.
-            if (!PluginMain.plugin.isEnabled()) throw new PluginDisabledException();
+            if (!PluginMain.plugin.isEnabled()) throw new JrtpBaseException.PluginDisabledException();
             chunkSnapshotMap.put(
                 chunkKey,
                 chunkSnapshot = Bukkit.getScheduler().callSyncMethod(
@@ -87,7 +87,7 @@ public class SafeLocationFinderOtherThread extends SafeLocationFinder {
                 ).get(timeout, TimeUnit.SECONDS).get(timeout, TimeUnit.SECONDS));
 //            PluginMain.infoLog("LOADED CHUNK SNAPSHOT USING PAPER");
         } catch (CancellationException ignored) {
-            throw new PluginDisabledException();
+            throw new JrtpBaseException.PluginDisabledException();
         } catch (InterruptedException e) {
             infoLog("Caught an unexpected interrupt.");
         } catch (ExecutionException e) {

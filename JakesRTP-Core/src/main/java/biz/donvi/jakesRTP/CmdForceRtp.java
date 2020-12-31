@@ -38,7 +38,7 @@ public class CmdForceRtp extends DynamicArgsMap implements TabExecutor {
             else if (argsChecker.matches(true, null, "-c-w", null, null))
                 subForceRtpWithConfigAndWorld(sender, argsChecker.getRemainingArgs());
             else return false;
-        } catch (NotPermittedException npe) {
+        } catch (JrtpBaseException.NotPermittedException npe) {
             sender.sendMessage(Messages.NP_GENERIC.format(npe.getMessage()));
         } catch (JrtpBaseException e) {
             sender.sendMessage(e.getMessage());

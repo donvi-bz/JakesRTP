@@ -175,9 +175,9 @@ public class RtpSettings {
         return configWorlds.keySet();
     }
 
-    public Queue<Location> getLocationQueue(World world) throws NotPermittedException {
+    public Queue<Location> getLocationQueue(World world) throws JrtpBaseException.NotPermittedException {
         Queue<Location> locationQueue = configWorlds.get(world);
-        if (locationQueue == null) throw new NotPermittedException(Messages.NP_R_NOT_ENABLED.format("~ECQ"));
+        if (locationQueue == null) throw new JrtpBaseException.NotPermittedException(Messages.NP_R_NOT_ENABLED.format("~ECQ"));
         else return locationQueue;
     }
 

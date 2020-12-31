@@ -45,13 +45,14 @@ public class LocationCacheFiller implements Runnable {
                     }
                     patientlyWait(recheckTime);
                 } catch (JrtpBaseException ex) {
-                    if (ex instanceof NotPermittedException)
+                    if (ex instanceof JrtpBaseException.PluginDisabledException) throw ex;
+                    if (ex instanceof JrtpBaseException.NotPermittedException)
                         infoLog("An exception has occurred that should be impossible to occur. Please report this.");
                     else
                         infoLog("Something has gone wrong, but this is most likely not an issue.");
                     ex.printStackTrace();
                 }
-        } catch (SafeLocationFinderOtherThread.PluginDisabledException ignored) {
+        } catch (JrtpBaseException.PluginDisabledException ignored) {
             infoLog("[J-RTP] Plugin disabled while finding a location. Location scrapped.");
         } catch (ReferenceNonExistentException ignored) {
             infoLog("[J-RTP] Plugin no longer exists.");

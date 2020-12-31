@@ -160,9 +160,9 @@ public class RandomTeleporter {
      *
      * @param world World to get RTP settings for
      * @return The RtpSettings of that world
-     * @throws NotPermittedException If the world does not exist.
+     * @throws JrtpBaseException.NotPermittedException If the world does not exist.
      */
-    public RtpSettings getRtpSettingsByWorld(World world) throws NotPermittedException {
+    public RtpSettings getRtpSettingsByWorld(World world) throws JrtpBaseException.NotPermittedException {
         RtpSettings finSettings = null;
         for (RtpSettings settings : rtpSettings)
             for (World settingWorld : settings.getConfigWorlds())
@@ -174,7 +174,7 @@ public class RandomTeleporter {
                     break;
                 }
         if (finSettings != null) return finSettings;
-        else throw new NotPermittedException(Messages.NP_R_NOT_ENABLED.format("~ECW"));
+        else throw new JrtpBaseException.NotPermittedException(Messages.NP_R_NOT_ENABLED.format("~ECW"));
     }
 
 
@@ -198,9 +198,9 @@ public class RandomTeleporter {
      *
      * @param player The player whose information will be used to determine the relevant rtp settings
      * @return The RtpSettings for the player to use, normally for when they run the {@code /rtp} command.
-     * @throws NotPermittedException If no settings can be used.
+     * @throws JrtpBaseException.NotPermittedException If no settings can be used.
      */
-    public RtpSettings getRtpSettingsByWorldForPlayer(Player player) throws NotPermittedException {
+    public RtpSettings getRtpSettingsByWorldForPlayer(Player player) throws JrtpBaseException.NotPermittedException {
         RtpSettings finSettings = null;
         World playerWorld = player.getWorld();
         for (RtpSettings settings : rtpSettings)
@@ -218,7 +218,7 @@ public class RandomTeleporter {
                     break;
                 }
         if (finSettings != null) return finSettings;
-        else throw new NotPermittedException(Messages.NP_R_NOT_ENABLED.format("~ECP"));
+        else throw new JrtpBaseException.NotPermittedException(Messages.NP_R_NOT_ENABLED.format("~ECP"));
     }
 
     /**
@@ -230,9 +230,10 @@ public class RandomTeleporter {
      * @param name   The name of the settings to find.
      * @return The {@code rtpSettings} object with the matching name. If no valid {@code rtpSettings} is found, an
      * an exception will be thrown.
-     * @throws NotPermittedException if no valid {@code rtpSettings} object is found.
+     * @throws JrtpBaseException.NotPermittedException if no valid {@code rtpSettings} object is found.
      */
-    public RtpSettings getRtpSettingsByNameForPlayer(Player player, String name) throws NotPermittedException {
+    public RtpSettings getRtpSettingsByNameForPlayer(Player player, String name) throws
+                                                                                 JrtpBaseException.NotPermittedException {
         for (RtpSettings settings : rtpSettings)
             // First check if this settings can be called by a player command
             if (settings.commandEnabled &&
@@ -242,7 +243,7 @@ public class RandomTeleporter {
                 (!settings.requireExplicitPermission || player.hasPermission(EXPLICIT_PERM_PREFIX + settings.name)))
                 // Note: We never check priority because the name must be unique
                 return settings;
-        throw new NotPermittedException(Messages.NP_R_NO_RTPSETTINGS_NAME_FOR_PLAYER.format(name));
+        throw new JrtpBaseException.NotPermittedException(Messages.NP_R_NO_RTPSETTINGS_NAME_FOR_PLAYER.format(name));
     }
     /* ================================================== *\
                     Rtp Locations ← Getters
@@ -258,10 +259,9 @@ public class RandomTeleporter {
      *                    spawn, or player location for the position offset
      * @param rtpSettings The relevant settings for RTP
      * @return The first location to check the safety of, which may end up being the final teleport location
-     * @throws Exception Unlikely, but still possible.
      */
     @SuppressWarnings("ConstantConditions")
-    private Location getPotentialRtpLocation(Location callFromLoc, RtpSettings rtpSettings) throws Exception {
+    private Location getPotentialRtpLocation(Location callFromLoc, RtpSettings rtpSettings) {
         int[] xz = rtpSettings.distribution.shape.getCords();
         int[] xzOffset;
         switch (rtpSettings.distribution.center) {
@@ -309,14 +309,14 @@ public class RandomTeleporter {
      *                   getRtpXZ() will throw an exception if the rtp shape is not defined.
      */
     public Location getRtpLocation(final RtpSettings rtpSettings, Location callFromLoc, final boolean takeFromQueue)
-    throws Exception {
+    throws JrtpBaseException, JrtpBaseException.PluginDisabledException {
         //Part 1: Force destination world if not current world
         if (rtpSettings.forceDestinationWorld && callFromLoc.getWorld() != rtpSettings.destinationWorld)
             callFromLoc = rtpSettings.destinationWorld.getSpawnLocation();
 
         //Part 2: Quick error checking
         if (!rtpSettings.getConfigWorlds().contains(callFromLoc.getWorld()))
-            throw new NotPermittedException(Messages.NP_R_NOT_ENABLED.format("~ECG"));
+            throw new JrtpBaseException.NotPermittedException(Messages.NP_R_NOT_ENABLED.format("~ECG"));
 
         //Part 3 option 1: The Queue Route.
         //If we want to take from the queue and the queue is enabled, go here.
@@ -375,11 +375,11 @@ public class RandomTeleporter {
      * @param settings The rtpSettings to use for the world
      * @param world    The world to find the locations in. This MUST be an enabled world in the given settings.
      * @return The number of locations added to the queue. (The result can be ignored if deemed unnecessary)
-     * @throws NotPermittedException Should not realistically get thrown, but may occur if the world is not
+     * @throws JrtpBaseException.NotPermittedException Should not realistically get thrown, but may occur if the world is not
      *                               enabled in the settings.
      */
     public int fillQueue(RtpSettings settings, World world)
-    throws JrtpBaseException, SafeLocationFinder.PluginDisabledException {
+    throws JrtpBaseException, JrtpBaseException.PluginDisabledException {
         try {
             int changesMade = 0;
             for (Queue<Location> locationQueue = settings.getLocationQueue(world);
@@ -400,7 +400,7 @@ public class RandomTeleporter {
                     " Time: " + (endTime - startTime) + " ms.");
             }
             return changesMade;
-        } catch (SafeLocationFinder.PluginDisabledException pluginDisabledException) {
+        } catch (JrtpBaseException.PluginDisabledException pluginDisabledException) {
             throw pluginDisabledException;
         } catch (Exception exception) {
             if (exception instanceof JrtpBaseException) throw (JrtpBaseException) exception;
