@@ -7,6 +7,8 @@ api-version: '1.13'
 
 softdepend:
   - 'Multiverse-Core'
+  - 'ChunkyBorder'
+  - 'WorldBorder'
 
 commands:
   jrtpdebug:

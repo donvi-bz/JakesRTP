@@ -32,6 +32,7 @@ public class RandomTeleporter {
     public final RtpSettings onDeathSettings;
     public final World       onDeathWorld;
     // Misc settings
+    public final boolean     queueEnabled;
     public final int         asyncWaitTimeout;
 
     // Logging settings
@@ -103,7 +104,8 @@ public class RandomTeleporter {
             onDeathSettings = null;
             onDeathWorld = null;
         }
-        if (globalConfig.getBoolean("location-cache-filler.enabled", true))
+        queueEnabled = globalConfig.getBoolean("location-cache-filler.enabled", true);
+        if (queueEnabled)
             asyncWaitTimeout = globalConfig.getInt("location-cache-filler.async-wait-timeout", 5);
         else
             asyncWaitTimeout = 1; //Yes a hard coded default. If set to 0 and accidentally used, there would be issues.
@@ -177,7 +179,6 @@ public class RandomTeleporter {
         else throw new JrtpBaseException.NotPermittedException(Messages.NP_R_NOT_ENABLED.format("~ECW"));
     }
 
-
     /**
      * Gets the RtpSettings object that has the given name (as defined in the config).
      *
@@ -232,8 +233,8 @@ public class RandomTeleporter {
      * an exception will be thrown.
      * @throws JrtpBaseException.NotPermittedException if no valid {@code rtpSettings} object is found.
      */
-    public RtpSettings getRtpSettingsByNameForPlayer(Player player, String name) throws
-                                                                                 JrtpBaseException.NotPermittedException {
+    public RtpSettings getRtpSettingsByNameForPlayer(Player player, String name)
+    throws JrtpBaseException.NotPermittedException {
         for (RtpSettings settings : rtpSettings)
             // First check if this settings can be called by a player command
             if (settings.commandEnabled &&
@@ -262,8 +263,9 @@ public class RandomTeleporter {
      */
     @SuppressWarnings("ConstantConditions")
     private Location getPotentialRtpLocation(Location callFromLoc, RtpSettings rtpSettings) {
-        int[] xz = rtpSettings.distribution.shape.getCords();
-        int[] xzOffset;
+        Location potentialLocation;
+        int[] xz, xzOffset;
+
         switch (rtpSettings.distribution.center) {
             case PLAYER_LOCATION:
                 xzOffset = new int[]{
@@ -282,12 +284,16 @@ public class RandomTeleporter {
                     rtpSettings.distribution.centerZ};
         }
 
-        return new Location(
-            callFromLoc.getWorld(),
-            xz[0] + xzOffset[0],
-            255,
-            xz[1] + xzOffset[1]
-        );
+        do {
+            xz = rtpSettings.distribution.shape.getCords();
+            potentialLocation = new Location(
+                callFromLoc.getWorld(),
+                xz[0] + xzOffset[0],
+                255,
+                xz[1] + xzOffset[1]
+            );
+        } while (!isInWorldBorder(potentialLocation)); // Yeah, re-guessing, I know :(
+        return potentialLocation;
     }
 
     /**
@@ -310,62 +316,62 @@ public class RandomTeleporter {
      */
     public Location getRtpLocation(final RtpSettings rtpSettings, Location callFromLoc, final boolean takeFromQueue)
     throws JrtpBaseException, JrtpBaseException.PluginDisabledException {
-        //Part 1: Force destination world if not current world
+        // Part 1: Force destination world if enabled not current world
         if (rtpSettings.forceDestinationWorld && callFromLoc.getWorld() != rtpSettings.destinationWorld)
             callFromLoc = rtpSettings.destinationWorld.getSpawnLocation();
 
-        //Part 2: Quick error checking
+        // Part 2: Quick error checking (world in world list)
         if (!rtpSettings.getConfigWorlds().contains(callFromLoc.getWorld()))
             throw new JrtpBaseException.NotPermittedException(Messages.NP_R_NOT_ENABLED.format("~ECG"));
 
-        //Part 3 option 1: The Queue Route.
-        //If we want to take from the queue and the queue is enabled, go here.
-        //TODO split this into two things:
-        // First is if location caching is turned off
-        // Second is if it can not be used because of a relative location. In this case we want to find a new pos async
-        if (takeFromQueue && rtpSettings.useLocationQueue) {
+        // Part 3 option 1: The Queue Route.
+        // If we want to take from the queue and the queue is enabled, go here.
+        if (queueEnabled && takeFromQueue && rtpSettings.canUseLocQueue) {
             Location preselectedLocation = rtpSettings.getLocationQueue(callFromLoc.getWorld()).poll();
             if (preselectedLocation != null) {
-                plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin, ()
-                    -> PluginMain.locFinderRunnable.syncNotify(), 100);
+                plugin.getServer().getScheduler() // Tell queue to refill soon
+                      .runTaskLaterAsynchronously(plugin, () -> PluginMain.locFinderRunnable.syncNotify(), 100);
                 return preselectedLocation;
-            } else return getRtpLocation(rtpSettings, callFromLoc, false); /*Type: Recursive*/
+            }
         }
 
-        //Part 3 option 2: The Normal Route.
-        //If we need to find a NEW location (meaning we can't use the queue), go here.
-        else {
-            Location potentialRtpLocation;
-            int randAttemptCount = 0;
-            do {
-                potentialRtpLocation = getPotentialRtpLocation(callFromLoc, rtpSettings);
-                if (randAttemptCount++ > rtpSettings.maxAttempts)
-                    throw new JrtpBaseException(Messages.NP_R_TOO_MANY_FAILED_ATTEMPTS.format());
-            } while (
-                Bukkit.isPrimaryThread() ?
-                    !new SafeLocationFinderBukkitThread(
-                        potentialRtpLocation,
-                        rtpSettings.checkRadiusXZ,
-                        rtpSettings.checkRadiusVert,
-                        rtpSettings.lowBound,
-                        rtpSettings.highBound
-                    ).tryAndMakeSafe(rtpSettings.checkProfile) :
-                    !new SafeLocationFinderOtherThread(
-                        potentialRtpLocation,
-                        rtpSettings.checkRadiusXZ,
-                        rtpSettings.checkRadiusVert,
-                        rtpSettings.lowBound,
-                        rtpSettings.highBound,
-                        asyncWaitTimeout
-                    ).tryAndMakeSafe(rtpSettings.checkProfile));
-            return potentialRtpLocation;
-        }
+        // Part 3 option 2: The Normal Route.
+        // If we need to find a NEW location (meaning we can't use the queue), go here.
+        Location potentialRtpLocation;
+        int randAttemptCount = 0;
+        do {
+            potentialRtpLocation = getPotentialRtpLocation(callFromLoc, rtpSettings);
+            if (randAttemptCount++ > rtpSettings.maxAttempts)
+                throw new JrtpBaseException(Messages.NP_R_TOO_MANY_FAILED_ATTEMPTS.format());
+        } while (
+            Bukkit.isPrimaryThread() ?
+                !new SafeLocationFinderBukkitThread(
+                    potentialRtpLocation,
+                    rtpSettings.checkRadiusXZ,
+                    rtpSettings.checkRadiusVert,
+                    rtpSettings.lowBound,
+                    rtpSettings.highBound
+                ).tryAndMakeSafe(rtpSettings.checkProfile) :
+                !new SafeLocationFinderOtherThread(
+                    potentialRtpLocation,
+                    rtpSettings.checkRadiusXZ,
+                    rtpSettings.checkRadiusVert,
+                    rtpSettings.lowBound,
+                    rtpSettings.highBound,
+                    asyncWaitTimeout
+                ).tryAndMakeSafe(rtpSettings.checkProfile));
+        return potentialRtpLocation;
 
     }
 
     /* ================================================== *\
                     Misc ← Workers
     \* ================================================== */
+
+    private boolean isInWorldBorder(Location loc) {
+        if (!loc.getWorld().getWorldBorder().isInside(loc)) return false;
+        return (worldBorderPluginHook.isInside(loc));
+    }
 
     /**
      * This will fill up the queue of safe teleport locations for the specified {@code RtpSettings} and {@code World}
@@ -375,8 +381,9 @@ public class RandomTeleporter {
      * @param settings The rtpSettings to use for the world
      * @param world    The world to find the locations in. This MUST be an enabled world in the given settings.
      * @return The number of locations added to the queue. (The result can be ignored if deemed unnecessary)
-     * @throws JrtpBaseException.NotPermittedException Should not realistically get thrown, but may occur if the world is not
-     *                               enabled in the settings.
+     * @throws JrtpBaseException.NotPermittedException Should not realistically get thrown, but may occur if the
+     *                                                 world is not
+     *                                                 enabled in the settings.
      */
     public int fillQueue(RtpSettings settings, World world)
     throws JrtpBaseException, JrtpBaseException.PluginDisabledException {

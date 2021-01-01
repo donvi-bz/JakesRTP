@@ -2,8 +2,6 @@ package biz.donvi.jakesRTP;
 
 import biz.donvi.argsChecker.Util;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.yaml.snakeyaml.Yaml;
@@ -12,7 +10,10 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,9 +23,10 @@ public final class PluginMain extends JavaPlugin {
 
     /* ======== Static Fields ======== */
 
-    static PluginMain          plugin;
-    static Map<String, Object> cmdMap;
-    static LocationCacheFiller locFinderRunnable;
+    static PluginMain            plugin;
+    static Map<String, Object>   cmdMap;
+    static LocationCacheFiller   locFinderRunnable;
+    static WorldBorderPluginHook worldBorderPluginHook;
 
     private static       Logger logger;
     private static final String LANG_SETTINGS_FILE_NAME = "language-settings.yml";
@@ -44,6 +46,7 @@ public final class PluginMain extends JavaPlugin {
         plugin = this;
         logger = plugin.getLogger();
         cmdMap = new Yaml().load(this.getClassLoader().getResourceAsStream("commandTree.yml"));
+        worldBorderPluginHook = new WorldBorderPluginHook(getServer());
 
         loadConfigs(); // Loads the
         getCommand("rtp-admin").setExecutor(new CmdRtpAdmin(Util.getImpliedMap(cmdMap, "rtp-admin")));
@@ -51,6 +54,7 @@ public final class PluginMain extends JavaPlugin {
         loadRandomTeleporter(); // Loads the random teleporter
         loadLocationCacheFiller(); // Loads the location cache filler
 
+        new Metrics(this, 9843);
         infoLog("Loading complete.");
     }
 

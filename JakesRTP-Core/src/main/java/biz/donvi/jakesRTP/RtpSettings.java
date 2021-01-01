@@ -21,7 +21,7 @@ public class RtpSettings {
      */
     private final Map<World, ConcurrentLinkedQueue<Location>> configWorlds = new HashMap<>();
 
-    public final boolean useLocationQueue;
+    public final boolean canUseLocQueue;
 
     /* All settings below are read directly from the config */
     public final String               name;
@@ -90,7 +90,7 @@ public class RtpSettings {
         checkRadiusVert = config.getInt("check-radius.vert", 2);
         maxAttempts = config.getInt("max-attempts.value", 10);
         //Some important finalization work.
-        useLocationQueue = distribution.center != DistributionSettings.CenterTypes.PLAYER_LOCATION &&
+        canUseLocQueue = distribution.center != DistributionSettings.CenterTypes.PLAYER_LOCATION &&
                            cacheLocationCount > 0;
         commandsToRun = config.getStringList("then-execute").toArray(new String[0]);
         infoLogSettings(true);
@@ -227,7 +227,7 @@ public class RtpSettings {
 
     public String infoStringLocationCaching(boolean mcFormat) {
         return "Location caching " + (
-            useLocationQueue
+            canUseLocQueue
                 ? "disabled."
                 : "Enabled. Caching " + cacheLocationCount + " location per world.");
     }
