@@ -14,8 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static biz.donvi.jakesRTP.RandomTeleporter.EXPLICIT_PERM_PREFIX;
-
 public class CmdRtpAdmin extends DynamicArgsMap implements TabExecutor {
 
     Map<String, Object> cmdMap;
@@ -139,42 +137,17 @@ public class CmdRtpAdmin extends DynamicArgsMap implements TabExecutor {
             );
         } else try {
             RtpSettings settings = PluginMain.plugin.getRandomTeleporter().getRtpSettingsByName(args[0]);
-            sender.sendMessage(
-                COLOR_IL[0] + "┏\u00A7l\u00A7m╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍\u00A7r\n" +
-                COLOR_IL[0] + "┃ [J-RTP] " + COLOR_IL[1] + "Displaying config: " + COLOR_IL[2] + args[0] + "\n" +
-                COLOR_IL[0] + "┣\u00A7l\u00A7m╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍\u00A7r\n" +
-                COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Enabled worlds: " + COLOR_IL[2] + settings.getWorldsAsString() +
-//                "\n" + //TODO FIIIIIIIIIX
-//                COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Region shape: " + COLOR_IL[2] + settings.rtpRegionShape.toString() +
-//                "\n" +
-//                COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Region center: " + COLOR_IL[2] +
-//                settings.getRtpRegionCenterAsString(true) + "\n" +
-//                COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Radius min: " + COLOR_IL[2] + settings.minRadius +
-//                COLOR_IL[0] + " ┃ " + COLOR_IL[1] + "Radius max: " + COLOR_IL[2] + settings.maxRadius + "\n" +
-//                COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Distribution style: " + COLOR_IL[2] + (
-//                    settings.gaussianShrink == 0 && settings.gaussianCenter == 0
-//                        ? "Even Distribution\n"
-//                        : "Gaussian Distribution\n" +
-//                          COLOR_IL[0] + "┃ • " + COLOR_IL[1] + "Gaussian shrink: " + COLOR_IL[2] +
-//                          settings.gaussianShrink + "\n" +
-//                          COLOR_IL[0] + "┃ • " + COLOR_IL[1] + "Gaussian center: " + COLOR_IL[2] +
-//                          settings.gaussianCenter + "\n") +
-                COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Cooldown: " + COLOR_IL[2] + settings.coolDown.coolDownTime() +
-                "\n" +
-                COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Max teleport attempts: " + COLOR_IL[2] + settings.maxAttempts +
-                "\n" +
-                COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Command enabled: " + COLOR_IL[2] + settings.commandEnabled + "\n" +
-                COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Require explicit permission: " +
-                COLOR_IL[2] + settings.requireExplicitPermission + " \u00A7o[" + EXPLICIT_PERM_PREFIX + settings.name +
-                "]\u00A7r\n" +
-                COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Priority: " + COLOR_IL[2] + settings.priority + "\n" +
-                COLOR_IL[0] + "┃ " + COLOR_IL[1] + "Location cache count: " + COLOR_IL[2] +
-                settings.cacheLocationCount + (
-                    settings.cacheLocationCount == 0
-                        ? "\n"
-                        : COLOR_IL[0] + " ┃ " + COLOR_IL[1] + "Actual: \n" +
-                          COLOR_IL[0] + "┃ • " + COLOR_IL[2] + settings.getQueueSizesAsString())
-            );
+            String name = "[" + settings.name + "] ";
+            ArrayList<String> lines = new ArrayList<>();
+            lines.add("This debug menu is a work-in-pogress and is currently not at its final state."); //TODO
+            // Always log
+            lines.add(settings.infoStringCommandEnabled(true));
+            lines.add(settings.infoStringRequireExplicitPermission(true));
+            lines.add(settings.infoStringPriority(true));
+            lines.add(settings.infoStringDestinationWorld(true));
+            lines.addAll(settings.distribution.shape.infoStrings(true));
+            lines.add(settings.infoStringRegionCenter(true));
+            for(String message : lines) sender.sendMessage(message);
         } catch (Exception e) {
             sender.sendMessage(
                 COLOR_IL[1] + "No settings found with name [" + COLOR_IL[2] + args[0] + "]\n" +

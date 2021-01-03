@@ -264,7 +264,7 @@ public class RandomTeleporter {
      * @return The first location to check the safety of, which may end up being the final teleport location
      */
     @SuppressWarnings("ConstantConditions")
-    private Location getPotentialRtpLocation(Location callFromLoc, RtpSettings rtpSettings) {
+    private Location getPotentialRtpLocation(Location callFromLoc, RtpSettings rtpSettings) throws JrtpBaseException {
         Location potentialLocation;
         int[] xz, xzOffset;
 
@@ -285,7 +285,7 @@ public class RandomTeleporter {
                     rtpSettings.distribution.centerX,
                     rtpSettings.distribution.centerZ};
         }
-
+        int attempts = 0;
         do {
             xz = rtpSettings.distribution.shape.getCords();
             potentialLocation = new Location(
@@ -294,6 +294,8 @@ public class RandomTeleporter {
                 255,
                 xz[1] + xzOffset[1]
             );
+            if (++attempts > 100)
+                throw new JrtpBaseException(Messages.NP_R_TOO_MANY_FAILED_ATTEMPTS.format() + " ~GP-RTP-L");
         } while (!isInWorldBorder(potentialLocation)); // Yeah, re-guessing, I know :(
         return potentialLocation;
     }

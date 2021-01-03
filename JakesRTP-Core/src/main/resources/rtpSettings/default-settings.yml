@@ -62,7 +62,6 @@ cooldown: 30
 #   %x_old% or %y_old% or %z_old% The x or y or z location of the player before they were moved.
 then-execute:
   - 'tellraw %PLAYER% {"text":"You have been teleported to %LOCATION% in %WORLD%!"}'
-  - 'tellraw %PLAYER% {"text":"All placeholders are listed at the bottom of this file."}'
 
 ############## # Everything past this point in the config probably does not need to get changed
 bounds: # The lowest and highest points a player can be RTP'd to.

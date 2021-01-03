@@ -6,9 +6,6 @@ import org.popcraft.chunky.shape.Shape;
 import org.popcraft.chunkyborder.BorderData;
 import org.popcraft.chunkyborder.ChunkyBorder;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class WorldBorderPluginHook {
 
     private final Server server;
@@ -17,14 +14,20 @@ public class WorldBorderPluginHook {
 
     WorldBorderPluginHook(Server server) {
         this.server = server;
-        PluginSpecificHook potentialHook;
-        // For each potential hook...
-        if (!(potentialHook = new ChunkyBorderHook()).hasInstance()) potentialHook = null;
+        this.hook = findHook();
 
         // And after the hook is (potentially) loaded...
         if (hasHook()) PluginMain.infoLog(
             "It looks like your using the world border plugin '" + hook.name() + "'.\n" +
             "Random teleport locations will always end up inside any world border.");
+    }
+
+    private PluginSpecificHook findHook() {
+        PluginSpecificHook potentialHook;
+        // Repeat this ↓ for each potential hook
+        if ((potentialHook = new ChunkyBorderHook()).hasInstance()) return potentialHook;
+        // No hook?
+        return null;
     }
 
     public boolean hasHook() {return hook != null;}
@@ -59,10 +62,12 @@ public class WorldBorderPluginHook {
 
         @Override
         public boolean isInside(Location loc) {
-            Shape shape = getInstance()
+            BorderData borderData = getInstance()
                 .getBorders()
-                .get(loc.getWorld().getName())
-                .getBorder();
+                .get(loc.getWorld().getName());
+            Shape shape = borderData == null
+                ? null
+                : borderData.getBorder();
             return shape == null || shape.isBounding(loc.getX(), loc.getZ());
         }
 
