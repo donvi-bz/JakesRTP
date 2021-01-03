@@ -65,7 +65,9 @@ public class RandomTeleporter {
                 e.printStackTrace();
             }
         if (PluginMain.worldBorderPluginHook.hasHook()) {
-            //TODO impl
+            for (Map.Entry<String, DistributionSettings> v : worldBorderPluginHook.generateDistributions().entrySet()) {
+                distributionSettings.put(v.getKey(), v.getValue());
+            }
         }
         // Modular settings:
         this.rtpSettings = new ArrayList<>();
@@ -294,7 +296,7 @@ public class RandomTeleporter {
                 255,
                 xz[1] + xzOffset[1]
             );
-            if (++attempts > 100)
+            if (++attempts > 100) // TODO maybe set this as a static variable?
                 throw new JrtpBaseException(Messages.NP_R_TOO_MANY_FAILED_ATTEMPTS.format() + " ~GP-RTP-L");
         } while (!isInWorldBorder(potentialLocation)); // Yeah, re-guessing, I know :(
         return potentialLocation;

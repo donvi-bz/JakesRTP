@@ -26,6 +26,13 @@ abstract class DistributionShape {
         final double  gaussianShrink;
         final double  gaussianCenter;
 
+        public Symmetric(int rMax, int rMin){
+            radiusMax = rMax;
+            radiusMin = rMin;
+            gaussianDistribution = false;
+            gaussianShrink = gaussianCenter = 0;
+        }
+
         public Symmetric(ConfigurationSection settings) {
             radiusMax = settings.getInt("radius.max");
             radiusMin = settings.getInt("radius.min");
@@ -50,6 +57,8 @@ abstract class DistributionShape {
     }
 
     public static class Circle extends Symmetric {
+        public Circle(int rMax, int rMin) { super(rMax, rMin); }
+
         public Circle(ConfigurationSection settings) { super(settings); }
 
         @Override
@@ -64,6 +73,7 @@ abstract class DistributionShape {
     }
 
     public static class Square extends Symmetric {
+        public Square(int rMax, int rMin) { super(rMax, rMin); }
         public Square(ConfigurationSection settings) { super(settings); }
 
         @Override
@@ -89,7 +99,14 @@ abstract class DistributionShape {
         final int     gapXCenter;
         final int     gapZCenter;
 
-        Rectangle(ConfigurationSection settings) {
+        public Rectangle(int xRad, int zRad){
+            xRadius = xRad;
+            zRadius = zRad;
+            gapEnabled = false;
+            gapXRadius = gapZRadius = gapXCenter = gapZCenter = 0;
+        }
+
+        public Rectangle(ConfigurationSection settings) {
             xRadius = settings.getInt("size.x-width") / 2;
             zRadius = settings.getInt("size.z-width") / 2;
             gapEnabled = settings.getBoolean("gap.enabled");

@@ -9,6 +9,19 @@ public class DistributionSettings {
     public final int               centerX;
     public final int               centerZ;
 
+    DistributionSettings(DistributionShape shape, CenterTypes centerTypes) {
+        this.shape = shape;
+        center = centerTypes;
+        centerX  = centerZ = 0;
+    }
+
+    DistributionSettings(DistributionShape shape, int centerX, int centerZ) {
+        this.shape = shape;
+        center = CenterTypes.PRESET_VALUE;
+        this.centerX = centerX;
+        this.centerZ = centerZ;
+    }
+
     DistributionSettings(ConfigurationSection settings) throws JrtpBaseException.ConfigurationException {
         String shapeString = null;
         try {

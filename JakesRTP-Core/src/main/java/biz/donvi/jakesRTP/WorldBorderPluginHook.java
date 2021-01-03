@@ -6,6 +6,9 @@ import org.popcraft.chunky.shape.Shape;
 import org.popcraft.chunkyborder.BorderData;
 import org.popcraft.chunkyborder.ChunkyBorder;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class WorldBorderPluginHook {
 
     private final Server server;
@@ -37,7 +40,7 @@ public class WorldBorderPluginHook {
         else return hook.isInside(loc);
     }
 
-//    public Map<String, DistributionSettings> generateDistributions() { return hook.generateDistributions(); }
+    public Map<String, DistributionSettings> generateDistributions() { return hook.generateDistributions(); }
 
     /* ================================================== *\
                     All the simple subclasses
@@ -50,7 +53,7 @@ public class WorldBorderPluginHook {
 
         public boolean hasInstance() { return server.getPluginManager().getPlugin(name()) != null; }
 
-//        public abstract Map<String, DistributionSettings> generateDistributions();
+        public abstract Map<String, DistributionSettings> generateDistributions();
     }
 
     class ChunkyBorderHook extends PluginSpecificHook {
@@ -71,12 +74,22 @@ public class WorldBorderPluginHook {
             return shape == null || shape.isBounding(loc.getX(), loc.getZ());
         }
 
-//        @Override
-//        public Map<String, DistributionSettings> generateDistributions() {
-//            Map<String, DistributionSettings> distributions = new HashMap<>();
-//            for(Map.Entry<String, BorderData> bd : getInstance().getBorders().entrySet()) {
-//                bd.
-//            }
-//        }
+        @Override
+        public Map<String, DistributionSettings> generateDistributions() {
+            Map<String, DistributionSettings> distributions = new HashMap<>();
+            for (Map.Entry<String, BorderData> set : getInstance().getBorders().entrySet()) {
+                BorderData bd = set.getValue();
+                distributions.put(
+                    "fill_" + set.getKey(),
+                    new DistributionSettings(
+                        new DistributionShape.Rectangle(
+                            bd.getRadiusX(),
+                            bd.getRadiusZ()),
+                        bd.getCenterX(),
+                        bd.getCenterZ())
+                );
+            }
+            return distributions;
+        }
     }
 }

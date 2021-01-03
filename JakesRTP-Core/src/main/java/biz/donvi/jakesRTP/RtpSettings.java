@@ -71,7 +71,10 @@ public class RtpSettings {
         }
         if (callFromWorlds.size() == 0) callFromWorlds.add(landingWorld);
         try {
-            distribution = distributions.get(config.getString("distribution"));
+            String distName = config.getString("distribution");
+            if (distName.equalsIgnoreCase("fill"))
+                distName += "_" + landingWorld.getName();
+            distribution = distributions.get(distName);
         } catch (NullPointerException e) {
             StringBuilder strb = new StringBuilder();
             for (String s : distributions.keySet()) strb.append(" ").append(s);
