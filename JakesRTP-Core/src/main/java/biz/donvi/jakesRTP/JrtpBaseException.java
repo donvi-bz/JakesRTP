@@ -16,8 +16,10 @@ class JrtpBaseException extends Exception {
     static class PluginDisabledException extends JrtpBaseException {}
 
     static class NotPermittedException extends JrtpBaseException {
-
         public NotPermittedException(String message) { super(message); }
+    }
 
+    static class ConfigurationException extends JrtpBaseException {
+        public ConfigurationException(String message) {super(message);}
     }
 }

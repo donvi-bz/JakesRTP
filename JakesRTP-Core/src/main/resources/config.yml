@@ -1,6 +1,8 @@
-# - - - - - - - - - - - - - - - - -
-# → JakesRTP Global/Static Config ←
-# - - - - - - - - - - - - - - - - -
+#
+#     = = = = = = = = = = = = = = = = =
+#     → JakesRTP Global/Static Config ←
+#     = = = = = = = = = = = = = = = = =
+#
 # For information on how to work with the non-global settings, look at `profiles.md` at
 # https://github.com/donvi-bz/JakesRTP/blob/master/doc
 # Old configs may not run correctly. Please don't edit config-version.

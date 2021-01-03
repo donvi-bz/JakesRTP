@@ -2,9 +2,6 @@ forcertp:
   playerName !dynamic:
     -c:
       configName !dynamic:
-    -c-w:
-      configName !dynamic:
-        worldName !dynamic:
     -w:
       worldName !dynamic:
 rtp-admin:

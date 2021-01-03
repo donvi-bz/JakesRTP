@@ -3,6 +3,18 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>10</source>
+                    <target>10</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
     <parent>
         <artifactId>JakesRtp</artifactId>
@@ -48,14 +60,14 @@
         </dependency>
         <dependency>
             <groupId>org.popcraft</groupId>
-            <artifactId>Chunky</artifactId>
-            <version>1.1.20</version>
+            <artifactId>chunky-common</artifactId>
+            <version>1.2.2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.popcraft</groupId>
             <artifactId>ChunkyBorder</artifactId>
-            <version>1.0.4</version>
+            <version>1.0.5</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

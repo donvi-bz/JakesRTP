@@ -24,7 +24,7 @@ commands:
     description: 'Teleports the specified user to a random location'
     permission: 'jakesrtp.others'
     permission-message: 'Could not run command. Missing permission node: jakesrtp.others'
-    usage: '/forcertp <playerName> [-c <rtpConfigName> | -w <destinedWorld> | -c-w <rtpConfigName> <destinedWorld>]'
+    usage: '/forcertp <playerName> [-c <rtpConfigName> | -w <destinedWorld>]'
   rtp-admin:
     description: 'All the admin functionality (of J-RTP) in its own place'
     permission: 'jakesrtp.admin'

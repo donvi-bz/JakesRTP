@@ -49,7 +49,7 @@ have 2! An example of this is sitting at the bottom of the default generated con
 
 `/rtp` and `/wild` both make the user randomly teleport  
 `/forcertp <playerName>` will randomly teleport the given player (assuming you have permission)  
-`/forcertp <playerName> [-c <rtpConfigName> | -w <destinedWorld> | -c-w <rtpConfigName> <destinedWorld>]` (extra
+`/forcertp <playerName> [-c <rtpConfigName> | -w <destinedWorld>]` (extra
 settings)  
 `/rtp-admin reload` will reload the config from the file(assuming you have permission)
 

@@ -35,8 +35,6 @@ public class CmdForceRtp extends DynamicArgsMap implements TabExecutor {
                 subForceRtpWithConfig(sender, argsChecker.getRemainingArgs());
             else if (argsChecker.matches(true, null, "-w", null))
                 subForceRtpWithWorld(sender, argsChecker.getRemainingArgs());
-            else if (argsChecker.matches(true, null, "-c-w", null, null))
-                subForceRtpWithConfigAndWorld(sender, argsChecker.getRemainingArgs());
             else return false;
         } catch (JrtpBaseException.NotPermittedException npe) {
             sender.sendMessage(Messages.NP_GENERIC.format(npe.getMessage()));
@@ -91,37 +89,6 @@ public class CmdForceRtp extends DynamicArgsMap implements TabExecutor {
         ).teleportAsync(playerToTp);
     }
 
-    private void subForceRtpWithConfigAndWorld(CommandSender sender, String[] args) throws Exception {
-        Player playerToTp = sender.getServer().getPlayerExact(args[0]);
-        if (playerToTp == null) {
-            sender.sendMessage(Messages.PLAYER_NOT_FOUND.format(args[0]));
-            return;
-        }
-        RtpSettings rtpSettings = randomTeleporter.getRtpSettingsByName(args[1]);
-        World destWorld = GeneralUtil.getWorldIgnoreCase(sender.getServer(), args[2]);
-        if ((destWorld) == null) {
-            sender.sendMessage(Messages.WORLD_NOT_FOUND.format(args[2]));
-            return;
-        }
-
-        if (!rtpSettings.getConfigWorlds().contains(destWorld)) {
-            sender.sendMessage(Messages.RTPSETTINGS_NO_CONTAIN_WORLD.format(rtpSettings.name, destWorld.getName()));
-            return;
-        } else if (rtpSettings.forceDestinationWorld && rtpSettings.destinationWorld != destWorld) {
-            assert rtpSettings.destinationWorld != null; // Force destination world implies this.
-            sender.sendMessage(
-                Messages.RTPSETTINGS_MUST_USE_WORLD.format(rtpSettings.name, rtpSettings.destinationWorld.getName()));
-            return;
-        }
-
-        // ↑ Check step | Teleport step ↓
-
-        new RandomTeleportAction(
-            randomTeleporter, rtpSettings, destWorld.getSpawnLocation(), true, true,
-            randomTeleporter.logRtpOnForceCommand, "Rtp-from-force-command triggered!"
-        ).teleportAsync(playerToTp);
-    }
-
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         return ArgsTester.nextCompleteInTree(args, cmdMap, this);
@@ -137,7 +104,6 @@ public class CmdForceRtp extends DynamicArgsMap implements TabExecutor {
         } else if (path.length == 2) {
             switch (path[1]) {
                 case "-c":
-                case "-c-w":
                     setResult(randomTeleporter.getRtpSettingsNames());
                     break;
                 case "-w":
@@ -147,11 +113,6 @@ public class CmdForceRtp extends DynamicArgsMap implements TabExecutor {
                     setResult(worldNames);
                     break;
             }
-        } else if (path.length == 3 && path[1].equalsIgnoreCase("-c-w")) {
-            List<String> worldNames = new ArrayList<>();
-            for (World world : getServer().getWorlds())
-                worldNames.add(world.getName());
-            setResult(worldNames);
         }
     }
 

@@ -28,7 +28,10 @@ public class CmdRtp implements TabExecutor {
                 RtpSettings relSettings = args.length == 0
                     ? randomTeleporter.getRtpSettingsByWorldForPlayer(player)
                     : randomTeleporter.getRtpSettingsByNameForPlayer(player, args[0]);
-                if (player.hasPermission("jakesRtp.noCooldown") || relSettings.coolDown.check(player.getName())) {
+                if (player.hasPermission("jakesrtp.nocooldown")
+                    || player.hasPermission("jakesrtp.nocooldown." + relSettings.name.toLowerCase())
+                    || relSettings.coolDown.check(player.getName())
+                ) {
                     long callTime = System.currentTimeMillis();
                     new RandomTeleportAction(
                         randomTeleporter,

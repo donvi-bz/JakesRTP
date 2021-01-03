@@ -1,18 +1,14 @@
 package biz.donvi.jakesRTP;
 
 import org.bukkit.Bukkit;
-import org.bukkit.World;
 
 import java.lang.ref.WeakReference;
 
 import static biz.donvi.jakesRTP.PluginMain.infoLog;
 
-//DEBUG ↓
-
 
 public class LocationCacheFiller implements Runnable {
 
-    // For convenience, 1000L * 60L is added so the last number can define minutes.
     private final long recheckTime;
     private final long betweenTime;
 
@@ -36,12 +32,9 @@ public class LocationCacheFiller implements Runnable {
             infoLog("[J-RTP] LCF Started.");
             while (keepRunning && isPluginLoaded())
                 try {
-                    beginning:
                     for (RtpSettings settings : getCurrentRtpSettings()) {
-                        for (World world : settings.getConfigWorlds())
-                            if (!keepRunning) break beginning;
-                            else if (!settings.forceDestinationWorld || settings.destinationWorld == world)
-                                pluginMain().getRandomTeleporter().fillQueue(settings, world);
+                        if (!keepRunning) break;
+                        else pluginMain().getRandomTeleporter().fillQueue(settings);
                     }
                     patientlyWait(recheckTime);
                 } catch (JrtpBaseException ex) {

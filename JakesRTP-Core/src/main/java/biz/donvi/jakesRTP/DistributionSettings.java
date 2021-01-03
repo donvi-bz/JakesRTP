@@ -9,8 +9,14 @@ public class DistributionSettings {
     public final int               centerX;
     public final int               centerZ;
 
-    DistributionSettings(ConfigurationSection settings) throws NullPointerException {
-        switch (settings.getString("shape").toLowerCase()) {
+    DistributionSettings(ConfigurationSection settings) throws JrtpBaseException.ConfigurationException {
+        String shapeString = null;
+        try {
+            shapeString = settings.getString("shape").toLowerCase();
+        } catch (NullPointerException npe) {
+            throw new JrtpBaseException.ConfigurationException("Configuration shape not properly defined.");
+        }
+        switch (shapeString) {
             case "square":
                 shape = new DistributionShape.Square(settings);
                 break;
@@ -21,10 +27,16 @@ public class DistributionSettings {
                 shape = new DistributionShape.Rectangle(settings);
                 break;
             default:
-                throw new RuntimeException(
-                    "Distribution shape not properly defined: " + settings.getString("shape").toLowerCase());
+                throw new JrtpBaseException.ConfigurationException(
+                    "Distribution shape not properly defined: " + shapeString
+                );
         }
-        center = CenterTypes.values()[settings.getString("center.option").toLowerCase().charAt(0) - 'a'];
+        try {
+            char centerChar = settings.getString("center.option").toLowerCase().charAt(0);
+            center = CenterTypes.values()[centerChar - 'a'];
+        } catch (NullPointerException npe) {
+            throw new JrtpBaseException.ConfigurationException("Configuration center not properly defined.");
+        }
         if (center == CenterTypes.PRESET_VALUE) {
             centerX = settings.getInt("center.c-custom.x");
             centerZ = settings.getInt("center.c-custom.z");

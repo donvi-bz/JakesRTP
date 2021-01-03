@@ -60,10 +60,13 @@ public class RandomTeleporter {
         for (Pair<String, FileConfiguration> item : distributions)
             try {
                 distributionSettings.put(item.key, new DistributionSettings(item.value));
-            } catch (NullPointerException e) {
+            } catch (JrtpBaseException.ConfigurationException e) {
                 log(Level.WARNING, "Could not load distribution settings " + item.key);
                 e.printStackTrace();
             }
+        if (PluginMain.worldBorderPluginHook.hasHook()) {
+            //TODO impl
+        }
         // Modular settings:
         this.rtpSettings = new ArrayList<>();
         for (Pair<String, FileConfiguration> item : rtpSections)
@@ -82,7 +85,7 @@ public class RandomTeleporter {
             firstJoinSettings = getRtpSettingsByName(globalConfig.getString("rtp-on-first-join.settings"));
             World world = PluginMain.plugin.getServer().getWorld(
                 Objects.requireNonNull(globalConfig.getString("rtp-on-first-join.world")));
-            if (firstJoinSettings.getConfigWorlds().contains(world))
+            if (firstJoinSettings.landingWorld == world)
                 firstJoinWorld = world;
             else throw new Exception("The RTP first join world is not an enabled world in the config's settings!");
         } else {
@@ -95,7 +98,7 @@ public class RandomTeleporter {
             onDeathRequirePermission = globalConfig.getBoolean("rtp-on-death.require-permission", true);
             World world = PluginMain.plugin.getServer().getWorld(
                 Objects.requireNonNull(globalConfig.getString("rtp-on-death.world")));
-            if (onDeathSettings.getConfigWorlds().contains(world))
+            if (onDeathSettings.landingWorld == world)
                 onDeathWorld = world;
             else throw new Exception("The RTP first join world is not an enabled world in the config's settings!");
         } else {
@@ -167,10 +170,9 @@ public class RandomTeleporter {
     public RtpSettings getRtpSettingsByWorld(World world) throws JrtpBaseException.NotPermittedException {
         RtpSettings finSettings = null;
         for (RtpSettings settings : rtpSettings)
-            for (World settingWorld : settings.getConfigWorlds())
-                if (world.equals(settingWorld) && (
-                    finSettings == null
-                    || finSettings.priority < settings.priority)
+            for (World settingWorld : settings.callFromWorlds)
+                if (world.equals(settingWorld) &&
+                    (finSettings == null || finSettings.priority < settings.priority)
                 ) {
                     finSettings = settings;
                     break;
@@ -205,7 +207,7 @@ public class RandomTeleporter {
         RtpSettings finSettings = null;
         World playerWorld = player.getWorld();
         for (RtpSettings settings : rtpSettings)
-            for (World settingWorld : settings.getConfigWorlds())
+            for (World settingWorld : settings.callFromWorlds)
                 //First, the world must be in the settings to become a candidate
                 if (playerWorld.equals(settingWorld) &&
                     //Then we check if the settings are usable from the command
@@ -316,21 +318,21 @@ public class RandomTeleporter {
      */
     public Location getRtpLocation(final RtpSettings rtpSettings, Location callFromLoc, final boolean takeFromQueue)
     throws JrtpBaseException, JrtpBaseException.PluginDisabledException {
-        // Part 1: Force destination world if enabled not current world
-        if (rtpSettings.forceDestinationWorld && callFromLoc.getWorld() != rtpSettings.destinationWorld)
-            callFromLoc = rtpSettings.destinationWorld.getSpawnLocation();
+        // Part 1: Force destination world if not current world
+        if (callFromLoc.getWorld() != rtpSettings.landingWorld)
+            callFromLoc.setWorld(rtpSettings.landingWorld);
 
         // Part 2: Quick error checking (world in world list)
-        if (!rtpSettings.getConfigWorlds().contains(callFromLoc.getWorld()))
+        if (!rtpSettings.callFromWorlds.contains(callFromLoc.getWorld()))
             throw new JrtpBaseException.NotPermittedException(Messages.NP_R_NOT_ENABLED.format("~ECG"));
 
         // Part 3 option 1: The Queue Route.
         // If we want to take from the queue and the queue is enabled, go here.
         if (queueEnabled && takeFromQueue && rtpSettings.canUseLocQueue) {
-            Location preselectedLocation = rtpSettings.getLocationQueue(callFromLoc.getWorld()).poll();
+            Location preselectedLocation = rtpSettings.locationQueue.poll();
             if (preselectedLocation != null) {
                 plugin.getServer().getScheduler() // Tell queue to refill soon
-                      .runTaskLaterAsynchronously(plugin, () -> PluginMain.locFinderRunnable.syncNotify(), 100);
+                      .runTaskLaterAsynchronously(plugin, () -> locFinderRunnable.syncNotify(), 100);
                 return preselectedLocation;
             }
         }
@@ -379,32 +381,30 @@ public class RandomTeleporter {
      * finding each location.
      *
      * @param settings The rtpSettings to use for the world
-     * @param world    The world to find the locations in. This MUST be an enabled world in the given settings.
      * @return The number of locations added to the queue. (The result can be ignored if deemed unnecessary)
      * @throws JrtpBaseException.NotPermittedException Should not realistically get thrown, but may occur if the
      *                                                 world is not
      *                                                 enabled in the settings.
      */
-    public int fillQueue(RtpSettings settings, World world)
+    public int fillQueue(RtpSettings settings)
     throws JrtpBaseException, JrtpBaseException.PluginDisabledException {
         try {
             int changesMade = 0;
-            for (Queue<Location> locationQueue = settings.getLocationQueue(world);
-                 locationQueue.size() < settings.cacheLocationCount;
-                 changesMade++
-            ) {
+            while (settings.locationQueue.size() < settings.cacheLocationCount) {
                 PluginMain.locFinderRunnable.waitIfNonMainThread();
 
                 long startTime = System.currentTimeMillis();
 
-                Location rtpLocation = getRtpLocation(settings, world.getSpawnLocation(), false);
-                locationQueue.add(rtpLocation);
+                Location rtpLocation = getRtpLocation(settings, settings.landingWorld.getSpawnLocation(), false);
+                settings.locationQueue.add(rtpLocation);
 
                 long endTime = System.currentTimeMillis();
                 if (logRtpForQueue) infoLog(
                     "Rtp-for-queue triggered. No player will be teleported." +
                     " Location: " + GeneralUtil.locationAsString(rtpLocation, 1, false) +
                     " Time: " + (endTime - startTime) + " ms.");
+
+                changesMade++;
             }
             return changesMade;
         } catch (JrtpBaseException.PluginDisabledException pluginDisabledException) {
