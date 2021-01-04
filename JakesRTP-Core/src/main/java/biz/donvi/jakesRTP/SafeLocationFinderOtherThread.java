@@ -54,22 +54,22 @@ public class SafeLocationFinderOtherThread extends SafeLocationFinder {
      * @param loc The location to get the material for.
      */
     @Override
-    protected Material getLocMaterial(Location loc) throws TimeoutException, JrtpBaseException.PluginDisabledException {
+    protected Material getLocMaterial(Location loc) throws JrtpBaseException.PluginDisabledException {
         return SafeLocationUtils.util.locMatFromSnapshot(loc, getChunkForLocation(loc));
     }
 
     @Override
-    protected void dropToGround() throws TimeoutException, JrtpBaseException.PluginDisabledException {
+    protected void dropToGround() throws JrtpBaseException.PluginDisabledException {
         SafeLocationUtils.util.dropToGround(loc, lowBound, getChunkForLocation(loc));
     }
 
     @Override
-    protected void dropToMiddle() throws TimeoutException, JrtpBaseException.PluginDisabledException {
+    protected void dropToMiddle() throws JrtpBaseException.PluginDisabledException {
         SafeLocationUtils.util.dropToMiddle(loc, lowBound, highBound, getChunkForLocation(loc));
     }
 
     private ChunkSnapshot getChunkForLocation(Location loc)
-    throws TimeoutException, JrtpBaseException.PluginDisabledException, IllegalStateException {
+    throws JrtpBaseException.PluginDisabledException, IllegalStateException {
         String chunkKey = loc.getChunk().getX() + " " + loc.getChunk().getZ();
         ChunkSnapshot chunkSnapshot = chunkSnapshotMap.get(chunkKey);
         if (chunkSnapshot != null) return chunkSnapshot;

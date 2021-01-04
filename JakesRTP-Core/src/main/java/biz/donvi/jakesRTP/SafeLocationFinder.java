@@ -5,9 +5,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 
-import java.util.concurrent.TimeoutException;
-import java.util.logging.Level;
-
 /**
  * An object that can be given a location in a spigot world, and will try
  * and move around until it finds a spot that a player can safely stand on.
@@ -72,23 +69,15 @@ public abstract class SafeLocationFinder {
      * @return True if the location is now safe, false if it could not be made safe.
      */
     public boolean tryAndMakeSafe(LocCheckProfiles checkProfile) throws JrtpBaseException {
-        try {
-            if (!enableSelfChecking)
-                throw new JrtpBaseException("Tried to use self checking on an object that can not self check.");
-
-            moveToStart(checkProfile);
-
-            for (int i = 0, spiralArea = (int) Math.pow(checkRadiusXZ * 2 + 1, 2); i < spiralArea; i++)
-                if (checkSafety(checkRadiusVert)) {
-                    loc.add(0.5, 1, 0.5);
-                    loc.setYaw((float) (360f * Math.random()));
-                    return true;
-                } else nextInSpiral();
-        } catch (TimeoutException e) {
-            PluginMain.log(Level.WARNING,
-                           "Request to make location safe timed out. " +
-                           "This is only an issue if this warning is common.");
-        }
+        if (!enableSelfChecking)
+            throw new JrtpBaseException("Tried to use self checking on an object that can not self check.");
+        moveToStart(checkProfile);
+        for (int i = 0, spiralArea = (int) Math.pow(checkRadiusXZ * 2 + 1, 2); i < spiralArea; i++)
+            if (checkSafety(checkRadiusVert)) {
+                loc.add(0.5, 1, 0.5);
+                loc.setYaw((float) (360f * Math.random()));
+                return true;
+            } else nextInSpiral();
         return false;
     }
 
@@ -100,7 +89,7 @@ public abstract class SafeLocationFinder {
      *            Ex: if {@code avm = 1}, the block itself, 1 up, and 1 down will be checked.
      * @return True if the location is safe, false if it is not.
      */
-    public final boolean checkSafety(int avm) throws TimeoutException, JrtpBaseException.PluginDisabledException {
+    public final boolean checkSafety(int avm) throws JrtpBaseException.PluginDisabledException {
         if (avm < 0) throw new IllegalArgumentException("Avm can not be less than 0.");
         //Make a temporary location so we don't edit the main one unless its safe.
         Location tempLoc = loc.clone().add(0, avm + 1, 0);
@@ -145,7 +134,7 @@ public abstract class SafeLocationFinder {
      *
      * @param checkProfile The profile setting. This determines which method will be called.
      */
-    private void moveToStart(LocCheckProfiles checkProfile) throws TimeoutException, PluginDisabledException {
+    private void moveToStart(LocCheckProfiles checkProfile) throws PluginDisabledException {
         if (checkProfile == LocCheckProfiles.TOP_DOWN)
             dropToGround();
         else if (checkProfile == LocCheckProfiles.MIDDLE_OUT)
@@ -191,11 +180,11 @@ public abstract class SafeLocationFinder {
      *
      * @param loc The location to get the material for.
      */
-    protected abstract Material getLocMaterial(Location loc) throws TimeoutException, PluginDisabledException;
+    protected abstract Material getLocMaterial(Location loc) throws PluginDisabledException;
 
-    protected abstract void dropToGround() throws TimeoutException, PluginDisabledException;
+    protected abstract void dropToGround() throws PluginDisabledException;
 
-    protected abstract void dropToMiddle() throws TimeoutException, PluginDisabledException;
+    protected abstract void dropToMiddle() throws PluginDisabledException;
 
     public enum LocCheckProfiles {AUTO, TOP_DOWN, MIDDLE_OUT}
 
