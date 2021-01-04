@@ -42,6 +42,7 @@ public final class PluginMain extends JavaPlugin {
     @SuppressWarnings("ConstantConditions")
     @Override
     public void onEnable() {
+
         //Set up the reference for some objects
         plugin = this;
         logger = plugin.getLogger();
@@ -60,10 +61,18 @@ public final class PluginMain extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        disabling = true;
         HandlerList.unregisterAll(this);
         theRandomTeleporter = null;
         locFinderRunnable.markAsOver();
         Bukkit.getScheduler().cancelTasks(this);
+        disabling = false;
+    }
+
+    private boolean disabling = false;
+
+    public boolean disabling() {
+        return disabling;
     }
 
     /* ================================================== *\
