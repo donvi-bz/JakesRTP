@@ -2,6 +2,8 @@ package biz.donvi.jakesRTP;
 
 import org.bukkit.Location;
 import org.bukkit.Server;
+import org.bukkit.World;
+import org.bukkit.WorldBorder;
 import org.popcraft.chunky.shape.Shape;
 import org.popcraft.chunkyborder.BorderData;
 import org.popcraft.chunkyborder.ChunkyBorder;
@@ -10,6 +12,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class WorldBorderPluginHook {
+
+    static final String DIST_NAME_PREFIX = "world-border_";
 
     private final Server server;
 
@@ -30,10 +34,10 @@ public class WorldBorderPluginHook {
         // Repeat this ↓ for each potential hook
         if ((potentialHook = new ChunkyBorderHook()).hasInstance()) return potentialHook;
         // No hook?
-        return null;
+        return new DefaultAsHook();
     }
 
-    public boolean hasHook() {return hook != null;}
+    public boolean hasHook() {return !(hook instanceof DefaultAsHook);}
 
     public boolean isInside(Location loc) {
         if (hook == null) return true;
@@ -47,6 +51,7 @@ public class WorldBorderPluginHook {
     \* ================================================== */
 
     abstract class PluginSpecificHook {
+
         protected abstract String name();
 
         public abstract boolean isInside(Location loc);
@@ -54,6 +59,42 @@ public class WorldBorderPluginHook {
         public boolean hasInstance() { return server.getPluginManager().getPlugin(name()) != null; }
 
         public abstract Map<String, DistributionSettings> generateDistributions();
+    }
+
+    class DefaultAsHook extends PluginSpecificHook {
+
+        @Override
+        protected String name() {
+            return "default";
+        }
+
+        @Override
+        public boolean isInside(Location loc) {
+            try {
+                //noinspection ConstantConditions // The location came from a world, it will have a world
+                return loc.getWorld().getWorldBorder().isInside(loc);
+            } catch (NullPointerException npe) {
+                return true;
+            }
+        }
+
+        @Override
+        public Map<String, DistributionSettings> generateDistributions() {
+            Map<String, DistributionSettings> distributions = new HashMap<>();
+            for (World w : server.getWorlds()) {
+                WorldBorder wb = w.getWorldBorder();
+                distributions.put(
+                    DIST_NAME_PREFIX + w.getName(),
+                    new DistributionSettings(
+                        new DistributionShape.Rectangle(
+                            (int) wb.getSize(),
+                            (int) wb.getSize()),
+                        wb.getCenter().getBlockX(),
+                        wb.getCenter().getBlockZ())
+                );
+            }
+            return distributions;
+        }
     }
 
     class ChunkyBorderHook extends PluginSpecificHook {
@@ -65,6 +106,7 @@ public class WorldBorderPluginHook {
 
         @Override
         public boolean isInside(Location loc) {
+            //noinspection ConstantConditions // A world from the server will never not have a name
             BorderData borderData = getInstance()
                 .getBorders()
                 .get(loc.getWorld().getName());
@@ -80,7 +122,7 @@ public class WorldBorderPluginHook {
             for (Map.Entry<String, BorderData> set : getInstance().getBorders().entrySet()) {
                 BorderData bd = set.getValue();
                 distributions.put(
-                    "fill_" + set.getKey(),
+                    DIST_NAME_PREFIX + set.getKey(),
                     new DistributionSettings(
                         new DistributionShape.Rectangle(
                             bd.getRadiusX(),

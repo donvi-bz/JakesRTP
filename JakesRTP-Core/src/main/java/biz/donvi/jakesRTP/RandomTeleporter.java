@@ -64,10 +64,8 @@ public class RandomTeleporter {
                 log(Level.WARNING, "Could not load distribution settings " + item.key);
                 e.printStackTrace();
             }
-        if (PluginMain.worldBorderPluginHook.hasHook()) {
-            for (Map.Entry<String, DistributionSettings> v : worldBorderPluginHook.generateDistributions().entrySet()) {
-                distributionSettings.put(v.getKey(), v.getValue());
-            }
+        for (Map.Entry<String, DistributionSettings> en : worldBorderPluginHook.generateDistributions().entrySet()) {
+            distributionSettings.put(en.getKey(), en.getValue());
         }
         // Modular settings:
         this.rtpSettings = new ArrayList<>();
@@ -375,7 +373,6 @@ public class RandomTeleporter {
     \* ================================================== */
 
     private boolean isInWorldBorder(Location loc) {
-        if (!loc.getWorld().getWorldBorder().isInside(loc)) return false;
         return (worldBorderPluginHook.isInside(loc));
     }
 

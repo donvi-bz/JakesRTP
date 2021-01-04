@@ -27,11 +27,14 @@ priority: 1
 # The world that the user is teleported to.
 landing-world: 'world'
 
-# A list of worlds that this command works in, parsed with regex. TODO regex
+# A list of worlds that this command works in, parsed with regex.
 call-from-worlds:
   - 'world.*'
 
 # Create/edit a distribution in the `distributions` folder, and put the file name here (without the .yml)
+# There exists a dynamic distribution named `world-border` that automatically makes a distribution to perfectly
+#   fill a world border managed by ChunkyBorder (or any future supported world border plugin), or the default minecraft
+#   world border if no plugin is found.
 distribution: 'default-symmetric'
 
 # Which method should we use to find a safe location? Since this plugin is meant to work 'out-of-the-box' without need

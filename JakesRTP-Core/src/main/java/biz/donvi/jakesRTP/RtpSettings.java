@@ -9,6 +9,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.regex.Pattern;
 
@@ -72,9 +73,10 @@ public class RtpSettings {
         if (callFromWorlds.size() == 0) callFromWorlds.add(landingWorld);
         try {
             String distName = config.getString("distribution");
-            if (distName.equalsIgnoreCase("fill"))
+            if (distName.equalsIgnoreCase("world-border"))
                 distName += "_" + landingWorld.getName();
             distribution = distributions.get(distName);
+            Objects.requireNonNull(distribution);
         } catch (NullPointerException e) {
             StringBuilder strb = new StringBuilder();
             for (String s : distributions.keySet()) strb.append(" ").append(s);
