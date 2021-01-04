@@ -87,8 +87,8 @@ public class WorldBorderPluginHook {
                     DIST_NAME_PREFIX + w.getName(),
                     new DistributionSettings(
                         new DistributionShape.Rectangle(
-                            (int) wb.getSize(),
-                            (int) wb.getSize()),
+                            (int) wb.getSize() / 2,
+                            (int) wb.getSize() / 2),
                         wb.getCenter().getBlockX(),
                         wb.getCenter().getBlockZ())
                 );
