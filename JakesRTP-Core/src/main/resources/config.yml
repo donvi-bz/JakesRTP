@@ -17,7 +17,6 @@ config-version: 2.0
 rtp-on-first-join:
   enabled: false
   settings: 'default-settings'
-  world: 'world'
 
 #### rtp-on-death
 # Should we have players respawn at a random location after dying?
@@ -31,7 +30,6 @@ rtp-on-first-join:
 rtp-on-death:
   enabled: false
   settings: 'default-settings'
-  world: 'world'
   respect-beds: true
   require-permission: true
 

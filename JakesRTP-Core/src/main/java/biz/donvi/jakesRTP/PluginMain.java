@@ -58,7 +58,7 @@ public final class PluginMain extends JavaPlugin {
         loadRandomTeleporter(); // Loads the random teleporter
         loadLocationCacheFiller(); // Loads the location cache filler
 
-        new Metrics(this, 9843);
+        new MetricsCustomizer(this, new Metrics(this, 9843));
         infoLog("Loading complete.");
     }
 

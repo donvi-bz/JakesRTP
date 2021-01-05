@@ -21,10 +21,11 @@ public class RtpOnEvent implements Listener {
     public void playerJoin(PlayerJoinEvent event) {
         if (!randomTeleporter.firstJoinRtp || event.getPlayer().hasPlayedBefore()) return;
         try {
-            assert randomTeleporter.firstJoinWorld != null;
+            assert randomTeleporter.firstJoinSettings != null;
             new RandomTeleportAction(
-                randomTeleporter, randomTeleporter.firstJoinSettings,
-                randomTeleporter.firstJoinWorld.getSpawnLocation(),
+                randomTeleporter,
+                randomTeleporter.firstJoinSettings,
+                randomTeleporter.firstJoinSettings.landingWorld.getSpawnLocation(),
                 true, true,
                 randomTeleporter.logRtpOnPlayerJoin, "Rtp-on-join triggered!"
             ).teleportSync(event.getPlayer());
@@ -50,12 +51,11 @@ public class RtpOnEvent implements Listener {
             (!randomTeleporter.onDeathRequirePermission || event.getPlayer().hasPermission("jakesrtp.rtpondeath")) &&
             (!randomTeleporter.onDeathRespectBeds || !(event.isBedSpawn()/* || event.isAnchorSpawn()*/))
         ) try {
-            assert randomTeleporter.onDeathWorld != null;
             event.setRespawnLocation(
                 new RandomTeleportAction(
-                    randomTeleporter, randomTeleporter.onDeathSettings,
-                    //TODO~Decide: Do I want the player's death location instead?
-                    randomTeleporter.onDeathWorld.getSpawnLocation(),
+                    randomTeleporter,
+                    randomTeleporter.onDeathSettings,
+                    event.getPlayer().getLocation(),
                     true, true,
                     randomTeleporter.logRtpOnRespawn, "Rtp-on-respawn triggered!"
                 ).requestLocation()

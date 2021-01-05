@@ -24,13 +24,11 @@ public class RandomTeleporter {
     // First join settings
     public final boolean     firstJoinRtp;
     public final RtpSettings firstJoinSettings;
-    public final World       firstJoinWorld;
     // On death settings
     public final boolean     onDeathRtp;
     public final boolean     onDeathRespectBeds;
     public final boolean     onDeathRequirePermission;
     public final RtpSettings onDeathSettings;
-    public final World       onDeathWorld;
     // Misc settings
     public final boolean     queueEnabled;
     public final int         asyncWaitTimeout;
@@ -85,12 +83,8 @@ public class RandomTeleporter {
             firstJoinSettings = getRtpSettingsByName(globalConfig.getString("rtp-on-first-join.settings"));
             World world = PluginMain.plugin.getServer().getWorld(
                 Objects.requireNonNull(globalConfig.getString("rtp-on-first-join.world")));
-            if (firstJoinSettings.landingWorld == world)
-                firstJoinWorld = world;
-            else throw new Exception("The RTP first join world is not an enabled world in the config's settings!");
         } else {
             firstJoinSettings = null;
-            firstJoinWorld = null;
         }
         if (onDeathRtp = globalConfig.getBoolean("rtp-on-death.enabled", false)) {
             onDeathRespectBeds = globalConfig.getBoolean("rtp-on-death.respect-beds", true);
@@ -98,14 +92,10 @@ public class RandomTeleporter {
             onDeathRequirePermission = globalConfig.getBoolean("rtp-on-death.require-permission", true);
             World world = PluginMain.plugin.getServer().getWorld(
                 Objects.requireNonNull(globalConfig.getString("rtp-on-death.world")));
-            if (onDeathSettings.landingWorld == world)
-                onDeathWorld = world;
-            else throw new Exception("The RTP first join world is not an enabled world in the config's settings!");
         } else {
             onDeathRespectBeds = false;
             onDeathRequirePermission = false;
             onDeathSettings = null;
-            onDeathWorld = null;
         }
         queueEnabled = globalConfig.getBoolean("location-cache-filler.enabled", true);
         if (queueEnabled)
