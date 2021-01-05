@@ -50,7 +50,7 @@ location-cache-filler:
   enabled: true
   recheck-time: 1800
   between-time: 0
-  async-wait-timeout: 5
+  async-wait-timeout: 10
 
 #### logging
 # Which messages do you want to log? You can ignore log messages for settings that are disabled.

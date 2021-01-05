@@ -299,6 +299,8 @@ public class SafeLocationUtils {
                (int) Math.floor((double) loc.getBlockZ() / 16) == chunk.getZ();
     }
 
+    static int chunkXZ(double blockXZ) { return (int) Math.floor((double) blockXZ / 16); }
+
     /* ================================================== *\
                 Misc (but still related) utils
     \* ================================================== */

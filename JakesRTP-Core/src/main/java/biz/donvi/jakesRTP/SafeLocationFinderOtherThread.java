@@ -9,6 +9,7 @@ import java.util.concurrent.*;
 
 import static biz.donvi.jakesRTP.PluginMain.infoLog;
 import static biz.donvi.jakesRTP.PluginMain.plugin;
+import static biz.donvi.jakesRTP.SafeLocationUtils.chunkXZ;
 
 
 public class SafeLocationFinderOtherThread extends SafeLocationFinder {
@@ -54,28 +55,28 @@ public class SafeLocationFinderOtherThread extends SafeLocationFinder {
      * @param loc The location to get the material for.
      */
     @Override
-    protected Material getLocMaterial(Location loc) throws JrtpBaseException.PluginDisabledException {
+    protected Material getLocMaterial(Location loc) throws JrtpBaseException.PluginDisabledException, TimeoutException {
         return SafeLocationUtils.util.locMatFromSnapshot(loc, getChunkForLocation(loc));
     }
 
     @Override
-    protected void dropToGround() throws JrtpBaseException.PluginDisabledException {
+    protected void dropToGround() throws JrtpBaseException.PluginDisabledException, TimeoutException {
         SafeLocationUtils.util.dropToGround(loc, lowBound, getChunkForLocation(loc));
     }
 
     @Override
-    protected void dropToMiddle() throws JrtpBaseException.PluginDisabledException {
+    protected void dropToMiddle() throws JrtpBaseException.PluginDisabledException, TimeoutException {
         SafeLocationUtils.util.dropToMiddle(loc, lowBound, highBound, getChunkForLocation(loc));
     }
 
     private ChunkSnapshot getChunkForLocation(Location loc)
-    throws JrtpBaseException.PluginDisabledException, IllegalStateException {
-        String chunkKey = loc.getChunk().getX() + " " + loc.getChunk().getZ();
+    throws JrtpBaseException.PluginDisabledException, IllegalStateException, TimeoutException {
+        String chunkKey = chunkXZ(loc.getX()) + " " + chunkXZ(loc.getZ());
         ChunkSnapshot chunkSnapshot = chunkSnapshotMap.get(chunkKey);
         if (chunkSnapshot != null) return chunkSnapshot;
         try {
             long maxTime = System.currentTimeMillis() + timeout * 1000L; // timeout is in seconds
-            boolean keepTrying;
+            Location chunkAt = loc.clone(); // Just for extra safety
             // Any call to load a chunk, whether sync or async, must come from the main thread. Since here we want to
             // load a chunk asynchronously, we first have to hop to the main thread, then have the main thread call
             // the async method to get the chunk. Now, this would be easy enough, and could be done with this code:
@@ -91,9 +92,10 @@ public class SafeLocationFinderOtherThread extends SafeLocationFinder {
             Future<CompletableFuture<ChunkSnapshot>> callSyncFuture =
                 Bukkit.getScheduler().callSyncMethod(
                     PluginMain.plugin,
-                    () -> PaperLib.getChunkAtAsync(loc).thenApply(Chunk::getChunkSnapshot));
+                    () -> PaperLib.getChunkAtAsync(chunkAt).thenApply(Chunk::getChunkSnapshot)
+                );
             // Looks to get the result of `callSyncFuture` which will be the value of `getChunkSnapshotFuture`
-            while (keepTrying = keepTrying(maxTime))
+            while (System.currentTimeMillis() < maxTime && plugin.locCache())
                 if (callSyncFuture.isDone()) {
                     getChunkSnapshotFuture = callSyncFuture.get();
                     break;
@@ -101,16 +103,17 @@ public class SafeLocationFinderOtherThread extends SafeLocationFinder {
                     wait(100);
                 }
             // Looks to get the result of `getChunkSnapshotFuture` which is the value of `chunkSnapshot`
-            while (keepTrying = keepTrying(maxTime) && keepTrying)
+            while (System.currentTimeMillis() < maxTime && plugin.locCache())
                 if (getChunkSnapshotFuture.isDone()) {
                     chunkSnapshot = getChunkSnapshotFuture.get();
                     break;
                 } else synchronized (this) {
                     wait(100);
                 }
+            if (chunkSnapshot == null) throw new TimeoutException("Essentially timed out ~");
             // If we made it this far and still want to keep trying, then `chunkSnapshot` has a value
-            if (keepTrying) chunkSnapshotMap.put(chunkKey, chunkSnapshot); // Save value for later
-                // If not, we want to throw an exception to get us all the way back home (so we can exit)
+            if (plugin.locCache()) chunkSnapshotMap.put(chunkKey, chunkSnapshot); // Save value for later
+            // If not, we want to throw an exception to get us all the way back home (so we can exit)
             else throw new JrtpBaseException.PluginDisabledException();
         } catch (CancellationException ignored) {
             throw new JrtpBaseException.PluginDisabledException();
@@ -122,7 +125,5 @@ public class SafeLocationFinderOtherThread extends SafeLocationFinder {
         return chunkSnapshot;
     }
 
-    private boolean keepTrying(long maxTime) {
-        return System.currentTimeMillis() < maxTime && plugin.isEnabled() && !plugin.disabling();
-    }
+
 }

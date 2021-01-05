@@ -39,9 +39,12 @@ public final class PluginMain extends JavaPlugin {
     private Path toRtpSettings;
     private Path toDistSettings;
 
+    private boolean locCache = false;
+
     @SuppressWarnings("ConstantConditions")
     @Override
     public void onEnable() {
+        locCache = true;
 
         //Set up the reference for some objects
         plugin = this;
@@ -61,18 +64,15 @@ public final class PluginMain extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        disabling = true;
+        locCache = false;
         HandlerList.unregisterAll(this);
         theRandomTeleporter = null;
         locFinderRunnable.markAsOver();
         Bukkit.getScheduler().cancelTasks(this);
-        disabling = false;
     }
 
-    private boolean disabling = false;
-
-    public boolean disabling() {
-        return disabling;
+    public boolean locCache() {
+        return locCache;
     }
 
     /* ================================================== *\

@@ -5,6 +5,9 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 
+import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
+
 /**
  * An object that can be given a location in a spigot world, and will try
  * and move around until it finds a spot that a player can safely stand on.
@@ -69,15 +72,22 @@ public abstract class SafeLocationFinder {
      * @return True if the location is now safe, false if it could not be made safe.
      */
     public boolean tryAndMakeSafe(LocCheckProfiles checkProfile) throws JrtpBaseException {
-        if (!enableSelfChecking)
-            throw new JrtpBaseException("Tried to use self checking on an object that can not self check.");
-        moveToStart(checkProfile);
-        for (int i = 0, spiralArea = (int) Math.pow(checkRadiusXZ * 2 + 1, 2); i < spiralArea; i++)
-            if (checkSafety(checkRadiusVert)) {
-                loc.add(0.5, 1, 0.5);
-                loc.setYaw((float) (360f * Math.random()));
-                return true;
-            } else nextInSpiral();
+        try {
+            if (!enableSelfChecking)
+                throw new JrtpBaseException("Tried to use self checking on an object that can not self check.");
+
+            moveToStart(checkProfile);
+
+            for (int i = 0, spiralArea = (int) Math.pow(checkRadiusXZ * 2 + 1, 2); i < spiralArea; i++)
+                if (checkSafety(checkRadiusVert)) {
+                    loc.add(0.5, 1, 0.5);
+                    loc.setYaw((float) (360f * Math.random()));
+                    return true;
+                } else nextInSpiral();
+        } catch (TimeoutException e) {
+            PluginMain.log(Level.WARNING, "Request to make location safe timed out. " +
+                                          "This is only an issue if this warning is common.");
+        }
         return false;
     }
 
@@ -89,42 +99,45 @@ public abstract class SafeLocationFinder {
      *            Ex: if {@code avm = 1}, the block itself, 1 up, and 1 down will be checked.
      * @return True if the location is safe, false if it is not.
      */
-    public final boolean checkSafety(int avm) throws JrtpBaseException.PluginDisabledException {
+    public final boolean checkSafety(int avm) throws JrtpBaseException.PluginDisabledException, TimeoutException {
         if (avm < 0) throw new IllegalArgumentException("Avm can not be less than 0.");
-        //Make a temporary location so we don't edit the main one unless its safe.
+        // Make a temporary location so we don't edit the main one unless its safe.
         Location tempLoc = loc.clone().add(0, avm + 1, 0);
 
-        //Since the actual number of blocks to check per location is 3,
-        // we need to start with our range at 3, and add from there.
+        // Since the actual number of blocks to check per location is 3,
+        //   we need to start with our range at 3, and add from there.
         int range = avm * 2 + 3;
         int safe = 0;
-        //We will ALWAYS loop at least 3 times, even if avm is 0.
-        // Two for air space, one for foot space.
+        // We will ALWAYS loop at least 3 times, even if avm is 0.
+        //   Two for air space, one for foot space.
         for (int i = 0; i < range; i++) {
-            if (loc.getY() < lowBound || loc.getY() >= highBound) continue;
-            Material mat = getLocMaterial(tempLoc);
-            //If either of these conditions are reached, it is not worth checking
-            // the remaining spaces because the combined result will fail.
-            if ((i == range - 2 && safe == 0) ||
-                (i == range - 1 && safe != 2)) break;
-            //This is the part that checks if a player can safely stand and fit.
-            if (safe < 2)
-                if (SafeLocationUtils.util.isSafeToBeIn(mat))
-                    safe++;
-                else safe = 0;
-            else if (safe == 2)
-                if (SafeLocationUtils.util.isSafeToBeOn(mat)) {
-                    loc.setX(tempLoc.getX());
-                    loc.setY(tempLoc.getY());
-                    loc.setZ(tempLoc.getZ());
-                    return true;
-                } else if (!SafeLocationUtils.util.isSafeToBeIn(mat)) {
-                    safe = 0;
-                }
-            //Move down one block, and we loop again
+            // Only check for safety if were within the valid range, otherwise only move the temp position
+            if (loc.getY() < lowBound) break; // We are too low and will never make it back to a valid height
+            if (loc.getY() < highBound) { // We are at a valid height. Do stuff...
+                Material mat = getLocMaterial(tempLoc);
+                // If either of these conditions are reached, it is not worth checking
+                //   the remaining spaces because the combined result will fail.
+                if ((i == range - 2 && safe == 0) ||
+                    (i == range - 1 && safe != 2)) break;
+                // This is the part that checks if a player can safely stand and fit.
+                if (safe < 2)
+                    if (SafeLocationUtils.util.isSafeToBeIn(mat))
+                        safe++;
+                    else safe = 0;
+                else if (safe == 2)
+                    if (SafeLocationUtils.util.isSafeToBeOn(mat)) {
+                        loc.setX(tempLoc.getX());
+                        loc.setY(tempLoc.getY());
+                        loc.setZ(tempLoc.getZ());
+                        return true;
+                    } else if (!SafeLocationUtils.util.isSafeToBeIn(mat)) {
+                        safe = 0;
+                    }
+            }
+            // Move down one block, and we loop again
             tempLoc.add(0, -1, 0);
         }
-        //We only make it here if no safe place was found
+        // We only make it here if no safe place was found
         return false;
     }
 
@@ -134,7 +147,7 @@ public abstract class SafeLocationFinder {
      *
      * @param checkProfile The profile setting. This determines which method will be called.
      */
-    private void moveToStart(LocCheckProfiles checkProfile) throws PluginDisabledException {
+    private void moveToStart(LocCheckProfiles checkProfile) throws PluginDisabledException, TimeoutException {
         if (checkProfile == LocCheckProfiles.TOP_DOWN)
             dropToGround();
         else if (checkProfile == LocCheckProfiles.MIDDLE_OUT)
@@ -180,11 +193,11 @@ public abstract class SafeLocationFinder {
      *
      * @param loc The location to get the material for.
      */
-    protected abstract Material getLocMaterial(Location loc) throws PluginDisabledException;
+    protected abstract Material getLocMaterial(Location loc) throws PluginDisabledException, TimeoutException;
 
-    protected abstract void dropToGround() throws PluginDisabledException;
+    protected abstract void dropToGround() throws PluginDisabledException, TimeoutException;
 
-    protected abstract void dropToMiddle() throws PluginDisabledException;
+    protected abstract void dropToMiddle() throws PluginDisabledException, TimeoutException;
 
     public enum LocCheckProfiles {AUTO, TOP_DOWN, MIDDLE_OUT}
 
