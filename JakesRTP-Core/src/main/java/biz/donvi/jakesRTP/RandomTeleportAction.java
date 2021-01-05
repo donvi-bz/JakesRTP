@@ -159,6 +159,7 @@ public class RandomTeleportAction {
     /**
      * This is everything that has to be done <i>before</i> the actual teleport happens. Mainly getting the point,
      * and filling in placeholders for user commands.
+     *
      * @param player The player to get the random location for.
      * @throws JrtpBaseException If something goes wrong...
      */
@@ -194,6 +195,7 @@ public class RandomTeleportAction {
     /**
      * This is everything that needs to be done <i>after</i> the actual teleport happens. Mainly logging that it
      * happened, and potentially running commands.
+     *
      * @param teleported If the teleport succeeded or not.
      */
     private void postTeleport(boolean teleported) {
@@ -208,7 +210,7 @@ public class RandomTeleportAction {
             else infoLog(
                 logMessage +
                 "Player did not teleport.");
-
+        rtpCount++;
         if (rtpSettings.commandsToRun.length != 0)
             for (String command : rtpSettings.commandsToRun)
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), fillPlaceholders(command, placeholders));
@@ -218,4 +220,17 @@ public class RandomTeleportAction {
 
     static class RandomTeleportActionNotYetUsedException extends RuntimeException {}
 
+
+    // For metrics
+    private static int rtpCount = 0;
+
+    public static int getRtpCount() {return rtpCount;}
+
+    public static void clearRtpCount() {rtpCount = 0;}
+
+    public static int getAndClearRtpCount(){
+        int count = rtpCount;
+        rtpCount = 0;
+        return count;
+    }
 }

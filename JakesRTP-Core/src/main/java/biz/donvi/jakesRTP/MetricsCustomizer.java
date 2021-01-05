@@ -36,5 +36,7 @@ class MetricsCustomizer {
         m.addCustomChart(new Metrics.SimplePie("rtp-settings-count", () -> {
             return String.valueOf(r.getRtpSettings().size());
         }));
+
+        m.addCustomChart(new Metrics.SingleLineChart("rtp-per-unit", RandomTeleportAction::getAndClearRtpCount));
     }
 }
