@@ -116,7 +116,7 @@ public class CmdRtpAdmin extends DynamicArgsMap implements TabExecutor {
                           COLOR_IL[0] + "┃ • " + COLOR_IL[1] + "Settings to use: " + COLOR_IL[2] +
                           rtper.firstJoinSettings.name + "\n" +
                           COLOR_IL[0] + "┃ • " + COLOR_IL[1] + "World to tp in: " + COLOR_IL[2] +
-                          rtper.firstJoinWorld.getName() + "\n"
+                          rtper.firstJoinSettings.landingWorld.getName() + "\n"
                         : "Disabled\n") +
                 COLOR_IL[0] + "┃ " + COLOR_IL[1] + "RTP on death: " + COLOR_IL[2] + (
                     rtper.onDeathRtp
@@ -124,7 +124,7 @@ public class CmdRtpAdmin extends DynamicArgsMap implements TabExecutor {
                           COLOR_IL[0] + "┃ • " + COLOR_IL[1] + "Settings to use: " + COLOR_IL[2] +
                           rtper.onDeathSettings.name + "\n" +
                           COLOR_IL[0] + "┃ • " + COLOR_IL[1] + "World to tp in: " + COLOR_IL[2] +
-                          rtper.onDeathWorld.getName() + "\n" +
+                          rtper.onDeathSettings.landingWorld.getName() + "\n" +
                           COLOR_IL[0] + "┃ • " + COLOR_IL[1] + "Respect beds: " + COLOR_IL[2] +
                           rtper.onDeathRespectBeds +
                           "\n" +

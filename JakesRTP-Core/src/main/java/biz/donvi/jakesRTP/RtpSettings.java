@@ -23,7 +23,6 @@ public class RtpSettings {
      * A map of config worlds and their respective location cache as a queue. This is also the only storage
      * of which worlds are enabled in the config.
      */
-//    private final Map<World, ConcurrentLinkedQueue<Location>> configWorlds = new HashMap<>();
     public final ConcurrentLinkedQueue<Location> locationQueue = new ConcurrentLinkedQueue<>();
 
     /* All settings below are read directly from the config */
@@ -51,7 +50,7 @@ public class RtpSettings {
      * and saving all the data as something more accessible for the plugin.
      *
      * @param config The configuration section that contains the RTP settings
-     * @throws Exception if any data can not be loaded.
+     * @throws JrtpBaseException if any data can not be loaded.
      */
     @SuppressWarnings("ConstantConditions")
     RtpSettings(final ConfigurationSection config, String name, Map<String, DistributionSettings> distributions)
@@ -64,12 +63,11 @@ public class RtpSettings {
         if ((landingWorld = plugin.getServer().getWorld(config.getString("landing-world", ""))) == null)
             throw new JrtpBaseException("Landing world not recognised.");
         callFromWorlds = new ArrayList<>();
-        for (String callFromWorld : config.getStringList("call-from-worlds")) {
-            Pattern patternFromConf = Pattern.compile(callFromWorld);
+        for (String callFromWorld : config.getStringList("call-from-worlds"))
             for (World testByWorld : plugin.getServer().getWorlds())
-                if (!callFromWorlds.contains(testByWorld) && patternFromConf.matcher(testByWorld.getName()).matches())
-                    callFromWorlds.add(testByWorld);
-        }
+                if (!callFromWorlds.contains(testByWorld) &&
+                    Pattern.compile(callFromWorld).matcher(testByWorld.getName()).matches()
+                ) callFromWorlds.add(testByWorld);
         if (callFromWorlds.size() == 0) callFromWorlds.add(landingWorld);
         try {
             String distName = config.getString("distribution");
