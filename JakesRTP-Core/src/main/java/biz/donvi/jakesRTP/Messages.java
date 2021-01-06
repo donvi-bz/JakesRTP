@@ -36,12 +36,12 @@ public enum Messages {
             if (mappedValues[m.ordinal()] == null) emptyValues.add(m.name() + " ~ " + m.key);
         }
         if (newMap.size() > 0) {
-            PluginMain.log(WARNING, "More mappings were given than expected. Extra keys:");
-            for (String extraValue : newMap.keySet()) PluginMain.log(WARNING, extraValue);
+            JakesRtpPlugin.log(WARNING, "More mappings were given than expected. Extra keys:");
+            for (String extraValue : newMap.keySet()) JakesRtpPlugin.log(WARNING, extraValue);
         }
         if (emptyValues.size() > 0) {
-            PluginMain.log(WARNING, "Some messages could not be assigned values. Missing keys:");
-            for (String missingValue : emptyValues) PluginMain.log(WARNING, missingValue);
+            JakesRtpPlugin.log(WARNING, "Some messages could not be assigned values. Missing keys:");
+            for (String missingValue : emptyValues) JakesRtpPlugin.log(WARNING, missingValue);
         }
     }
 
@@ -51,8 +51,8 @@ public enum Messages {
             if (value != null) mappedValues[m.ordinal()] = reformat(value);
         }
         if (newMap.size() > 0) {
-            PluginMain.log(WARNING, "Some extra keys were found:");
-            for (String extraValue : newMap.keySet()) PluginMain.log(WARNING, extraValue);
+            JakesRtpPlugin.log(WARNING, "Some extra keys were found:");
+            for (String extraValue : newMap.keySet()) JakesRtpPlugin.log(WARNING, extraValue);
         }
     }
 

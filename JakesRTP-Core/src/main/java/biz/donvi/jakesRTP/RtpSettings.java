@@ -13,8 +13,8 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.regex.Pattern;
 
-import static biz.donvi.jakesRTP.PluginMain.infoLog;
-import static biz.donvi.jakesRTP.PluginMain.plugin;
+import static biz.donvi.jakesRTP.JakesRtpPlugin.infoLog;
+import static biz.donvi.jakesRTP.JakesRtpPlugin.plugin;
 import static biz.donvi.jakesRTP.RandomTeleporter.EXPLICIT_PERM_PREFIX;
 
 public class RtpSettings {

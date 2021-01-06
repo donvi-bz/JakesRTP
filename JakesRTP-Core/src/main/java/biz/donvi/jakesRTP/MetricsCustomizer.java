@@ -9,7 +9,7 @@ class MetricsCustomizer {
     private final RandomTeleporter r;
     private final Metrics          m;
 
-    MetricsCustomizer(PluginMain plugin, Metrics metrics) {
+    MetricsCustomizer(JakesRtpPlugin plugin, Metrics metrics) {
         m = metrics;
         r = plugin.getRandomTeleporter();
         if (m.isEnabled()) customize();

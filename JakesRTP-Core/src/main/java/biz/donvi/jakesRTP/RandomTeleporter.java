@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 import java.util.*;
 import java.util.logging.Level;
 
-import static biz.donvi.jakesRTP.PluginMain.*;
+import static biz.donvi.jakesRTP.JakesRtpPlugin.*;
 
 public class RandomTeleporter {
 
@@ -73,7 +73,7 @@ public class RandomTeleporter {
                     this.rtpSettings.add(new RtpSettings(item.value, item.key, distributionSettings));
                 else infoLog("Not loading config " + item.key + " since it is marked disabled.");
             } catch (NullPointerException | JrtpBaseException e) {
-                PluginMain.infoLog(
+                JakesRtpPlugin.infoLog(
                     (e instanceof JrtpBaseException ? "Error: " + e.getMessage() + '\n' : "") +
                     "Whoops! Something in the config wasn't right, " +
                     this.rtpSettings.size() + " configs have been loaded thus far.");
@@ -81,7 +81,7 @@ public class RandomTeleporter {
         // Static settings:
         if (firstJoinRtp = globalConfig.getBoolean("rtp-on-first-join.enabled", false)) {
             firstJoinSettings = getRtpSettingsByName(globalConfig.getString("rtp-on-first-join.settings"));
-            World world = PluginMain.plugin.getServer().getWorld(
+            World world = JakesRtpPlugin.plugin.getServer().getWorld(
                 Objects.requireNonNull(globalConfig.getString("rtp-on-first-join.world")));
         } else {
             firstJoinSettings = null;
@@ -90,7 +90,7 @@ public class RandomTeleporter {
             onDeathRespectBeds = globalConfig.getBoolean("rtp-on-death.respect-beds", true);
             onDeathSettings = getRtpSettingsByName(globalConfig.getString("rtp-on-death.settings"));
             onDeathRequirePermission = globalConfig.getBoolean("rtp-on-death.require-permission", true);
-            World world = PluginMain.plugin.getServer().getWorld(
+            World world = JakesRtpPlugin.plugin.getServer().getWorld(
                 Objects.requireNonNull(globalConfig.getString("rtp-on-death.world")));
         } else {
             onDeathRespectBeds = false;
@@ -382,7 +382,7 @@ public class RandomTeleporter {
         try {
             int changesMade = 0;
             while (settings.locationQueue.size() < settings.cacheLocationCount) {
-                PluginMain.locFinderRunnable.waitIfNonMainThread();
+                JakesRtpPlugin.locFinderRunnable.waitIfNonMainThread();
 
                 long startTime = System.currentTimeMillis();
 

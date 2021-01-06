@@ -4,7 +4,7 @@ import org.bukkit.Bukkit;
 
 import java.lang.ref.WeakReference;
 
-import static biz.donvi.jakesRTP.PluginMain.infoLog;
+import static biz.donvi.jakesRTP.JakesRtpPlugin.infoLog;
 
 
 public class LocationCacheFiller implements Runnable {
@@ -12,12 +12,12 @@ public class LocationCacheFiller implements Runnable {
     private final long recheckTime;
     private final long betweenTime;
 
-    private final WeakReference<PluginMain> pluginReference;
+    private final WeakReference<JakesRtpPlugin> pluginReference;
 
     private boolean keepRunning = true;
 
-    public LocationCacheFiller(PluginMain pluginMain, long recheckTime, long betweenTime) {
-        pluginReference = new WeakReference<>(pluginMain);
+    public LocationCacheFiller(JakesRtpPlugin jakesRtpPlugin, long recheckTime, long betweenTime) {
+        pluginReference = new WeakReference<>(jakesRtpPlugin);
         this.recheckTime = recheckTime;
         this.betweenTime = betweenTime;
     }
@@ -118,7 +118,7 @@ public class LocationCacheFiller implements Runnable {
      * @return A reference to the plugin.
      * @throws ReferenceNonExistentException when the plugin no longer exists.
      */
-    private PluginMain pluginMain() throws ReferenceNonExistentException {
+    private JakesRtpPlugin pluginMain() throws ReferenceNonExistentException {
         if (pluginReference.get() == null) throw new ReferenceNonExistentException();
         else return pluginReference.get();
     }

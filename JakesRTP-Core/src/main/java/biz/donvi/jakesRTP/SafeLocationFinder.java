@@ -85,8 +85,8 @@ public abstract class SafeLocationFinder {
                     return true;
                 } else nextInSpiral();
         } catch (TimeoutException e) {
-            PluginMain.log(Level.WARNING, "Request to make location safe timed out. " +
-                                          "This is only an issue if this warning is common.");
+            JakesRtpPlugin.log(Level.WARNING, "Request to make location safe timed out. " +
+                                              "This is only an issue if this warning is common.");
         }
         return false;
     }

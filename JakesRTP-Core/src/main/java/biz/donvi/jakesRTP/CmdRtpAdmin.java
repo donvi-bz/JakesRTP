@@ -55,12 +55,12 @@ public class CmdRtpAdmin extends DynamicArgsMap implements TabExecutor {
     }
 
     private void subReload() {
-        PluginMain.plugin.loadRandomTeleporter();
-        PluginMain.plugin.loadLocationCacheFiller();
+        JakesRtpPlugin.plugin.loadRandomTeleporter();
+        JakesRtpPlugin.plugin.loadLocationCacheFiller();
     }
 
     private void subReloadMessages(CommandSender sender) {
-        PluginMain.plugin.loadMessageMap();
+        JakesRtpPlugin.plugin.loadMessageMap();
     }
 
 
@@ -82,7 +82,7 @@ public class CmdRtpAdmin extends DynamicArgsMap implements TabExecutor {
     private List<String> getConfigNames() {
         if (getConfigNamesResults == null || getConfigNamesResults.key < System.currentTimeMillis()) {
             ArrayList<String> settingsNames = new ArrayList<>();
-            for (RtpSettings settings : PluginMain.plugin.getRandomTeleporter().getRtpSettings()) {
+            for (RtpSettings settings : JakesRtpPlugin.plugin.getRandomTeleporter().getRtpSettings()) {
                 settingsNames.add(settings.name);
             }
             getConfigNamesResults = new Pair<>(System.currentTimeMillis() + 1000, settingsNames);
@@ -105,7 +105,7 @@ public class CmdRtpAdmin extends DynamicArgsMap implements TabExecutor {
     private void subStatus(CommandSender sender, String[] args) {
 //        String box = "┏╍┓┃┗╍┛";
         if (args.length == 1 && args[0].equalsIgnoreCase("#static")) {
-            RandomTeleporter rtper = PluginMain.plugin.getRandomTeleporter();
+            RandomTeleporter rtper = JakesRtpPlugin.plugin.getRandomTeleporter();
             sender.sendMessage(
                 COLOR_IL[0] + "┏\u00A7l\u00A7m╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍\u00A7r\n" +
                 COLOR_IL[0] + "┃ [J-RTP] " + COLOR_IL[1] + "Static Settings.\n" +
@@ -136,7 +136,7 @@ public class CmdRtpAdmin extends DynamicArgsMap implements TabExecutor {
                         : "Disabled\n")
             );
         } else try {
-            RtpSettings settings = PluginMain.plugin.getRandomTeleporter().getRtpSettingsByName(args[0]);
+            RtpSettings settings = JakesRtpPlugin.plugin.getRandomTeleporter().getRtpSettingsByName(args[0]);
             String name = "[" + settings.name + "] ";
             ArrayList<String> lines = new ArrayList<>();
             lines.add("This debug menu is a work-in-pogress and is currently not at its final state."); //TODO

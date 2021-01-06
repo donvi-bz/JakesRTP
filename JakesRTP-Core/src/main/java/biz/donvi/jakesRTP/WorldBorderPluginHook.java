@@ -24,7 +24,7 @@ public class WorldBorderPluginHook {
         this.hook = findHook();
 
         // And after the hook is (potentially) loaded...
-        if (hasHook()) PluginMain.infoLog(
+        if (hasHook()) JakesRtpPlugin.infoLog(
             "It looks like your using the world border plugin '" + hook.name() + "'.\n" +
             "Random teleport locations will always end up inside any world border.");
     }

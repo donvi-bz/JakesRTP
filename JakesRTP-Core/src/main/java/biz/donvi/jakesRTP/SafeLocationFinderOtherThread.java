@@ -7,8 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;
 
-import static biz.donvi.jakesRTP.PluginMain.infoLog;
-import static biz.donvi.jakesRTP.PluginMain.plugin;
+import static biz.donvi.jakesRTP.JakesRtpPlugin.infoLog;
+import static biz.donvi.jakesRTP.JakesRtpPlugin.plugin;
 import static biz.donvi.jakesRTP.SafeLocationUtils.chunkXZ;
 
 
@@ -91,7 +91,7 @@ public class SafeLocationFinderOtherThread extends SafeLocationFinder {
             CompletableFuture<ChunkSnapshot> getChunkSnapshotFuture = null;
             Future<CompletableFuture<ChunkSnapshot>> callSyncFuture =
                 Bukkit.getScheduler().callSyncMethod(
-                    PluginMain.plugin,
+                    JakesRtpPlugin.plugin,
                     () -> PaperLib.getChunkAtAsync(chunkAt).thenApply(Chunk::getChunkSnapshot)
                 );
             // Looks to get the result of `callSyncFuture` which will be the value of `getChunkSnapshotFuture`

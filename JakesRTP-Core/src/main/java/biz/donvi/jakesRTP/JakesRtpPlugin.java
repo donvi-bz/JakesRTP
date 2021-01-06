@@ -19,11 +19,11 @@ import java.util.logging.Logger;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public final class PluginMain extends JavaPlugin {
+public final class JakesRtpPlugin extends JavaPlugin {
 
     /* ======== Static Fields ======== */
 
-    static PluginMain            plugin;
+    static JakesRtpPlugin        plugin;
     static Map<String, Object>   cmdMap;
     static LocationCacheFiller   locFinderRunnable;
     static WorldBorderPluginHook worldBorderPluginHook;

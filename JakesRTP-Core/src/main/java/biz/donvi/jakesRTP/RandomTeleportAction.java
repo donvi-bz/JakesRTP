@@ -11,7 +11,7 @@ import java.util.Objects;
 
 import static biz.donvi.jakesRTP.GeneralUtil.fillPlaceholders;
 import static biz.donvi.jakesRTP.GeneralUtil.locationAsString;
-import static biz.donvi.jakesRTP.PluginMain.infoLog;
+import static biz.donvi.jakesRTP.JakesRtpPlugin.infoLog;
 
 /**
  * Class used for interfacing with the random teleport functionality. This class was made majority for internal use,
@@ -91,7 +91,7 @@ public class RandomTeleportAction {
      */
     public RandomTeleportAction teleportSyncNonPrimaryThread(Player player) throws JrtpBaseException {
         preTeleport(player);
-        player.getServer().getScheduler().runTask(PluginMain.plugin, () -> {
+        player.getServer().getScheduler().runTask(JakesRtpPlugin.plugin, () -> {
             player.teleport(landingLoc);
             postTeleport(true);
         });
