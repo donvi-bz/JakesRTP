@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static biz.donvi.evenDistribution.RandomCords.*;
+import static biz.donvi.jakesRTP.MessageStyles.DebugDisplayLines.*;
+import static biz.donvi.jakesRTP.MessageStyles.enabledOrDisabled;
 
 abstract class DistributionShape {
 
@@ -26,7 +28,7 @@ abstract class DistributionShape {
         final double  gaussianShrink;
         final double  gaussianCenter;
 
-        public Symmetric(int rMax, int rMin){
+        public Symmetric(int rMax, int rMin) {
             radiusMax = rMax;
             radiusMin = rMin;
             gaussianDistribution = false;
@@ -43,14 +45,14 @@ abstract class DistributionShape {
 
 
         @Override
-        public List<String> infoStrings(boolean mcFormat) {  //todo respect mcFormat
+        public List<String> infoStrings(boolean mcFormat) {
             ArrayList<String> list = new ArrayList<>();
-            list.add("Distribution shape: " + shape());
-            list.add("Radius Max: " + radiusMax + " | Radius Min: " + radiusMin);
-            list.add("Distribution style: " + (gaussianDistribution ? "Gaussian" : "Even"));
+            list.add(LVL_01_SET.format(mcFormat, "Distribution shape", shape()));
+            list.add(DOU_01_SET.format(mcFormat, "Radius max", radiusMax, "Radius min", radiusMin));
+            list.add(LVL_01_SET.format(mcFormat, "Gaussian Distribution", enabledOrDisabled(gaussianDistribution)));
             if (gaussianDistribution) {
-                list.add("Gaussian shrink: " + gaussianShrink);
-                list.add("Gaussian Center: " + gaussianCenter);
+                list.add(LVL_02_SET.format(mcFormat, "Gaussian shrink", gaussianShrink));
+                list.add(LVL_02_SET.format(mcFormat, "Gaussian center", gaussianCenter));
             }
             return list;
         }
@@ -74,6 +76,7 @@ abstract class DistributionShape {
 
     public static class Square extends Symmetric {
         public Square(int rMax, int rMin) { super(rMax, rMin); }
+
         public Square(ConfigurationSection settings) { super(settings); }
 
         @Override
@@ -99,7 +102,7 @@ abstract class DistributionShape {
         final int     gapXCenter;
         final int     gapZCenter;
 
-        public Rectangle(int xRad, int zRad){
+        public Rectangle(int xRad, int zRad) {
             xRadius = xRad;
             zRadius = zRad;
             gapEnabled = false;
@@ -133,14 +136,16 @@ abstract class DistributionShape {
         }
 
         @Override
-        public List<String> infoStrings(boolean mcFormat) { //todo respect mcFormat
+        public List<String> infoStrings(boolean mcFormat) {
             ArrayList<String> list = new ArrayList<>();
-            list.add("Distribution shape: " + shape());
-            list.add("X Radius: " + xRadius + " | Z Radius: " + zRadius);
-            list.add("There is " + (gapEnabled ? "a gap at..." : "no gap."));
+            list.add(LVL_01_SET.format(mcFormat, "Distribution shape", shape()));
+            list.add(DOU_01_SET.format(mcFormat, "X radius", xRadius, "Z radius", zRadius));
             if (gapEnabled) {
-                list.add("Gap center X: " + gapXCenter + " | Gap center Z: " + gapZCenter);
-                list.add("Gap X Radius: " + gapXRadius + " | Gap Z Radius: " + gapZRadius);
+                list.add(LVL_01_SET.format(mcFormat, "Gap", "True"));
+                list.add(DOU_02_SET.format(mcFormat, "X radius", gapXRadius, "Z radius", zRadius));
+                list.add(DOU_02_SET.format(mcFormat, "X center", gapXCenter, "Z center", gapZCenter));
+            } else {
+                list.add(LVL_01_SET.format(mcFormat, "Gap", "False"));
             }
             return list;
         }

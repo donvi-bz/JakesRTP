@@ -25,9 +25,11 @@ public enum Messages {
     READABLE_TIME_WORD_MINUTES("readable-time-word-minutes"),
     READABLE_TIME_WORD_SECONDS("readable-time-word-seconds");
 
+    /* ================================================== *\
+                            Static
+    \* ================================================== */
 
     private static final String[] mappedValues = new String[Messages.values().length];
-    final                String   key;
 
     static void setMap(Map<String, String> newMap) {
         final ArrayList<String> emptyValues = new ArrayList<>();
@@ -60,8 +62,13 @@ public enum Messages {
         return s == null ? null : replaceNewColors(replaceLegacyColors(replaceWrittenLineBreaks(s)));
     }
 
-    Messages(String key) { this.key = key; }
+    /* ================================================== *\
+                          Instance
+    \* ================================================== */
 
+    final String key;
+
+    Messages(String key) { this.key = key; }
 
     String getKey() { return key; }
 

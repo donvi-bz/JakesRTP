@@ -1,8 +1,8 @@
 name: JakesRTP
 author: JakeTS
-main: biz.donvi.jakesRTP.PluginMain
+main: biz.donvi.jakesRTP.JakesRtpPlugin
 prefix: 'J-RTP'
-version: '0.10.6'
+version: '0.10.7'
 api-version: '1.13'
 
 softdepend:

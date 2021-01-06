@@ -12,6 +12,8 @@ import java.util.*;
 import java.util.logging.Level;
 
 import static biz.donvi.jakesRTP.JakesRtpPlugin.*;
+import static biz.donvi.jakesRTP.MessageStyles.DebugDisplayLines.*;
+import static biz.donvi.jakesRTP.MessageStyles.enabledOrDisabled;
 
 public class RandomTeleporter {
 
@@ -21,6 +23,7 @@ public class RandomTeleporter {
     public final  Map<String, DistributionSettings> distributionSettings;
     private final ArrayList<RtpSettings>            rtpSettings;
 
+    //<editor-fold desc="Static Settings (final fields)">
     // First join settings
     public final boolean     firstJoinRtp;
     public final RtpSettings firstJoinSettings;
@@ -40,6 +43,7 @@ public class RandomTeleporter {
         logRtpOnCommand,
         logRtpOnForceCommand,
         logRtpForQueue;
+    //</editor-fold>
 
     /**
      * Creating an instance of the RandomTeleporter object is required to be able to use the command.
@@ -108,11 +112,15 @@ public class RandomTeleporter {
         logRtpOnCommand = globalConfig.getBoolean("logging.rtp-on-command", true);
         logRtpOnForceCommand = globalConfig.getBoolean("logging.rtp-on-force-command", true);
         logRtpForQueue = globalConfig.getBoolean("logging.rtp-for-queue", false);
+
+        for(String line : infoStringAll(false)) infoLog("[#Static] " + line);
     }
 
     /* ================================================== *\
                     RtpSettings ← Getters
     \* ================================================== */
+
+    //<editor-fold desc="RtpSettings ← Getters">
 
     /**
      * Getter for the ArrayList of RtpSettings. This contains all settings that are done per config sections.
@@ -238,9 +246,13 @@ public class RandomTeleporter {
                 return settings;
         throw new JrtpBaseException.NotPermittedException(Messages.NP_R_NO_RTPSETTINGS_NAME_FOR_PLAYER.format(name));
     }
+    //</editor-fold>
+
     /* ================================================== *\
                     Rtp Locations ← Getters
     \* ================================================== */
+
+    //<editor-fold desc="Rtp Locations ← Getters">
 
     /**
      * Creates the potential RTP location. If this location happens to be safe, is will be the exact location that
@@ -357,11 +369,13 @@ public class RandomTeleporter {
         return potentialRtpLocation;
 
     }
+    //</editor-fold>
 
     /* ================================================== *\
                     Misc ← Workers
     \* ================================================== */
 
+    //<editor-fold desc="Misc ← Workers">
     private boolean isInWorldBorder(Location loc) {
         return (worldBorderPluginHook.isInside(loc));
     }
@@ -406,5 +420,63 @@ public class RandomTeleporter {
             return 0;
         }
     }
+    //</editor-fold>
 
+    /* ================================================== *\
+                Info-Strings for Static Settings
+    \* ================================================== */
+
+    public List<String> infoStringAll(boolean mcFormat) {
+        ArrayList<String> lines = new ArrayList<>();
+        if (mcFormat) {
+            lines.add(HEADER_TOP.format(true));
+            lines.add(HEADER_MID.format(true, "#Static Settings"));
+            lines.add(HEADER_END.format(true));
+        }
+        lines.addAll(infoStringsFirstJoinRtp(mcFormat));
+        lines.addAll(infoStringOnDeathRtp(mcFormat));
+        lines.addAll(infoStringQueue(mcFormat));
+        lines.addAll(infoStringLoggingSettings(mcFormat));
+        return lines;
+    }
+
+    public List<String> infoStringsFirstJoinRtp(boolean mcFormat) {
+        ArrayList<String> lines = new ArrayList<>();
+        lines.add(LVL_01_SET.format(mcFormat, "RTP on first join", enabledOrDisabled(firstJoinRtp)));
+        if (firstJoinRtp) {
+            lines.add(LVL_02_SET.format(mcFormat, "Settings to use", firstJoinSettings.name));
+            lines.add(LVL_02_SET.format(mcFormat, "Settings landing world", firstJoinSettings.landingWorld.getName()));
+        }
+        return lines;
+    }
+
+    public List<String> infoStringOnDeathRtp(boolean mcFormat) {
+        ArrayList<String> lines = new ArrayList<>();
+        lines.add(LVL_01_SET.format(mcFormat, "RTP on death", enabledOrDisabled(onDeathRtp)));
+        if (onDeathRtp) {
+            lines.add(LVL_02_SET.format(mcFormat, "Settings to use", onDeathSettings.name));
+            lines.add(LVL_02_SET.format(mcFormat, "Settings landing world", onDeathSettings.landingWorld.getName()));
+            lines.add(LVL_02_SET.format(mcFormat, "Respect beds", enabledOrDisabled(onDeathRespectBeds)));
+            lines.add(LVL_02_SET.format(mcFormat, "Require Permission", onDeathRequirePermission
+                ? "True (jakesrtp.rtpondeath)" : "False"));
+        }
+        return lines;
+    }
+
+    public List<String> infoStringQueue(boolean mcFormat) {
+        ArrayList<String> lines = new ArrayList<>();
+        lines.add(LVL_01_SET.format(mcFormat, "Cache locations beforehand", enabledOrDisabled(queueEnabled)));
+        return lines;
+    }
+
+    public List<String> infoStringLoggingSettings(boolean mcFormat) {
+        ArrayList<String> lines = new ArrayList<>();
+        lines.add(LVL_01_SET.format(mcFormat, "Logging", ""));
+        lines.add(LVL_02_SET.format(mcFormat,"RTP on player join", enabledOrDisabled(logRtpOnPlayerJoin)));
+        lines.add(LVL_02_SET.format(mcFormat,"RTP on respawn", enabledOrDisabled(logRtpOnRespawn)));
+        lines.add(LVL_02_SET.format(mcFormat,"RTP on command", enabledOrDisabled(logRtpOnCommand)));
+        lines.add(LVL_02_SET.format(mcFormat,"RTP on force command", enabledOrDisabled(logRtpOnForceCommand)));
+        lines.add(LVL_02_SET.format(mcFormat,"RTP for queue", enabledOrDisabled(logRtpForQueue)));
+        return lines;
+    }
 }

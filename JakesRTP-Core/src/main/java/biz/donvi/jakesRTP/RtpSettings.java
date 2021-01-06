@@ -15,6 +15,8 @@ import java.util.regex.Pattern;
 
 import static biz.donvi.jakesRTP.JakesRtpPlugin.infoLog;
 import static biz.donvi.jakesRTP.JakesRtpPlugin.plugin;
+import static biz.donvi.jakesRTP.MessageStyles.DebugDisplayLines.*;
+import static biz.donvi.jakesRTP.MessageStyles.enabledOrDisabled;
 import static biz.donvi.jakesRTP.RandomTeleporter.EXPLICIT_PERM_PREFIX;
 
 public class RtpSettings {
@@ -94,33 +96,39 @@ public class RtpSettings {
         commandsToRun = config.getStringList("then-execute").toArray(new String[0]);
         canUseLocQueue = distribution.center != DistributionSettings.CenterTypes.PLAYER_LOCATION &&
                          cacheLocationCount > 0;
-        infoLogSettings(true);
+
+        for (String line : infoStringAll(false, true)) infoLog(line);
     }
 
-    /**
-     * Running this will log all settings loaded in the config to console.
-     */
-    public void infoLogSettings(boolean full) {
-        // In the current context, we always need the name in square brackets.
+
+    public List<String> infoStringAll(boolean mcFormat, boolean full) {
         String name = "[" + this.name + "] ";
         ArrayList<String> lines = new ArrayList<>();
+        if (mcFormat) {
+            lines.add(HEADER_TOP.format(true));
+            lines.add(HEADER_MID.format(true, "RtpSettings for " + name));
+            lines.add(HEADER_END.format(true));
+        }
         // Always log
-        lines.add(infoStringCommandEnabled(false));
-        lines.add(infoStringRequireExplicitPermission(false));
-        lines.add(infoStringPriority(false));
-        lines.add(infoStringDestinationWorld(false));
-        lines.addAll(distribution.shape.infoStrings(false));
-        lines.add(infoStringRegionCenter(false));
+        lines.add(infoStringCommandEnabled(mcFormat));
+        lines.add(infoStringRequireExplicitPermission(mcFormat));
+        lines.add(infoStringPriority(mcFormat));
+        lines.add(infoStringDestinationWorld(mcFormat));
+        lines.addAll(infoStringsCallFromWorlds(mcFormat));
+        lines.addAll(distribution.shape.infoStrings(mcFormat));
+        lines.add(infoStringRegionCenter(mcFormat));
+        lines.add(infoStringCooldown(mcFormat));
         // Kinda useless
         if (full) {
-            lines.add(infoStringCooldown(false));
-            lines.add(infoStringLowBound(false));
-            lines.add(infoStringCheckRadius(false));
-            lines.add(infoStringMaxAttempts(false));
-            lines.add(infoStringLocationCaching(false));
+            lines.add(HEADER_END.format(true));
+            lines.add(infoStringLowBound(mcFormat));
+            lines.add(infoStringCheckRadius(mcFormat));
+            lines.add(infoStringMaxAttempts(mcFormat));
+            lines.add(infoStringLocationCaching(mcFormat));
         }
-        // Now log it all!
-        for (String line : lines) infoLog(name + line);
+        if (!mcFormat) for (int i = 0; i < lines.size(); i++) lines.set(i, name + lines.get(i));
+
+        return lines;
     }
 
 
@@ -153,49 +161,56 @@ public class RtpSettings {
     \* ================================================== */
 
     public String infoStringCommandEnabled(boolean mcFormat) {
-        return "Command " + (commandEnabled ? "enabled" : "disabled");
+        return LVL_01_SET.format(mcFormat, "Command", enabledOrDisabled(commandEnabled));
     }
 
     public String infoStringRequireExplicitPermission(boolean mcFormat) {
-        return requireExplicitPermission
-            ? "Requires permission node [" + EXPLICIT_PERM_PREFIX + this.name + "] to use"
-            : "No explicit named permission required";
+        return LVL_01_SET.format(mcFormat, "Require explicit permission node", requireExplicitPermission
+            ? "True (" + EXPLICIT_PERM_PREFIX + this.name + ")" : "False");
     }
 
     public String infoStringPriority(boolean mcFormat) {
-        return "Priority: " + priority;
+        return LVL_01_SET.format(mcFormat, "Priority", String.valueOf(priority));
     }
 
     public String infoStringDestinationWorld(boolean mcFormat) {
-        return "The user will land in the following world: " + landingWorld.getName();
+        return LVL_01_SET.format(mcFormat, "The user will land in the following world", landingWorld.getName());
+    }
+
+    public List<String> infoStringsCallFromWorlds(boolean mcFormat) {
+        ArrayList<String> lines = new ArrayList<>();
+        lines.add(LVL_01_SET.format(mcFormat, "Call from worlds", ""));
+        for (int i = 0; i < callFromWorlds.size(); i++) {
+            lines.add(LVL_02_SET.format(mcFormat, i, callFromWorlds.get(i).getName()));
+        }
+        return lines;
     }
 
     public String infoStringRegionCenter(boolean mcFormat) { // redundant? Look at `distribution.shape.infoStrings()`
-        return "Rtp Region center is set to " + getRtpRegionCenterAsString(false);
+        return LVL_01_SET.format(mcFormat, "Rtp Region center is set to", getRtpRegionCenterAsString(false));
     }
 
     public String infoStringCooldown(boolean mcFormat) {
         return coolDown.coolDownTime == 0
-            ? "Cooldown disabled"
-            : "Cooldown time: " + coolDown.coolDownTime / 1000 + " seconds.";
+            ? LVL_01_SET.format(mcFormat, "Cooldown", "Disabled")
+            : LVL_01_SET.format(mcFormat, "Cooldown time", coolDown.coolDownTime / 1000 + " seconds.");
     }
 
     public String infoStringLowBound(boolean mcFormat) {
-        return "Low bound: " + lowBound + " | High bound: " + highBound;
+        return DOU_01_SET.format(mcFormat, "Low bound", lowBound, "High bound", highBound);
     }
 
     public String infoStringCheckRadius(boolean mcFormat) {
-        return "Check radius x and z set to " + checkRadiusXZ + " and vert set to " + checkRadiusVert;
+        return DOU_01_SET.format(mcFormat, "Check radius x and z", checkRadiusXZ, "Vert", checkRadiusVert);
     }
 
     public String infoStringMaxAttempts(boolean mcFormat) {
-        return "Max attempts set to " + maxAttempts;
+        return LVL_01_SET.format(mcFormat, "Max attempts set to", maxAttempts);
     }
 
     public String infoStringLocationCaching(boolean mcFormat) {
-        return "Location caching " + (
-            canUseLocQueue
-                ? "disabled."
-                : "Enabled. Caching " + cacheLocationCount + " location per world.");
+        return canUseLocQueue
+            ? DOU_01_SET.format(mcFormat, "Location caching", "Enabled", "Num", cacheLocationCount)
+            : LVL_01_SET.format(mcFormat, "Location caching", "Disabled");
     }
 }
