@@ -36,15 +36,15 @@ class MessageStyles {
 
 
         private enum McVersion {
-            HEADER_TOP(COLOR_IL[0] + "┏§l§m╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍§r"),
-            HEADER_MID(COLOR_IL[0] + "┃ [J-RTP] " + COLOR_IL[1] + "{0}"),
-            HEADER_END(COLOR_IL[0] + "┣§l§m╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍§r"),
-            LVL_01_SET(COLOR_IL[0] + "┃ " + COLOR_IL[1] + "{0}: " + COLOR_IL[2] + "{1}"),
-            LVL_02_SET(COLOR_IL[0] + "┃ • " + COLOR_IL[1] + "{0}: " + COLOR_IL[2] + "{1}"),
-            DOU_01_SET(COLOR_IL[0] + "┃ " + COLOR_IL[1] + "{0}: " + COLOR_IL[2] + "{1}" + COLOR_IL[1] +
-                       " | {2}: " + COLOR_IL[2] + "{3}"),
-            DOU_02_SET(COLOR_IL[0] + "┃ • " + COLOR_IL[1] + "{0}: " + COLOR_IL[2] + "{1}" + COLOR_IL[1] +
-                       " | {2}: " + COLOR_IL[2] + "{3}");
+            HEADER_TOP(String.format("%s┏§l§m╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍§r", COLOR_IL[0])),
+            HEADER_MID(String.format("%s┃ [J-RTP] %s{0}", COLOR_IL[0], COLOR_IL[1])),
+            HEADER_END(String.format("%s┣§l§m╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍§r", COLOR_IL[0])),
+            LVL_01_SET(String.format("%s┃ %s{0}: %s{1}", COLOR_IL[0], COLOR_IL[1], COLOR_IL[2])),
+            LVL_02_SET(String.format("%s┃ • %s{0}: %s{1}", COLOR_IL[0], COLOR_IL[1], COLOR_IL[2])),
+            DOU_01_SET(String.format("%s┃ %s{0}: %s{1}%s | {2}: %s{3}",
+                                     COLOR_IL[0], COLOR_IL[1], COLOR_IL[2], COLOR_IL[1], COLOR_IL[2])),
+            DOU_02_SET(String.format("%s┃ • %s{0}: %s{1}%s | {2}: %s{3}",
+                                     COLOR_IL[0], COLOR_IL[1], COLOR_IL[2], COLOR_IL[1], COLOR_IL[2]));
 
             final String text;
 
