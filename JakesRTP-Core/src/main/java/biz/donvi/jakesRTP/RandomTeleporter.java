@@ -326,9 +326,9 @@ public class RandomTeleporter {
         if (callFromLoc.getWorld() != rtpSettings.landingWorld)
             callFromLoc.setWorld(rtpSettings.landingWorld);
 
-        // Part 2: Quick error checking (world in world list)
-        if (!rtpSettings.callFromWorlds.contains(callFromLoc.getWorld()))
-            throw new JrtpBaseException.NotPermittedException(Messages.NP_R_NOT_ENABLED.format("~ECG"));
+        // Part 2: Quick error checking (world in world list) //TODO REPLACE WITH USEFUL CODE
+//        if (!rtpSettings.callFromWorlds.contains(callFromLoc.getWorld()))
+//            throw new JrtpBaseException.NotPermittedException(Messages.NP_R_NOT_ENABLED.format("~ECG"));
 
         // Part 3 option 1: The Queue Route.
         // If we want to take from the queue and the queue is enabled, go here.
