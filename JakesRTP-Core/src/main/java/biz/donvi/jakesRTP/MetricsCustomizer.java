@@ -6,12 +6,14 @@ import java.util.concurrent.Callable;
 
 class MetricsCustomizer {
 
+    private final JakesRtpPlugin   p;
     private final RandomTeleporter r;
     private final Metrics          m;
 
     MetricsCustomizer(JakesRtpPlugin plugin, Metrics metrics) {
-        m = metrics;
+        p = plugin;
         r = plugin.getRandomTeleporter();
+        m = metrics;
         if (m.isEnabled()) customize();
     }
 
@@ -19,6 +21,8 @@ class MetricsCustomizer {
         addSimplePie("rtp-on-first-join", () -> r.firstJoinRtp ? "Enabled" : "Disabled");
         addSimplePie("rtp-on-death", () -> r.onDeathRtp ? "Enabled" : "Disabled");
         addSimplePie("rtp-settings-count", () -> String.valueOf(r.getRtpSettings().size()));
+        addSimplePie("lang-custom-messages", () -> p.customMessageCount > 1 ? "Yes" : "No"); // TODO Add to bStats
+        addSimplePie("lang-set-language", () -> p.lang); // TODO Add to bStats
 
         m.addCustomChart(new Metrics.AdvancedPie("rtp-region-shape", () -> {
             Map<String, Integer> pie = new HashMap<>();

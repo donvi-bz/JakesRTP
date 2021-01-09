@@ -148,6 +148,9 @@ public final class JakesRtpPlugin extends JavaPlugin {
         }
     }
 
+    String lang = "en";
+    int customMessageCount = 0;
+
     @SuppressWarnings("ConstantConditions")
     public void loadMessageMap() {
         // Copy the langSettingsFile if it doesn't already exist.
@@ -215,16 +218,17 @@ public final class JakesRtpPlugin extends JavaPlugin {
         Messages.setMap(new Yaml().load(this.getClassLoader().getResourceAsStream(
             String.format(BLANK_LANG_FILE_NAME, "en"))));
         // Load & add all the messages from the language file
-        if (!messageOverrides.get("language").equals("en")) {
+        lang = messageOverrides.get("language");
+        if (!lang.equalsIgnoreCase("en")) {
             languageOverrides = new Yaml().load(this.getClassLoader().getResourceAsStream(
-                String.format(BLANK_LANG_FILE_NAME, messageOverrides.get("language"))));
+                String.format(BLANK_LANG_FILE_NAME, lang)));
             infoLog("Overwriting default messages with translated messages.");
             Messages.addMap(languageOverrides);
         }
         // Load message overrides.
         messageOverrides.remove("language");
         infoLog("Overwriting messages with custom messages.");
-        Messages.addMap(messageOverrides);
+        customMessageCount = Messages.addMap(messageOverrides);
     }
 
     /* ================================================== *\

@@ -47,15 +47,20 @@ public enum Messages {
         }
     }
 
-    static void addMap(Map<String, String> newMap) {
+    static int addMap(Map<String, String> newMap) {
+        int numValuesAdded = 0;
         for (Messages m : Messages.values()) {
             String value = newMap.remove(m.key);
-            if (value != null) mappedValues[m.ordinal()] = reformat(value);
+            if (value != null) {
+                mappedValues[m.ordinal()] = reformat(value);
+                numValuesAdded++;
+            }
         }
         if (newMap.size() > 0) {
             JakesRtpPlugin.log(WARNING, "Some extra keys were found:");
             for (String extraValue : newMap.keySet()) JakesRtpPlugin.log(WARNING, extraValue);
         }
+        return numValuesAdded;
     }
 
     private static String reformat(String s) {
