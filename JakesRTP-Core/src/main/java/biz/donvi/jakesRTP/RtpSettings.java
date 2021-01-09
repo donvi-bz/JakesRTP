@@ -58,12 +58,22 @@ public class RtpSettings {
     RtpSettings(final ConfigurationSection config, String name, Map<String, DistributionSettings> distributions)
     throws JrtpBaseException {
         this.name = name;
+        String nameInLog = "[" + this.name + "] ";
         infoLog("Loading random teleporter...");
+
         commandEnabled = config.getBoolean("command-enabled", true);
+        infoLog(nameInLog + infoStringCommandEnabled(false));
+
         requireExplicitPermission = config.getBoolean("require-explicit-permission", false);
+        infoLog(nameInLog + infoStringRequireExplicitPermission(false));
+
         priority = (float) config.getDouble("priority", 1f);
-        if ((landingWorld = plugin.getServer().getWorld(config.getString("landing-world", ""))) == null)
+        infoLog(nameInLog + infoStringPriority(false));
+
+        if ((landingWorld = plugin.getServer().getWorld(config.getString("landing-world", null))) == null)
             throw new JrtpBaseException("Landing world not recognised.");
+        infoLog(nameInLog + infoStringDestinationWorld(false));
+
         callFromWorlds = new ArrayList<>();
         for (String callFromWorld : config.getStringList("call-from-worlds"))
             for (World testByWorld : plugin.getServer().getWorlds())
@@ -71,6 +81,8 @@ public class RtpSettings {
                     Pattern.compile(callFromWorld).matcher(testByWorld.getName()).matches()
                 ) callFromWorlds.add(testByWorld);
         if (callFromWorlds.size() == 0) callFromWorlds.add(landingWorld);
+        for (String s : infoStringsCallFromWorlds(false)) infoLog(nameInLog + s);
+
         try {
             String distName = config.getString("distribution");
             if (distName.equalsIgnoreCase("world-border"))
@@ -84,20 +96,31 @@ public class RtpSettings {
                 "Distribution not found. Distribution given: '" + config.getString("distribution") +
                 "', distributions available:" + strb.toString());
         }
+        for (String s : distribution.shape.infoStrings(false)) infoLog(nameInLog + s);
+        infoLog(nameInLog + infoStringRegionCenter(false)); // double log!
+
         coolDown = new CoolDownTracker(config.getInt("cooldown", 30));
+        infoLog(nameInLog + infoStringCooldown(false));
+
         lowBound = config.getInt("bounds.low", 32);
         highBound = config.getInt("bounds.high", 255);
+        infoLog(nameInLog + infoStringVertBounds(false));
+
         checkRadiusXZ = config.getInt("check-radius.x-z", 2);
         checkRadiusVert = config.getInt("check-radius.vert", 2);
+        infoLog(nameInLog + infoStringCheckRadius(false));
+
         maxAttempts = config.getInt("max-attempts.value", 10);
+        infoLog(nameInLog + infoStringMaxAttempts(false));
+
         cacheLocationCount = config.getInt("preparations.cache-locations", 10);
         checkProfile = LocCheckProfiles.values()
             [config.getString("location-checking-profile", "a").toLowerCase().charAt(0) - 'a'];
         commandsToRun = config.getStringList("then-execute").toArray(new String[0]);
         canUseLocQueue = distribution.center != DistributionSettings.CenterTypes.PLAYER_LOCATION &&
                          cacheLocationCount > 0;
+        infoLog(nameInLog + infoStringLocationCaching(false));
 
-        for (String line : infoStringAll(false, true)) infoLog(line);
     }
 
 
@@ -121,7 +144,7 @@ public class RtpSettings {
         // Kinda useless
         if (full) {
             lines.add(HEADER_END.format(true));
-            lines.add(infoStringLowBound(mcFormat));
+            lines.add(infoStringVertBounds(mcFormat));
             lines.add(infoStringCheckRadius(mcFormat));
             lines.add(infoStringMaxAttempts(mcFormat));
             lines.add(infoStringLocationCaching(mcFormat));
@@ -196,7 +219,7 @@ public class RtpSettings {
             : LVL_01_SET.format(mcFormat, "Cooldown time", coolDown.coolDownTime / 1000 + " seconds.");
     }
 
-    public String infoStringLowBound(boolean mcFormat) {
+    public String infoStringVertBounds(boolean mcFormat) {
         return DOU_01_SET.format(mcFormat, "Low bound", lowBound, "High bound", highBound);
     }
 
