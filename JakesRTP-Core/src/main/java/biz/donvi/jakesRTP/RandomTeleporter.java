@@ -77,7 +77,7 @@ public class RandomTeleporter {
                     this.rtpSettings.add(new RtpSettings(item.value, item.key, distributionSettings));
                 else infoLog("Not loading config " + item.key + " since it is marked disabled.");
             } catch (NullPointerException | JrtpBaseException e) {
-                JakesRtpPlugin.infoLog(
+                JakesRtpPlugin.log(Level.WARNING,
                     (e instanceof JrtpBaseException ? "Error: " + e.getMessage() + '\n' : "") +
                     "Whoops! Something in the config wasn't right, " +
                     this.rtpSettings.size() + " configs have been loaded thus far.");
