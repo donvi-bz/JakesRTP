@@ -6,8 +6,8 @@ What does it do? • Teleports a player to a random location by when they type `
 server for the first time • Tons of configuration from basic shape and size to multiple configs and distribution
 patterns
 
-For the main download, go to [my page on Spigot](https://www.spigotmc.org/resources/jakes-rtp.80201/),
-or for statistics about the plugin, go to[the bStats page](https://bstats.org/plugin/bukkit/JakesRTP/9843).
+For the main download, go to [the page on Spigot](https://www.spigotmc.org/resources/jakes-rtp.80201/),
+or for statistics about the plugin, go to [the bStats page](https://bstats.org/plugin/bukkit/JakesRTP/9843).
 
 ## A brief list of what you can configure.
 
