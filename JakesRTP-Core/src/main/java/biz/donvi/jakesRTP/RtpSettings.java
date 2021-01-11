@@ -180,7 +180,7 @@ public class RtpSettings {
     }
 
     /* ================================================== *\
-                    Info Strings... todo respect mcFormat
+                    Info Strings...
     \* ================================================== */
 
     public String infoStringCommandEnabled(boolean mcFormat) {
