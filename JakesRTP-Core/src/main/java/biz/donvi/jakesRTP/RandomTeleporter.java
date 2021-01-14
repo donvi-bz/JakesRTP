@@ -85,8 +85,6 @@ public class RandomTeleporter {
         // Static settings:
         if (firstJoinRtp = globalConfig.getBoolean("rtp-on-first-join.enabled", false)) {
             firstJoinSettings = getRtpSettingsByName(globalConfig.getString("rtp-on-first-join.settings"));
-            World world = JakesRtpPlugin.plugin.getServer().getWorld(
-                Objects.requireNonNull(globalConfig.getString("rtp-on-first-join.world")));
         } else {
             firstJoinSettings = null;
         }
@@ -94,8 +92,6 @@ public class RandomTeleporter {
             onDeathRespectBeds = globalConfig.getBoolean("rtp-on-death.respect-beds", true);
             onDeathSettings = getRtpSettingsByName(globalConfig.getString("rtp-on-death.settings"));
             onDeathRequirePermission = globalConfig.getBoolean("rtp-on-death.require-permission", true);
-            World world = JakesRtpPlugin.plugin.getServer().getWorld(
-                Objects.requireNonNull(globalConfig.getString("rtp-on-death.world")));
         } else {
             onDeathRespectBeds = false;
             onDeathRequirePermission = false;
