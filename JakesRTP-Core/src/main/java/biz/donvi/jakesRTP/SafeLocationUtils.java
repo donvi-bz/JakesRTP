@@ -85,6 +85,7 @@ public class SafeLocationUtils {
             case VOID_AIR:
             case CACTUS:
             case SEAGRASS:
+            case KELP:
             case TALL_SEAGRASS:
             case LILY_PAD:
                 return false;
