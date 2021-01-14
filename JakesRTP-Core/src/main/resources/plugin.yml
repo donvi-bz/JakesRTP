@@ -2,7 +2,7 @@ name: JakesRTP
 author: JakeTS
 main: biz.donvi.jakesRTP.JakesRtpPlugin
 prefix: 'J-RTP'
-version: '0.10.10'
+version: '0.11'
 api-version: '1.13'
 
 softdepend:
@@ -44,8 +44,11 @@ permissions:
   jakesrtp.nocooldown:
     description: 'Allows the user to ignore the cool-down timer'
     default: op
+  jakesrtp.nowarmup:
+    description: 'Allows the user to ignore the warm-up timer'
+    default: op
   jakesrtp.others:
-    description: 'Allows the use of "/rtp" on other players'
+    description: 'Allows the use of "/forcertp <player>" on a player'
     default: op
   jakesrtp.admin:
     description: 'Allows the usage of the "/rtp-admin" command.'
@@ -55,5 +58,6 @@ permissions:
     description: 'A collection of permissions that are *not* intended for players'
     children:
       jakesrtp.nocooldown: true
+      jakesrtp.nowarmup: true
       jakesrtp.others: true
       jakesrtp.admin: true

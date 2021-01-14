@@ -19,6 +19,11 @@ public class RandomTeleporter {
 
     final static String EXPLICIT_PERM_PREFIX = "jakesrtp.use.";
 
+    // The warmup thing...
+    // A player can only be waiting for one rtp, regardless of how many they call.
+    // The int stored is the id of the task to cancel it.
+    final Map<UUID, Integer> playersInWarmup = new HashMap<>();
+
     // Dynamic settings
     public final  Map<String, DistributionSettings> distributionSettings;
     private final ArrayList<RtpSettings>            rtpSettings;
@@ -78,9 +83,9 @@ public class RandomTeleporter {
                 else infoLog("Not loading config " + item.key + " since it is marked disabled.");
             } catch (NullPointerException | JrtpBaseException e) {
                 JakesRtpPlugin.log(Level.WARNING,
-                    (e instanceof JrtpBaseException ? "Error: " + e.getMessage() + '\n' : "") +
-                    "Whoops! Something in the config wasn't right, " +
-                    this.rtpSettings.size() + " configs have been loaded thus far.");
+                                   (e instanceof JrtpBaseException ? "Error: " + e.getMessage() + '\n' : "") +
+                                   "Whoops! Something in the config wasn't right, " +
+                                   this.rtpSettings.size() + " configs have been loaded thus far.");
             }
         // Static settings:
         if (firstJoinRtp = globalConfig.getBoolean("rtp-on-first-join.enabled", false)) {
@@ -109,7 +114,7 @@ public class RandomTeleporter {
         logRtpOnForceCommand = globalConfig.getBoolean("logging.rtp-on-force-command", true);
         logRtpForQueue = globalConfig.getBoolean("logging.rtp-for-queue", false);
 
-        for(String line : infoStringAll(false)) infoLog("[#Static] " + line);
+        for (String line : infoStringAll(false)) infoLog("[#Static] " + line);
     }
 
     /* ================================================== *\
@@ -468,11 +473,11 @@ public class RandomTeleporter {
     public List<String> infoStringLoggingSettings(boolean mcFormat) {
         ArrayList<String> lines = new ArrayList<>();
         lines.add(LVL_01_SET.format(mcFormat, "Logging", ""));
-        lines.add(LVL_02_SET.format(mcFormat,"RTP on player join", enabledOrDisabled(logRtpOnPlayerJoin)));
-        lines.add(LVL_02_SET.format(mcFormat,"RTP on respawn", enabledOrDisabled(logRtpOnRespawn)));
-        lines.add(LVL_02_SET.format(mcFormat,"RTP on command", enabledOrDisabled(logRtpOnCommand)));
-        lines.add(LVL_02_SET.format(mcFormat,"RTP on force command", enabledOrDisabled(logRtpOnForceCommand)));
-        lines.add(LVL_02_SET.format(mcFormat,"RTP for queue", enabledOrDisabled(logRtpForQueue)));
+        lines.add(LVL_02_SET.format(mcFormat, "RTP on player join", enabledOrDisabled(logRtpOnPlayerJoin)));
+        lines.add(LVL_02_SET.format(mcFormat, "RTP on respawn", enabledOrDisabled(logRtpOnRespawn)));
+        lines.add(LVL_02_SET.format(mcFormat, "RTP on command", enabledOrDisabled(logRtpOnCommand)));
+        lines.add(LVL_02_SET.format(mcFormat, "RTP on force command", enabledOrDisabled(logRtpOnForceCommand)));
+        lines.add(LVL_02_SET.format(mcFormat, "RTP for queue", enabledOrDisabled(logRtpForQueue)));
         return lines;
     }
 }

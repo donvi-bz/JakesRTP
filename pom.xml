@@ -9,7 +9,7 @@
     <packaging>pom</packaging>
     <version>${release.version}</version>
     <properties>
-        <release.version>0.10.10</release.version>
+        <release.version>0.11</release.version>
     </properties>
     <build>
         <plugins>

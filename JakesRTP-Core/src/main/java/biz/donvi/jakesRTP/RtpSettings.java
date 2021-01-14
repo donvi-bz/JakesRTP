@@ -36,6 +36,10 @@ public class RtpSettings {
     public final List<World>          callFromWorlds;
     public final DistributionSettings distribution;
     final        CoolDownTracker      coolDown;
+    public final int                  warmup;
+    public final boolean              warmupEnabled;
+    public final boolean              warmupCancelOnMove;
+    public final boolean              warmupCountDown;
     public final int                  lowBound;
     public final int                  highBound;
     public final int                  checkRadiusXZ;
@@ -102,6 +106,12 @@ public class RtpSettings {
         coolDown = new CoolDownTracker(config.getInt("cooldown", 30));
         infoLog(nameInLog + infoStringCooldown(false));
 
+        warmup = config.getInt("warmup.time", 0);
+        warmupEnabled = warmup > 0;
+        warmupCancelOnMove = config.getBoolean("warmup.cancel-on-move", true);
+        warmupCountDown = config.getBoolean("warmup.count-down", true);
+        for (String s : infoStringsWarmup(false)) infoLog(nameInLog + s);
+
         lowBound = config.getInt("bounds.low", 32);
         highBound = config.getInt("bounds.high", 255);
         infoLog(nameInLog + infoStringVertBounds(false));
@@ -141,6 +151,7 @@ public class RtpSettings {
         lines.addAll(distribution.shape.infoStrings(mcFormat));
         lines.add(infoStringRegionCenter(mcFormat));
         lines.add(infoStringCooldown(mcFormat));
+        lines.addAll(infoStringsWarmup(mcFormat));
         // Kinda useless
         if (full) {
             lines.add(HEADER_END.format(true));
@@ -217,6 +228,18 @@ public class RtpSettings {
         return coolDown.coolDownTime == 0
             ? LVL_01_SET.format(mcFormat, "Cooldown", "Disabled")
             : LVL_01_SET.format(mcFormat, "Cooldown time", coolDown.coolDownTime / 1000 + " seconds.");
+    }
+
+    public List<String> infoStringsWarmup(boolean mcFormat) {
+        ArrayList<String> lines = new ArrayList<>();
+        if (warmupEnabled) {
+            lines.add(DOU_01_SET.format(mcFormat, "Warmup", "Enabled", "Seconds", warmup));
+            lines.add(LVL_02_SET.format(mcFormat, "Cancel warmup on player move",
+                                        enabledOrDisabled(warmupCancelOnMove)));
+            lines.add(LVL_02_SET.format(mcFormat, "Count down to teleport",
+                                        enabledOrDisabled(warmupCountDown)));
+        } else lines.add(LVL_01_SET.format(mcFormat, "Warmup", "Disabled"));
+        return lines;
     }
 
     public String infoStringVertBounds(boolean mcFormat) {

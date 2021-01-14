@@ -50,7 +50,17 @@ location-checking-profile: a
 # Cooldown (time in seconds) between uses.
 # Can be bypassed with permission node `jakesrtp.nocooldown` or 'jakesrtp.nocooldown.[rtpSettings]'
 #                            (where the default config would be 'jakesrtp.nocooldown.default-settings')
+# The cooldown is only used when the rtp is from a player run `/rtp` command, not from any type of force-rtp.
 cooldown: 30
+
+# Warmup (time in seconds) between calling the command, and actually getting teleported.
+# Setting to `0` or negative will disable this feature.
+# Can be bypassed in a similar way to the cooldown (`jakesrtp.nowarmup` or 'jakesrtp.nowarmup.[rtpSettings]')
+# The warmup is only used when the rtp is from a player run `/rtp` command, not from any type of force-rtp.
+warmup:
+  time: 0
+  cancel-on-move: true
+  count-down: true
 
 # Executes commands as console after a player is rtp'd.
 # Placeholders - These can be used only in rtpSettings `then-execute` list items. Typing a placeholder wrong will

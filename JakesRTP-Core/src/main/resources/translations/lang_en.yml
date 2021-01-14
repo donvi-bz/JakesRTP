@@ -44,6 +44,13 @@ rtp-settings-must-use-world: 'Input mismatch: RtpSettings "{0}" can only telepor
 # For when a player needs to wait for a cooldown before running the command again.
 #   {0} - The cooldown time (uses READABLE-TIME as defined below)
 need-to-wait-for-cooldown:  'Need to wait for cooldown: {0}'
+# For when a player is waiting  for the warmup before teleporting. (Only gets used if `warmup.time` is greater than 0)
+#   {0} - The number of seconds remaining
+teleporting-in-x-seconds: 'Teleporting in {0} seconds...'
+# For when a player walks during their rtp warmup canceling it. (Only gets used if `warmup.time` is greater than 0)
+moved-during-warmup: 'Movement detected, RTP Canceled.'
+# For when a player is waiting on the warmup and calls `/rtp` again. (Only gets used if `warmup.time` is greater than 0)
+rtp-called-while-in-warmup: 'You are already waiting on an RTP warmup!'
 # READABLE-TIME - This is a special case message. Whenever a time needs to be displayed, it will use this for
 #   formatting. Also, each 'word' will only be displayed if the associated number value is greater than 0.
 # Example: 8675 seconds will be formatted as such: `2 hours, 24 minutes, 35 seconds.` Note the absence of days.
