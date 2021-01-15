@@ -37,7 +37,6 @@ public class RtpSettings {
     public final DistributionSettings distribution;
     final        CoolDownTracker      coolDown;
     public final int                  warmup;
-    public final boolean              warmupEnabled;
     public final boolean              warmupCancelOnMove;
     public final boolean              warmupCountDown;
     public final int                  lowBound;
@@ -48,7 +47,8 @@ public class RtpSettings {
     public final int                  cacheLocationCount;
     public final LocCheckProfiles     checkProfile;
     public       String[]             commandsToRun;
-    /* except this one */
+    /* except these */
+    public final boolean              warmupEnabled;
     public final boolean              canUseLocQueue;
 
     /**
