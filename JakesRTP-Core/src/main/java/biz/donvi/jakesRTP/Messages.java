@@ -24,7 +24,7 @@ public enum Messages {
     WARMUP_RTP_ALREADY_CALLED("rtp-called-while-in-warmup"),
     ECON_NOT_ENOUGH_MONEY("not-enough-money"),
     ECON_NO_LONGER_ENOUGH_MONEY("no-longer-enough-money"),
-    ECON_YOU_WERE_CHARGED_X("you-were-charged-x:"),
+    ECON_YOU_WERE_CHARGED_X("you-were-charged-x"),
     ECON_ERROR("economy-error"),
     READABLE_TIME("readable-time"),
     READABLE_TIME_WORD_DAYS("readable-time-word-days"),

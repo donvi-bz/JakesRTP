@@ -76,17 +76,52 @@ public class RandomTeleporter {
         }
         // Modular settings:
         this.rtpSettings = new ArrayList<>();
-        for (Pair<String, FileConfiguration> item : rtpSections)
-            try {
-                if (item.value.getBoolean("enabled"))
-                    this.rtpSettings.add(new RtpSettings(item.value, item.key, distributionSettings));
-                else infoLog("Not loading config " + item.key + " since it is marked disabled.");
-            } catch (NullPointerException | JrtpBaseException e) {
-                JakesRtpPlugin.log(Level.WARNING,
-                                   (e instanceof JrtpBaseException ? "Error: " + e.getMessage() + '\n' : "") +
-                                   "Whoops! Something in the config wasn't right, " +
-                                   this.rtpSettings.size() + " configs have been loaded thus far.");
+        boolean[] loaded = new boolean[rtpSections.size()];
+        boolean allLoaded, oneLoaded;
+        do {
+            allLoaded = true;
+            oneLoaded = false;
+            // Loading begin
+            for (int i = 0; i < rtpSections.size(); i++) {
+                if (loaded[i]) continue;
+                Pair<String, FileConfiguration> settingsFile = rtpSections.get(i);
+                try {
+                    if (settingsFile.value.getBoolean("enabled")) {
+                        RtpSettings defaultsFrom;
+                        try {
+                            String getDefaultsFrom = settingsFile.value.getString("load-from", null);
+                            defaultsFrom = getDefaultsFrom == null
+                                ? RtpSettings.DEFAULT_SETTINGS
+                                : getRtpSettingsByName(getDefaultsFrom);
+                        } catch (JrtpBaseException e) { continue; }
+                        this.rtpSettings.add(
+                            new RtpSettings(
+                                settingsFile.value,
+                                settingsFile.key,
+                                distributionSettings,
+                                defaultsFrom
+                            )
+                        );
+                        loaded[i] = oneLoaded = true; // Mark this one as good
+                    } else infoLog("Not loading config " + settingsFile.key + " since it is marked disabled.");
+                } catch (NullPointerException | JrtpBaseException e) {
+                    log(Level.WARNING,
+                        (e instanceof JrtpBaseException ? "Error: " + e.getMessage() + '\n' : "") +
+                        "Whoops! Something in the config wasn't right, " +
+                        this.rtpSettings.size() + " configs have been loaded thus far.");
+                }
             }
+            // Loading end
+            for (boolean b : loaded)
+                if (!b) {
+                    allLoaded = false;
+                    break;
+                }
+        } while (oneLoaded && !allLoaded);
+        if (!allLoaded) plugin.getLogger().log(
+            Level.WARNING,"One or more settings were not loaded due to a missing rtpSettings dependency. " +
+                          "Make sure that at least one rtpSettings file does NOT have the key 'load-from' anywhere," +
+                          "and that all files that do have the 'load-from' have valid settings names as their value. ");
         // Static settings:
         if (firstJoinRtp = globalConfig.getBoolean("rtp-on-first-join.enabled", false)) {
             firstJoinSettings = getRtpSettingsByName(globalConfig.getString("rtp-on-first-join.settings"));

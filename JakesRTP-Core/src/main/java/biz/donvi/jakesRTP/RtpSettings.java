@@ -9,7 +9,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.regex.Pattern;
 
@@ -22,11 +21,17 @@ import static biz.donvi.jakesRTP.RandomTeleporter.EXPLICIT_PERM_PREFIX;
 public class RtpSettings {
 
     /**
+     * An instance of RtpSettings with all the default values.
+     */
+    static final RtpSettings DEFAULT_SETTINGS = new RtpSettings();
+
+    /**
      * A map of config worlds and their respective location cache as a queue. This is also the only storage
      * of which worlds are enabled in the config.
      */
     public final ConcurrentLinkedQueue<Location> locationQueue = new ConcurrentLinkedQueue<>();
 
+    //<editor-fold desc="Config Values">
     /* All settings below are read directly from the config */
     public final String               name;
     public final boolean              commandEnabled;
@@ -49,8 +54,12 @@ public class RtpSettings {
     public final String[]             commandsToRun;
     public final double               cost; // Will be 0 if we can't use economy
     /* except these */
-    public final boolean              warmupEnabled;
+    public final boolean              warmupEnabled; // Just for convenience (it is mostly redundant)
     public final boolean              canUseLocQueue;
+    //</editor-fold>
+
+    RtpSettings(final ConfigurationSection config, String name, Map<String, DistributionSettings> distributions)
+    throws JrtpBaseException { this(config, name, distributions, DEFAULT_SETTINGS); }
 
     /**
      * Creates an RtpSettings object. This primarily deals with reading in data from a YAML config,
@@ -60,26 +69,37 @@ public class RtpSettings {
      * @throws JrtpBaseException if any data can not be loaded.
      */
     @SuppressWarnings("ConstantConditions")
-    RtpSettings(final ConfigurationSection config, String name, Map<String, DistributionSettings> distributions)
-    throws JrtpBaseException {
+    RtpSettings(
+        final ConfigurationSection config, String name, Map<String, DistributionSettings> distributions,
+        RtpSettings defaults
+    ) throws JrtpBaseException {
         this.name = name;
         String nameInLog = "[" + this.name + "] ";
-        infoLog("Loading random teleporter...");
+        infoLog("Loading rtpSettings...");
 
-        commandEnabled = config.getBoolean("command-enabled", true);
+        // Command Enabled
+        commandEnabled = config.getBoolean("command-enabled", defaults.commandEnabled);
         infoLog(nameInLog + infoStringCommandEnabled(false));
 
-        requireExplicitPermission = config.getBoolean("require-explicit-permission", false);
+        // Require Explicit Permission
+        requireExplicitPermission = config.getBoolean(
+            "require-explicit-permission", defaults.requireExplicitPermission);
         infoLog(nameInLog + infoStringRequireExplicitPermission(false));
 
-        priority = (float) config.getDouble("priority", 1f);
+        // Priority
+        priority = (float) config.getDouble("priority", defaults.priority);
         infoLog(nameInLog + infoStringPriority(false));
 
-        if ((landingWorld = plugin.getServer().getWorld(config.getString("landing-world", null))) == null)
-            throw new JrtpBaseException("Landing world not recognised.");
+        // Landing World
+        World landingWorld = defaults.landingWorld;
+        if (landingWorld == null) landingWorld = plugin.getServer().getWorld(config.getString("landing-world", null));
+        if (landingWorld == null) throw new JrtpBaseException("Landing world not recognised.");
+        this.landingWorld = landingWorld;
         infoLog(nameInLog + infoStringDestinationWorld(false));
 
+        // Call From Worlds
         callFromWorlds = new ArrayList<>();
+        if (defaults.callFromWorlds != null) callFromWorlds.addAll(defaults.callFromWorlds);
         for (String callFromWorld : config.getStringList("call-from-worlds"))
             for (World testByWorld : plugin.getServer().getWorlds())
                 if (!callFromWorlds.contains(testByWorld) &&
@@ -88,13 +108,16 @@ public class RtpSettings {
         if (callFromWorlds.size() == 0) callFromWorlds.add(landingWorld);
         for (String s : infoStringsCallFromWorlds(false)) infoLog(nameInLog + s);
 
-        try {
+        // Distribution
+        if (defaults.distribution != null) {
+            distribution = defaults.distribution;
+        } else {
             String distName = config.getString("distribution");
             if (distName.equalsIgnoreCase("world-border"))
                 distName += "_" + landingWorld.getName();
             distribution = distributions.get(distName);
-            Objects.requireNonNull(distribution);
-        } catch (NullPointerException e) {
+        }
+        if (distribution == null) {
             StringBuilder strb = new StringBuilder();
             for (String s : distributions.keySet()) strb.append(" ").append(s);
             throw new JrtpBaseException(
@@ -104,39 +127,77 @@ public class RtpSettings {
         for (String s : distribution.shape.infoStrings(false)) infoLog(nameInLog + s);
         infoLog(nameInLog + infoStringRegionCenter(false)); // double log!
 
-        coolDown = new CoolDownTracker(config.getInt("cooldown", 30));
+        // Cool-Down
+        coolDown = new CoolDownTracker(config.getInt("cooldown", (int) (defaults.coolDown.coolDownTime / 1000)));
         infoLog(nameInLog + infoStringCooldown(false));
 
-        warmup = config.getInt("warmup.time", 0);
+        // Warm-Up
+        warmup = config.getInt("warmup.time", defaults.warmup);
         warmupEnabled = warmup > 0;
-        warmupCancelOnMove = config.getBoolean("warmup.cancel-on-move", true);
-        warmupCountDown = config.getBoolean("warmup.count-down", true);
+        warmupCancelOnMove = config.getBoolean("warmup.cancel-on-move", defaults.warmupCancelOnMove);
+        warmupCountDown = config.getBoolean("warmup.count-down", defaults.warmupCountDown);
         for (String s : infoStringsWarmup(false)) infoLog(nameInLog + s);
 
-        cost = plugin.canUseEconomy() ? config.getDouble("cost", 0d) : 0;
+        // Cost
+        cost = plugin.canUseEconomy() ? config.getDouble("cost", defaults.cost) : 0;
         infoLog(nameInLog + infoStringCost(false));
 
-        lowBound = config.getInt("bounds.low", 32);
-        highBound = config.getInt("bounds.high", 255);
+        // Bounds
+        lowBound = config.getInt("bounds.low", defaults.lowBound);
+        highBound = config.getInt("bounds.high", defaults.highBound);
         infoLog(nameInLog + infoStringVertBounds(false));
 
-        checkRadiusXZ = config.getInt("check-radius.x-z", 2);
-        checkRadiusVert = config.getInt("check-radius.vert", 2);
+        // Check Radius
+        checkRadiusXZ = config.getInt("check-radius.x-z", defaults.checkRadiusXZ);
+        checkRadiusVert = config.getInt("check-radius.vert", defaults.checkRadiusVert);
         infoLog(nameInLog + infoStringCheckRadius(false));
 
-        maxAttempts = config.getInt("max-attempts.value", 10);
+        // Max Attempts
+        maxAttempts = config.getInt("max-attempts.value", defaults.maxAttempts);
         infoLog(nameInLog + infoStringMaxAttempts(false));
 
-        cacheLocationCount = config.getInt("preparations.cache-locations", 10);
-        checkProfile = LocCheckProfiles.values()
-            [config.getString("location-checking-profile", "a").toLowerCase().charAt(0) - 'a'];
-        commandsToRun = config.getStringList("then-execute").toArray(new String[0]);
+        // Location Caching
+        cacheLocationCount = config.getInt("preparations.cache-locations", defaults.cacheLocationCount);
+        checkProfile = config.getString("location-checking-profile", null) == null
+            ? defaults.checkProfile
+            : LocCheckProfiles.values()[config.getString("location-checking-profile").toLowerCase().charAt(0) - 'a'];
+        commandsToRun = config.getStringList("then-execute").size() == 0
+            ? defaults.commandsToRun
+            : config.getStringList("then-execute").toArray(new String[0]);
         canUseLocQueue = distribution.center != DistributionSettings.CenterTypes.PLAYER_LOCATION &&
                          cacheLocationCount > 0;
         infoLog(nameInLog + infoStringLocationCaching(false));
 
     }
 
+    /**
+     * Creates the "Default" RtpSettings object. This object holds all the plugin-level default values for the config.
+     * This is for internal use only. This constructor should only need to be called once (on startup).
+     */
+    private RtpSettings() {
+        name = "__INTERNAL_DEFAULT_SETTINGS__";
+        commandEnabled = true;
+        requireExplicitPermission = false;
+        priority = 1;
+        landingWorld = null; // DO NOT USE
+        callFromWorlds = null; // DO NOT USE
+        distribution = null; // DO NOT USE
+        coolDown = new CoolDownTracker(30); // DO NOT USE
+        warmup = 0;
+        warmupCancelOnMove = true;
+        warmupCountDown = true;
+        lowBound = 32;
+        highBound = 255;
+        checkRadiusXZ = 2;
+        checkRadiusVert = 2;
+        maxAttempts = 10;
+        cacheLocationCount = 10;
+        checkProfile = LocCheckProfiles.AUTO;
+        commandsToRun = new String[0];
+        cost = 0;
+        warmupEnabled = false; //DO NOT USE
+        canUseLocQueue = false; //DO NOT USE
+    }
 
     public List<String> infoStringAll(boolean mcFormat, boolean full) {
         String name = "[" + this.name + "] ";
@@ -199,6 +260,7 @@ public class RtpSettings {
                     Info Strings...
     \* ================================================== */
 
+    //<editor-fold desc="Info Strings...">
     public String infoStringCommandEnabled(boolean mcFormat) {
         return LVL_01_SET.format(mcFormat, "Command", enabledOrDisabled(commandEnabled));
     }
@@ -270,4 +332,5 @@ public class RtpSettings {
             ? DOU_01_SET.format(mcFormat, "Location caching", "Enabled", "Num", cacheLocationCount)
             : LVL_01_SET.format(mcFormat, "Location caching", "Disabled");
     }
+    //</editor-fold>
 }
