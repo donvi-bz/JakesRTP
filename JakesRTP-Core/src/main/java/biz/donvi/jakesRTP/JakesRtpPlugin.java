@@ -1,8 +1,10 @@
 package biz.donvi.jakesRTP;
 
 import biz.donvi.argsChecker.Util;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.yaml.snakeyaml.Yaml;
 
@@ -21,8 +23,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public final class JakesRtpPlugin extends JavaPlugin {
 
-    /* ======== Static Fields ======== */
 
+    //<editor-fold desc="======== Static Fields ========">
     static JakesRtpPlugin        plugin;
     static Map<String, Object>   cmdMap;
     static LocationCacheFiller   locFinderRunnable;
@@ -31,15 +33,19 @@ public final class JakesRtpPlugin extends JavaPlugin {
     private static       Logger logger;
     private static final String LANG_SETTINGS_FILE_NAME = "language-settings.yml";
     private static final String BLANK_LANG_FILE_NAME    = "translations/lang_%s.yml";
+    //</editor-fold>
 
-    /* ======== NonStatic Fields ======== */
-
+    //<editor-fold desc="======= NonStatic Fields ========">
     private RandomTeleporter theRandomTeleporter = null;
 
     private Path toRtpSettings;
     private Path toDistSettings;
 
+    private Economy economy;
+    private boolean hasEconomy;
+
     private boolean locCache = false;
+    //</editor-fold>
 
     @SuppressWarnings("ConstantConditions")
     @Override
@@ -52,7 +58,8 @@ public final class JakesRtpPlugin extends JavaPlugin {
         cmdMap = new Yaml().load(this.getClassLoader().getResourceAsStream("commandTree.yml"));
         worldBorderPluginHook = new WorldBorderPluginHook(getServer());
 
-        loadConfigs(); // Loads the
+        hasEconomy = setupEconomy();
+        loadConfigs(); // Loads the default configs if no configs are there
         getCommand("rtp-admin").setExecutor(new CmdRtpAdmin(Util.getImpliedMap(cmdMap, "rtp-admin")));
         loadMessageMap(); // Loads all the messages that get sent by the plugin
         loadRandomTeleporter(); // Loads the random teleporter
@@ -79,6 +86,7 @@ public final class JakesRtpPlugin extends JavaPlugin {
                     Loading methods
     \* ================================================== */
 
+    //<editor-fold desc="Loading Methods">
     @SuppressWarnings("ConstantConditions")
     private void loadConfigs() {
         // If there is no config files, save the default ones
@@ -110,6 +118,17 @@ public final class JakesRtpPlugin extends JavaPlugin {
             logger.log(Level.WARNING, "Could not copy default rtpSetting.");
         }
 
+    }
+
+    private boolean setupEconomy() {
+        economy = null;
+        if (getServer().getPluginManager().getPlugin("Vault") == null)
+            return false;
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null)
+            return false;
+        economy = rsp.getProvider();
+        return true;
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -149,6 +168,7 @@ public final class JakesRtpPlugin extends JavaPlugin {
     }
 
     String lang = "en";
+
     int customMessageCount = 0;
 
     @SuppressWarnings("ConstantConditions")
@@ -230,19 +250,27 @@ public final class JakesRtpPlugin extends JavaPlugin {
         infoLog("Overwriting messages with custom messages.");
         customMessageCount = Messages.addMap(messageOverrides);
     }
+    //</editor-fold>
 
     /* ================================================== *\
                    Getters
     \* ================================================== */
 
+    //<editor-fold desc="Getters">
+    public Economy getEconomy() { return economy; }
+
+    public boolean canUseEconomy() { return hasEconomy; }
+
     public String getCurrentConfigVersion() { return getConfig().getString("config-version"); }
 
     public RandomTeleporter getRandomTeleporter() { return theRandomTeleporter; }
+    //</editor-fold>
 
     /* ================================================== *\
                     Logging Related
     \* ================================================== */
 
+    //<editor-fold desc="Logging Related">
     private static final Queue<LogMsg> msgLog = new ArrayDeque<>();
 
     private static final class LogMsg {
@@ -263,5 +291,6 @@ public final class JakesRtpPlugin extends JavaPlugin {
     public static void infoLog(String msg) {
         log(Level.INFO, msg);
     }
+    //</editor-fold>
 
 }

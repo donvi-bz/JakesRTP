@@ -1,5 +1,6 @@
 package biz.donvi.jakesRTP;
 
+import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -9,6 +10,8 @@ import org.bukkit.scheduler.BukkitScheduler;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static biz.donvi.jakesRTP.JakesRtpPlugin.plugin;
 
 public class CmdRtp implements TabExecutor {
 
@@ -38,15 +41,20 @@ public class CmdRtp implements TabExecutor {
                             relSettings.warmupEnabled && // Obvious...
                             !player.hasPermission("jakesrtp.nowarmup") && // Or if they have the perm to avoid it
                             !player.hasPermission("jakesrtp.nowarmup." + relSettings.name.toLowerCase());
-                        final Runnable execRtp = makeRunnable(player, relSettings, warmup);
-                        if (warmup) { // If there is a warmup, schedule the runnable
-                            final int taskID = sender
-                                .getServer().getScheduler() // Get the task ID so we can cancel it later.
-                                .scheduleSyncRepeatingTask(JakesRtpPlugin.plugin, execRtp, 2, 20);
-                            if (taskID == -1) // This should only really happen during shutdown.
-                                throw new JrtpBaseException("Could not schedule rtp-after-warmup.");
-                            randomTeleporter.playersInWarmup.put(player.getUniqueId(), taskID); // Needed for canceling.
-                        } else execRtp.run(); // Just run the task now, none of this "schedule for later nonsense"
+                        if (!plugin.canUseEconomy() || plugin.getEconomy().getBalance(player) > relSettings.cost) {
+                            // ==== By this point, all checks are done and the player WILL be teleported. ====
+                            final Runnable execRtp = makeRunnable(player, relSettings, warmup);
+                            if (warmup) { // If there is a warmup, schedule the runnable
+                                final int taskID = sender
+                                    .getServer().getScheduler() // Get the task ID so we can cancel it later.
+                                    .scheduleSyncRepeatingTask(plugin, execRtp, 2, 20);
+                                if (taskID == -1) // This should only really happen during shutdown.
+                                    throw new JrtpBaseException("Could not schedule rtp-after-warmup.");
+                                randomTeleporter.playersInWarmup.put(player.getUniqueId(),
+                                                                     taskID); // Needed for canceling.
+                            } else execRtp.run(); // No warmup, just run the teleport.
+                        } else player.sendMessage(Messages.ECON_NOT_ENOUGH_MONEY.format(
+                            relSettings.cost, plugin.getEconomy().getBalance(player)));
                     } else player.sendMessage(Messages.WARMUP_RTP_ALREADY_CALLED.format());
                 } else player.sendMessage(Messages.
                     NEED_WAIT_COOLDOWN.format(
@@ -74,20 +82,18 @@ public class CmdRtp implements TabExecutor {
             public void run() {
                 // The annoying error message, lets hope we never need use this...
                 if (done > 1) taskError();
-                // If There should be no warmup, we teleport the user immediately.
+                    // If There should be no warmup, we teleport the user immediately.
                 else if (!warmup) teleport();
-                // If we want the user to stand still AND they move, we cancel this runnable / future rtp.
+                    // If we want the user to stand still AND they move, we cancel this runnable / future rtp.
                 else if (rtpSettings.warmupCancelOnMove && startLoc.distance(player.getLocation()) > 1) cancel();
-                // If we have waited enough time, we teleport the user.
+                    // If we have waited enough time, we teleport the user.
                 else if (timeDifInSeconds() >= rtpSettings.warmup) teleport();
-                // If we got to this point, the user still has to wait, and if wanted, we let them know how long.
+                    // If we got to this point, the user still has to wait, and if wanted, we let them know how long.
                 else if (rtpSettings.warmupCountDown) countDown();
                 // If none of these were called, we just silently wait until the next time run() is called.
             }
 
-            private int timeDifInSeconds() {
-                return (int) ((System.currentTimeMillis() - startTime) / 1000);
-            }
+            private int timeDifInSeconds() { return (int) ((System.currentTimeMillis() - startTime) / 1000); }
 
             private void countDown() {
                 player.sendMessage(Messages.
@@ -98,7 +104,11 @@ public class CmdRtp implements TabExecutor {
 
             private void teleport() {
                 try {
-                    rtpSettings.coolDown.log(player.getName(), System.currentTimeMillis());
+                    if (rtpSettings.cost > 0 && plugin.getEconomy().getBalance(player) < rtpSettings.cost) {
+                        player.sendMessage(Messages.ECON_NO_LONGER_ENOUGH_MONEY.format());
+                        return;
+                    }
+                    // Do the teleport action
                     new RandomTeleportAction(
                         randomTeleporter,
                         rtpSettings,
@@ -107,6 +117,17 @@ public class CmdRtp implements TabExecutor {
                         true,
                         randomTeleporter.logRtpOnCommand, "Rtp-from-command triggered!"
                     ).teleportAsync(player);
+                    // Log in the cooldown list
+                    rtpSettings.coolDown.log(player.getName(), System.currentTimeMillis());
+                    // Charge the player
+                    if (rtpSettings.cost > 0) {
+                        EconomyResponse er = plugin.getEconomy().withdrawPlayer(player, rtpSettings.cost);
+                        if (er.transactionSuccess()) player.sendMessage(Messages.ECON_YOU_WERE_CHARGED_X.format(
+                            plugin.getEconomy().format(er.amount),
+                            plugin.getEconomy().format(er.balance)));
+                        else player.sendMessage(Messages.ECON_ERROR.format(
+                            "An economy error occurred: {0}", er.errorMessage));
+                    }
                 } catch (Exception e) {
                     player.sendMessage(Messages.NP_UNEXPECTED_EXCEPTION.format(e.getMessage()));
                     e.printStackTrace();
@@ -128,7 +149,7 @@ public class CmdRtp implements TabExecutor {
             }
 
             private void taskError() {
-                if (done > 1000) scheduler.cancelTasks(JakesRtpPlugin.plugin); // Emergency cleanup.
+                if (done > 1000) scheduler.cancelTasks(plugin); // Emergency cleanup.
                 if (done < 10 || done % 100 == 0) throw new RuntimeException("RTP task run twice?? Please report.");
                 done++; // This is meant to be annoying, but not *too* annoying.
             }

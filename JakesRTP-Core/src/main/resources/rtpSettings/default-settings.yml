@@ -76,6 +76,11 @@ warmup:
 then-execute:
   - 'tellraw %PLAYER% {"text":"You have been teleported to %LOCATION% in %WORLD%!"}'
 
+# This only is used if you have an economy plugin.
+# If you do have an economy plugin and you want to disable this feature, set cost to 0.
+# Note: Cost can be a floating point value (ex: 6.67)
+cost: 0.0 # TODO IMPL
+
 ############## # Everything past this point in the config probably does not need to get changed
 bounds: # The lowest and highest points a player can be RTP'd to.
   low: 32     # Default: 32

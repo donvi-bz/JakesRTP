@@ -28,7 +28,7 @@ public class RandomTeleporter {
     public final  Map<String, DistributionSettings> distributionSettings;
     private final ArrayList<RtpSettings>            rtpSettings;
 
-    //<editor-fold desc="Static Settings (final fields)">
+    //<editor-fold desc="'Static' Settings (final fields)">
     // First join settings
     public final boolean     firstJoinRtp;
     public final RtpSettings firstJoinSettings;
@@ -427,6 +427,7 @@ public class RandomTeleporter {
                 Info-Strings for Static Settings
     \* ================================================== */
 
+    //<editor-fold desc="Info-Strings">
     public List<String> infoStringAll(boolean mcFormat) {
         ArrayList<String> lines = new ArrayList<>();
         if (mcFormat) {
@@ -480,4 +481,5 @@ public class RandomTeleporter {
         lines.add(LVL_02_SET.format(mcFormat, "RTP for queue", enabledOrDisabled(logRtpForQueue)));
         return lines;
     }
+    //</editor-fold>
 }

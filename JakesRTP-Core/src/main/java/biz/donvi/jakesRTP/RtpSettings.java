@@ -46,7 +46,8 @@ public class RtpSettings {
     public final int                  maxAttempts;
     public final int                  cacheLocationCount;
     public final LocCheckProfiles     checkProfile;
-    public       String[]             commandsToRun;
+    public final String[]             commandsToRun;
+    public final double               cost; // Will be 0 if we can't use economy
     /* except these */
     public final boolean              warmupEnabled;
     public final boolean              canUseLocQueue;
@@ -112,6 +113,9 @@ public class RtpSettings {
         warmupCountDown = config.getBoolean("warmup.count-down", true);
         for (String s : infoStringsWarmup(false)) infoLog(nameInLog + s);
 
+        cost = plugin.canUseEconomy() ? config.getDouble("cost", 0d) : 0;
+        infoLog(nameInLog + infoStringCost(false));
+
         lowBound = config.getInt("bounds.low", 32);
         highBound = config.getInt("bounds.high", 255);
         infoLog(nameInLog + infoStringVertBounds(false));
@@ -152,6 +156,7 @@ public class RtpSettings {
         lines.add(infoStringRegionCenter(mcFormat));
         lines.add(infoStringCooldown(mcFormat));
         lines.addAll(infoStringsWarmup(mcFormat));
+        lines.add(infoStringCost(mcFormat));
         // Kinda useless
         if (full) {
             lines.add(HEADER_END.format(true));
@@ -240,6 +245,12 @@ public class RtpSettings {
                                         enabledOrDisabled(warmupCountDown)));
         } else lines.add(LVL_01_SET.format(mcFormat, "Warmup", "Disabled"));
         return lines;
+    }
+
+    public String infoStringCost(boolean mcFormat) {
+        return cost > 0
+            ? LVL_01_SET.format(mcFormat, "Cost", cost)
+            : LVL_01_SET.format(mcFormat, "Cost", "Disabled");
     }
 
     public String infoStringVertBounds(boolean mcFormat) {

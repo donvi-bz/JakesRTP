@@ -2,13 +2,14 @@ name: JakesRTP
 author: JakeTS
 main: biz.donvi.jakesRTP.JakesRtpPlugin
 prefix: 'J-RTP'
-version: '0.11'
+version: '0.12'
 api-version: '1.13'
 
 softdepend:
   - 'Multiverse-Core'
   - 'ChunkyBorder'
   - 'WorldBorder'
+  - 'Vault'
 
 commands:
   jrtpdebug:

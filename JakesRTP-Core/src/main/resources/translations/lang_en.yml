@@ -51,6 +51,20 @@ teleporting-in-x-seconds: 'Teleporting in {0} seconds...'
 moved-during-warmup: 'Movement detected, RTP Canceled.'
 # For when a player is waiting on the warmup and calls `/rtp` again. (Only gets used if `warmup.time` is greater than 0)
 rtp-called-while-in-warmup: 'You are already waiting on an RTP warmup!'
+# For when something costs money, but the player does not have enough.
+#   {0} - The cost
+#   {1} - The player's balance
+not-enough-money: 'You do not have enough money for this. Cost: {0}. Balance: {1}.'
+# For when the player had enough money to run the command, but does not have enough by the time they get charged.
+# This will only really happen if a player tries to get around paying by emptying their balance before the warmup is over.
+no-longer-enough-money: 'You no longer have the required funds to do this.'
+# For when a player is charged.
+#   {0} - The amount charged
+#   {1} - The amount they player has left
+you-were-charged-x: 'You were charged {0} and now have {1}'
+# For when an economy error happens. This will most likely not occur.
+#   {0} - The economy error text.
+economy-error: 'An economy error occurred: {0}'
 # READABLE-TIME - This is a special case message. Whenever a time needs to be displayed, it will use this for
 #   formatting. Also, each 'word' will only be displayed if the associated number value is greater than 0.
 # Example: 8675 seconds will be formatted as such: `2 hours, 24 minutes, 35 seconds.` Note the absence of days.
