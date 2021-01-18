@@ -1,6 +1,7 @@
 package biz.donvi.jakesRTP;
 
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -22,6 +23,7 @@ public class RtpOnEvent implements Listener {
         if (!randomTeleporter.firstJoinRtp || event.getPlayer().hasPlayedBefore()) return;
         try {
             assert randomTeleporter.firstJoinSettings != null;
+            assert randomTeleporter.firstJoinSettings.landingWorld != null;
             new RandomTeleportAction(
                 randomTeleporter,
                 randomTeleporter.firstJoinSettings,
