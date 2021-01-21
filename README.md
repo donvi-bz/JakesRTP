@@ -11,33 +11,40 @@ or for statistics about the plugin, go to [the bStats page](https://bstats.org/p
 
 ## A brief list of what you can configure.
 
-* Which worlds the config is enabled in
+* The world you get teleported to (don't forget, multiple configs for multiple worlds)
+* Can players use /rtp with these settings, or it can only be used by the server or admins  
+* The priority of the settings relative to other settings
 * What shape that the points will appear in...
     * Square
     * Circle
     * Rectangle
-* The maximum distance to take a player from the center
-* The minimum distance to take a player from the center
+* A gap in the shape where people will not be teleported (done as radius min for circle and square)
 * Where the random teleport is centered...
     * At the world's spawn
-    * At the players current location`
+    * At the players current location
     * At a specific x and z
 * Will the locations be chosen such that they are evenly distributed or with a Gaussian distribution...
 * If Gaussian distribution is enabled, these settings can be used:
-    * Shrink - Inversly related to the standard deviation of the distribution (larger values make it denser)
+    * Shrink - Inversely related to the standard deviation of the distribution (larger values make it denser)
     * Center - A number from 0 to 1 where 0 centers the points at the min distance, 0.5 is between min and max, and 1 is
       at max
+* A list of commands that get executed after the player is teleported 
+* The number of seconds a player must wait between calling the /rtp command and getting teleported
 * The number of seconds a player must wait before using the /rtp command again
 * Do new players get teleported randomly when they join for the first time? *
-* The lowest y-value that a player can get teleported to
+* Do new players get teleported randomly when they die? *
+* The cost of the teleport (if economy is enabled)  
+* The highest and lowest y-value that a player can get teleported to
 * Some stuff about how many spots to check for safety, though these shouldn't need to be modified for a normal world.
 
-###### _* <sub>Denotes static settings. (Settings that are not per config, and generally are only applicable to one config at a time)</sub>_
+###### _* <sub>Denotes static settings. (Settings that are not per config and generally are only applicable to one config at a time)</sub>_
 
 ###### _All of this is per individual config. Multiple configs can exist at the same time_
 
-Oh, and if you want more than one config, you just copy and paste the config section, change the name, and suddenly you
-have 2! An example of this is sitting at the bottom of the default generated config.
+Oh, and if you want more than one config, you just copy and paste the config file, change the name, and suddenly you
+have 2! Or even better, make a new blank file, add the lines `load-from: [other-settings-file-name]` and then you have
+a duplicate of the other settings file which you can add lines to modify! In [this video](https://www.youtube.com/watch?v=hg4JQ8PN40I)
+I explain how the config works, and how to do multiple configs.
 
 ## The configs (and all their documentation)
 
@@ -71,6 +78,9 @@ Go [here](doc/commands.md) for a more detailed explination.
     * default: false
 * jakesrtp.noCooldown
     * description: Allows the user to ignore the cool-down timer
+    * default: op
+* jakesrtp.nowarmup
+    * description: Allows the user to ignore the warm-up timer
     * default: op
 * jakesrtp.others
     * description: Allows the use of "/rtp" on other players
