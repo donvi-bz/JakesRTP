@@ -21,8 +21,8 @@ class MetricsCustomizer {
         addSimplePie("rtp-on-first-join", () -> r.firstJoinRtp ? "Enabled" : "Disabled");
         addSimplePie("rtp-on-death", () -> r.onDeathRtp ? "Enabled" : "Disabled");
         addSimplePie("rtp-settings-count", () -> String.valueOf(r.getRtpSettings().size()));
-        addSimplePie("lang-custom-messages", () -> p.customMessageCount > 1 ? "Yes" : "No"); // TODO Add to bStats
-        addSimplePie("lang-set-language", () -> p.lang); // TODO Add to bStats
+        addSimplePie("lang-custom-messages", () -> p.customMessageCount > 1 ? "Yes" : "No");
+        addSimplePie("lang-set-language", () -> p.lang);
 
         m.addCustomChart(new Metrics.AdvancedPie("rtp-region-shape", () -> {
             Map<String, Integer> pie = new HashMap<>();
