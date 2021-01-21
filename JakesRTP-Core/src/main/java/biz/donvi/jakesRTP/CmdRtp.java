@@ -41,8 +41,8 @@ public class CmdRtp implements TabExecutor {
                             relSettings.warmupEnabled && // Obvious...
                             !player.hasPermission("jakesrtp.nowarmup") && // Or if they have the perm to avoid it
                             !player.hasPermission("jakesrtp.nowarmup." + relSettings.name.toLowerCase());
-                        if (!plugin.canUseEconomy() ||
-                            (relSettings.cost > 0 && plugin.getEconomy().getBalance(player) > relSettings.cost)) {
+                        if (!plugin.canUseEconomy() || relSettings.cost <= 0 ||
+                            plugin.getEconomy().getBalance(player) >= relSettings.cost) {
                             // ==== By this point, all checks are done and the player WILL be teleported. ====
                             final Runnable execRtp = makeRunnable(player, relSettings, warmup);
                             if (warmup) { // If there is a warmup, schedule the runnable

@@ -3,10 +3,12 @@ package biz.donvi.jakesRTP;
 import biz.donvi.argsChecker.ArgsChecker;
 import biz.donvi.argsChecker.ArgsTester;
 import biz.donvi.argsChecker.DynamicArgsMap;
+import biz.donvi.argsChecker.Util;
 import biz.donvi.jakesRTP.GeneralUtil.Pair;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
+import org.bukkit.event.HandlerList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +57,7 @@ public class CmdRtpAdmin extends DynamicArgsMap implements TabExecutor {
     }
 
     private void subReload() {
+        JakesRtpPlugin.plugin.reloadCommands();
         JakesRtpPlugin.plugin.loadRandomTeleporter();
         JakesRtpPlugin.plugin.loadLocationCacheFiller();
     }
@@ -102,7 +105,7 @@ public class CmdRtpAdmin extends DynamicArgsMap implements TabExecutor {
             for (String message : settings.infoStringAll(true, true))
                 sender.sendMessage(message);
         } catch (Exception e) {
-            sender.sendMessage("qqqqq");
+            sender.sendMessage("qqqqq"); //TODO REAL MESSAGE
         }
 
     }

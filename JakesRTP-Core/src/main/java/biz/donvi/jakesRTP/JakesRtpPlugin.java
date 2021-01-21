@@ -86,6 +86,12 @@ public final class JakesRtpPlugin extends JavaPlugin {
                     Loading methods
     \* ================================================== */
 
+
+    void reloadCommands(){
+        HandlerList.unregisterAll(this);
+        getCommand("rtp-admin").setExecutor(new CmdRtpAdmin(Util.getImpliedMap(cmdMap, "rtp-admin")));
+    }
+
     //<editor-fold desc="Loading Methods">
     @SuppressWarnings("ConstantConditions")
     private void loadConfigs() {

@@ -91,21 +91,24 @@ public class RtpSettings {
         infoLog(nameInLog + infoStringPriority(false));
 
         // Landing World
-        World landingWorld = defaults.landingWorld;
-        if (landingWorld == null) landingWorld = plugin.getServer().getWorld(config.getString("landing-world", null));
+        World landingWorld = config.getString("landing-world", null) == null ? null
+            : plugin.getServer().getWorld(config.getString("landing-world", null));
+        if (landingWorld == null) landingWorld = defaults.landingWorld;
         if (landingWorld == null) throw new JrtpBaseException("Landing world not recognised.");
         this.landingWorld = landingWorld;
         infoLog(nameInLog + infoStringDestinationWorld(false));
 
         // Call From Worlds
         callFromWorlds = new ArrayList<>();
-        if (defaults.callFromWorlds != null) callFromWorlds.addAll(defaults.callFromWorlds);
         for (String callFromWorld : config.getStringList("call-from-worlds"))
             for (World testByWorld : plugin.getServer().getWorlds())
                 if (!callFromWorlds.contains(testByWorld) &&
                     Pattern.compile(callFromWorld).matcher(testByWorld.getName()).matches()
                 ) callFromWorlds.add(testByWorld);
-        if (callFromWorlds.size() == 0) callFromWorlds.add(landingWorld);
+        if (callFromWorlds.size() == 0)
+            if (defaults.callFromWorlds != null) callFromWorlds.addAll(defaults.callFromWorlds);
+            else callFromWorlds.add(landingWorld);
+
         for (String s : infoStringsCallFromWorlds(false)) infoLog(nameInLog + s);
 
         // Distribution

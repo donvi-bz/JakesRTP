@@ -103,7 +103,10 @@ public class RandomTeleporter {
                             )
                         );
                         loaded[i] = oneLoaded = true; // Mark this one as good
-                    } else infoLog("Not loading config " + settingsFile.key + " since it is marked disabled.");
+                    } else {
+                        loaded[i] = true;
+                        infoLog("Not loading config " + settingsFile.key + " since it is marked disabled.");
+                    }
                 } catch (NullPointerException | JrtpBaseException e) {
                     log(Level.WARNING,
                         (e instanceof JrtpBaseException ? "Error: " + e.getMessage() + '\n' : "") +
