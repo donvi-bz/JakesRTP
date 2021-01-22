@@ -1,0 +1,40 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
+}
+
+repositories {
+    maven { url 'https://papermc.io/repo/repository/maven-public/' }
+    maven { url 'https://repo.codemc.io/repository/maven-public/' }
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    compileOnly 'org.spigotmc:spigot-api:1.16.2-R0.1-SNAPSHOT'
+    implementation 'io.papermc:paperlib:1.0.4'
+    implementation 'biz.donvi:ArgsChecker:1'
+    implementation 'biz.donvi:EvenDistribution:1.1.1'
+    implementation 'biz.donvi:GnuPlotter:1.1'
+    implementation project(":JRTP-1-12-2-patch")
+    compileOnly 'org.popcraft:chunky-common:1.2.2'
+    compileOnly 'org.popcraft:ChunkyBorder:1.0.5'
+    compileOnly 'com.github.Brettflan:WorldBorder:c0d1772418'
+    compileOnly 'com.github.MilkBowl:VaultAPI:1.7'
+}
+
+processResources {
+    from(sourceSets.main.resources.srcDirs) {
+        expand 'version': project.version
+        include 'plugin.yml'
+    }
+}
+
+shadowJar {
+    relocate 'io.papermc', 'biz.donvi.jakesRTP.libs.io.papermc'
+    relocate 'biz.donvi.argsChecker', 'biz.donvi.jakesRTP.libs.biz.donvi.argsChecker'
+    relocate 'biz.donvi.evenDistribution', 'biz.donvi.jakesRTP.libs.biz.donvi.evenDistribution'
+}
+
+artifacts {
+    archives shadowJar
+}

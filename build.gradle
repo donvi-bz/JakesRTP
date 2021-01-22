@@ -1,0 +1,20 @@
+defaultTasks 'build'
+
+subprojects {
+    apply plugin: 'java-library'
+
+    group = 'biz.donvi'
+    project.version = '0.13.5'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+    }
+
+    repositories {
+        mavenLocal()
+        maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+    }
+}

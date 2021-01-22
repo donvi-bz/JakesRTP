@@ -1,0 +1,5 @@
+rootProject.name = 'JakesRTP'
+include(
+        'JakesRTP-Core',
+        'JRTP-1-12-2-patch'
+)
