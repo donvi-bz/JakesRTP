@@ -335,7 +335,7 @@ public class RandomTeleporter {
                 255,
                 xz[1] + xzOffset[1]
             );
-            if (++attempts > 100) // TODO maybe set this as a static variable?
+            if (++attempts > 100) // maybe set this as a static variable? (removed to-do because minor)
                 throw new JrtpBaseException(Messages.NP_R_TOO_MANY_FAILED_ATTEMPTS.format() + " ~GP-RTP-L");
         } while (!isInWorldBorder(potentialLocation)); // Yeah, re-guessing, I know :(
         return potentialLocation;
@@ -365,11 +365,7 @@ public class RandomTeleporter {
         if (callFromLoc.getWorld() != rtpSettings.landingWorld)
             callFromLoc.setWorld(rtpSettings.landingWorld);
 
-        // Part 2: Quick error checking (world in world list) //TODO REPLACE WITH USEFUL CODE
-//        if (!rtpSettings.callFromWorlds.contains(callFromLoc.getWorld()))
-//            throw new JrtpBaseException.NotPermittedException(Messages.NP_R_NOT_ENABLED.format("~ECG"));
-
-        // Part 3 option 1: The Queue Route.
+        // Part 2 option 1: The Queue Route.
         // If we want to take from the queue and the queue is enabled, go here.
         if (queueEnabled && takeFromQueue && rtpSettings.canUseLocQueue) {
             Location preselectedLocation = rtpSettings.locationQueue.poll();
@@ -380,7 +376,7 @@ public class RandomTeleporter {
             }
         }
 
-        // Part 3 option 2: The Normal Route.
+        // Part 2 option 2: The Normal Route.
         // If we need to find a NEW location (meaning we can't use the queue), go here.
         Location potentialRtpLocation;
         int randAttemptCount = 0;
