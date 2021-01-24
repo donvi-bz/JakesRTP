@@ -38,3 +38,20 @@ shadowJar {
 artifacts {
     archives shadowJar
 }
+
+task copyToMainOut(type: Copy) {
+    dependsOn(tasks.build)
+    delete file("../build-output-final/").listFiles()
+    from file("build/libs/JakesRTP-Core-${project.version}-all.jar")
+    into file("../build-output-final")
+    rename 'Core-', 'v'
+    rename '-all', ''
+}
+
+task prepareTestServer(type: Copy) {
+    dependsOn(tasks.copyToMainOut)
+    delete file("../testServer/plugins/plugins/JakesRTP.jar")
+    from file("build/libs/JakesRTP-Core-${project.version}-all.jar")
+    into file("../testServer/plugins/plugins/")
+    rename '-.*all', ''
+}
