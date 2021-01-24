@@ -117,6 +117,8 @@ public class RtpOnEvent implements Listener {
     }
 
     private static boolean locAlmostEqual(Location a, Location b) {
-        return a.getBlockX() == b.getBlockX() && a.getBlockY() == b.getBlockY() && a.getBlockZ() == b.getBlockZ();
+        return a.getBlockX() == b.getBlockX() &&
+               a.getBlockY() == b.getBlockY() &&
+               a.getBlockZ() == b.getBlockZ();
     }
 }
