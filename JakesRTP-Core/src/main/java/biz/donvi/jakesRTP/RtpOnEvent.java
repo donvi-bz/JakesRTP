@@ -50,7 +50,7 @@ public class RtpOnEvent implements Listener {
     public void playerJoinMonitor(PlayerJoinEvent event) {
         Location properLoc = oldJoinEvents.get(event);
         Location actualLoc = event.getPlayer().getLocation();
-        if (properLoc == null || locAlmostEqual(properLoc, actualLoc)) return;
+        if (properLoc == null || locIntEqual(properLoc, actualLoc)) return;
         handlerLogging(event.getHandlers().getRegisteredListeners(), "rtp-on-join", "PlayerJoinEvent");
     }
 
@@ -62,7 +62,7 @@ public class RtpOnEvent implements Listener {
      * • {@code onDeathRequirePermission} is true, and the player does not have the correct permission<p>
      * • {@code onDeathRespectBeds} is true, and the player has a home bed
      *
-     * @param event
+     * @param event The PlayerRespawnEvent
      */
     @EventHandler(priority = EventPriority.HIGHEST)
     public void playerRespawn(PlayerRespawnEvent event) {
@@ -89,16 +89,17 @@ public class RtpOnEvent implements Listener {
     public void playerRespawnMonitor(PlayerRespawnEvent event) {
         Location properLoc = oldRespawnEvents.get(event);
         Location actualLoc = event.getRespawnLocation();
-        if (properLoc == null || locAlmostEqual(properLoc, actualLoc)) return;
+        if (properLoc == null || locIntEqual(properLoc, actualLoc)) return;
         handlerLogging(event.getHandlers().getRegisteredListeners(), "rtp-on-death", "PlayerRespawnEvent");
     }
 
 
-    private static void handlerLogging(RegisteredListener[] registeredListeners, String msg1, String msg2) {
+    private static void handlerLogging(RegisteredListener[] registeredListeners, String settingName, String eventName) {
         int i = 0, us = 0;
         JakesRtpPlugin.log(Level.WARNING, String.format(
             "It looks like you have %s enabled, but some plugin is messing with the results!\n" +
-            "Here is a print out of every plugin that messes with the %s event, hopefully this helps.", msg1, msg2));
+            "Here is a print out of every plugin that messes with the %s event, hopefully this helps.",
+            settingName, eventName));
         for (RegisteredListener listener : registeredListeners) {
             String logMsg = String.format("%02d: [%s] %s", i++,
                                           listener.getPriority().toString(),
@@ -116,7 +117,7 @@ public class RtpOnEvent implements Listener {
         }
     }
 
-    private static boolean locAlmostEqual(Location a, Location b) {
+    private static boolean locIntEqual(Location a, Location b) {
         return a.getBlockX() == b.getBlockX() &&
                a.getBlockY() == b.getBlockY() &&
                a.getBlockZ() == b.getBlockZ();
