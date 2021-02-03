@@ -65,7 +65,7 @@ public class WorldBorderPluginHook {
 
         @Override
         protected String name() {
-            return "default";
+            return "DefaultMC";
         }
 
         @Override
