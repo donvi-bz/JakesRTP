@@ -35,6 +35,7 @@ public class RandomTeleporter {
     // On death settings
     public final boolean     onDeathRtp;
     public final boolean     onDeathRespectBeds;
+    public final boolean     onDeathRespectAnchors;
     public final boolean     onDeathRequirePermission;
     public final RtpSettings onDeathSettings;
     // Misc settings
@@ -122,9 +123,10 @@ public class RandomTeleporter {
                 }
         } while (oneLoaded && !allLoaded);
         if (!allLoaded) plugin.getLogger().log(
-            Level.WARNING,"One or more settings were not loaded due to a missing rtpSettings dependency. " +
-                          "Make sure that at least one rtpSettings file does NOT have the key 'load-from' anywhere," +
-                          "and that all files that do have the 'load-from' have valid settings names as their value. ");
+            Level.WARNING, "One or more settings were not loaded due to a missing rtpSettings dependency. " +
+                           "Make sure that at least one rtpSettings file does NOT have the key 'load-from' anywhere," +
+                           "and that all files that do have the 'load-from' have valid settings names as their value." +
+                           " ");
         // Static settings:
         if (firstJoinRtp = globalConfig.getBoolean("rtp-on-first-join.enabled", false)) {
             firstJoinSettings = getRtpSettingsByName(globalConfig.getString("rtp-on-first-join.settings"));
@@ -133,10 +135,12 @@ public class RandomTeleporter {
         }
         if (onDeathRtp = globalConfig.getBoolean("rtp-on-death.enabled", false)) {
             onDeathRespectBeds = globalConfig.getBoolean("rtp-on-death.respect-beds", true);
+            onDeathRespectAnchors = globalConfig.getBoolean("rtp-on-death.respect-anchors", true);
             onDeathSettings = getRtpSettingsByName(globalConfig.getString("rtp-on-death.settings"));
             onDeathRequirePermission = globalConfig.getBoolean("rtp-on-death.require-permission", true);
         } else {
             onDeathRespectBeds = false;
+            onDeathRespectAnchors = false;
             onDeathRequirePermission = false;
             onDeathSettings = null;
         }
@@ -493,6 +497,7 @@ public class RandomTeleporter {
             lines.add(LVL_02_SET.format(mcFormat, "Settings to use", onDeathSettings.name));
             lines.add(LVL_02_SET.format(mcFormat, "Settings landing world", onDeathSettings.landingWorld.getName()));
             lines.add(LVL_02_SET.format(mcFormat, "Respect beds", enabledOrDisabled(onDeathRespectBeds)));
+            lines.add(LVL_02_SET.format(mcFormat, "Respect anchors", enabledOrDisabled(onDeathRespectAnchors)));
             lines.add(LVL_02_SET.format(mcFormat, "Require Permission", onDeathRequirePermission
                 ? "True (jakesrtp.rtpondeath)" : "False"));
         }

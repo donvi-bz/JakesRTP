@@ -31,6 +31,7 @@ rtp-on-death:
   enabled: false
   settings: 'default-settings'
   respect-beds: true
+  respect-anchors: true
   require-permission: true
 
 #### location-cache-filler

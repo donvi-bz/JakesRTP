@@ -1,11 +1,13 @@
 package biz.donvi.jakesRTP;
 
+import io.papermc.lib.PaperLib;
 import org.apache.commons.lang.text.StrBuilder;
 import org.bukkit.Location;
 import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.event.player.PlayerRespawnEvent;
 
 import java.io.File;
 import java.io.IOException;
@@ -157,5 +159,16 @@ public final class GeneralUtil {
         }
 
     }
+
+    /**
+     * If the current minecraft version has respawn anchors, this tells us if the event is an anchor spawn.
+     * If the current version does NOT have anchors, this returns false.
+     *
+     * @param event PlayerRespawnEvent event to check.
+     * @return Was this a 1.16+ respawn anchor spawn?
+     */
+    public static boolean isAnchorSpawn(PlayerRespawnEvent event) { return anchorSupport && event.isAnchorSpawn(); }
+
+    private static boolean anchorSupport = PaperLib.getMinecraftVersion() >= 16;
 
 }
