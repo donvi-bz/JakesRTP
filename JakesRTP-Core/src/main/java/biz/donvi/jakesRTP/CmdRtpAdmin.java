@@ -3,12 +3,10 @@ package biz.donvi.jakesRTP;
 import biz.donvi.argsChecker.ArgsChecker;
 import biz.donvi.argsChecker.ArgsTester;
 import biz.donvi.argsChecker.DynamicArgsMap;
-import biz.donvi.argsChecker.Util;
 import biz.donvi.jakesRTP.GeneralUtil.Pair;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
-import org.bukkit.event.HandlerList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -95,17 +93,21 @@ public class CmdRtpAdmin extends DynamicArgsMap implements TabExecutor {
 
 
     private void subStatus(CommandSender sender, String[] args) {
+        RandomTeleporter theRandomTeleporter = JakesRtpPlugin.plugin.getRandomTeleporter();
         if (args.length == 1 && args[0].equalsIgnoreCase("#static")) {
             StringBuilder msg = new StringBuilder();
-            for (String line : JakesRtpPlugin.plugin.getRandomTeleporter().infoStringAll(true))
+            for (String line : theRandomTeleporter.infoStringAll(true))
                 msg.append(line).append('\n');
             sender.sendMessage(msg.toString());
         } else try {
-            RtpSettings settings = JakesRtpPlugin.plugin.getRandomTeleporter().getRtpSettingsByName(args[0]);
+            RtpSettings settings = theRandomTeleporter.getRtpSettingsByName(args[0]);
             for (String message : settings.infoStringAll(true, true))
                 sender.sendMessage(message);
         } catch (Exception e) {
-            sender.sendMessage("qqqqq"); //TODO REAL MESSAGE
+            sender.sendMessage(
+                "Could not find any settings with the name " + args[0] + ", " +
+                GeneralUtil.listText(theRandomTeleporter.getRtpSettingsNames())
+            );
         }
 
     }

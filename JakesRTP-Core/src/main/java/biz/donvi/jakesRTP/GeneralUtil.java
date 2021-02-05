@@ -50,12 +50,19 @@ public final class GeneralUtil {
         return worldName + " (" + posS[0] + ", " + posS[1] + ", " + posS[2] + ")";
     }
 
+    /**
+     * Creates a string that is just {@code c} {@code times} times in a row
+     *
+     * @param c     The sole character to make up the string
+     * @param times The number of times it should appear (length of string)
+     * @return A string made up of character {@code c} {@code times} times
+     */
     public static String stringOf(char c, int times) {
         if (times <= 0) return "";
         if (times == 1) return String.valueOf(c);
-        StringBuilder strb = new StringBuilder();
-        for (int i = 0; i < times; i++) strb.append(c);
-        return strb.toString();
+        StringBuilder s = new StringBuilder();
+        for (int i = 0; i < times; i++) s.append(c);
+        return s.toString();
     }
 
     /**
@@ -171,4 +178,18 @@ public final class GeneralUtil {
 
     private static boolean anchorSupport = PaperLib.getMinecraftVersion() >= 16;
 
+    /**
+     * Just lists out the items in a list. Doesn't say "and" or "or" at the end, its just a simple
+     * comma separated list. Kinda like this: A, B, C, D
+     * @param items The items to list
+     * @return The items as comma separated list.
+     */
+    public static String listText(List<String> items) {
+        if (items == null || items.size() == 0) return null;
+        if (items.size() == 1) return items.get(0);
+        StringBuilder s = new StringBuilder(items.get(0));
+        for (int i = 1; i < items.size(); i++)
+            s.append(", ").append(items.get(i));
+        return s.toString();
+    }
 }
