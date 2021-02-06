@@ -237,8 +237,8 @@ public class SafeLocationUtils {
     }
 
     void dropToMiddle(final Location loc, int lowBound, int highBound, ChunkSnapshot chunk) {
-        loc.setY((highBound + lowBound) / 2d);      //Set starting point
-        Material mat = (chunk == null)              //Set starting material
+        loc.setY((highBound + lowBound) / 2d);  //Set starting point
+        Material mat = chunk == null            //Set starting material
             ? loc.getBlock().getType()          //  If we are on the bukkit thread, we should be called without a
             : locMatFromSnapshot(loc, chunk);   //  snapshot. If we are off it, we should have a snapshot.
 
