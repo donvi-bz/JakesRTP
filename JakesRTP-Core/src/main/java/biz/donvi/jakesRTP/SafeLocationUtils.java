@@ -248,12 +248,12 @@ public class SafeLocationUtils {
             downWasAir = false; //For escaping while
 
         //While [we are unsafe] check the next spot for partial safety
-        while ((
-                   (direction == -1)
-                       ? !(upWasSolid && isSafeToBeIn(mat))
-                       : !(downWasAir && isSafeToBeOn(mat)))
-               && loc.getY() > 0
-               && loc.getY() < 128
+        while (
+            (direction == -1
+                ? !(upWasSolid && isSafeToBeIn(mat))
+                : !(downWasAir && isSafeToBeOn(mat)))
+            && loc.getY() > 0
+            && loc.getY() < 128
         ) {
             mat = (chunk == null)
                 ? loc.getBlock().getType()
