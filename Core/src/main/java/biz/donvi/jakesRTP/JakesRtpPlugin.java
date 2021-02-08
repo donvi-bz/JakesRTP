@@ -291,7 +291,7 @@ public final class JakesRtpPlugin extends JavaPlugin {
 
     public static void log(Level level, String msg) {
         msgLog.add(new LogMsg(level, msg));
-        logger.log(Level.INFO, msg);
+        logger.log(level, msg);
     }
 
     public static void infoLog(String msg) {
