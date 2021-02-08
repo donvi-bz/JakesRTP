@@ -1,12 +1,8 @@
-# Project exclude paths
-/plot/
-/target/
-/testServer/
+/.gradle/
 /.idea/
-/artifacts/
 /.run/
-/JRTP-1.12.2-patch/target/
-/JakesRTP-Core/target/
-/JakesRTP-Core/build/
-/JRTP-1-12-2-patch/build/
 /build-output-final/
+/cache/
+/API/build/
+/Core/build/
+/patch-1-12-2/build/

@@ -15,7 +15,7 @@ dependencies {
     implementation 'biz.donvi:ArgsChecker:1'
     implementation 'biz.donvi:EvenDistribution:1.1.1'
     implementation 'biz.donvi:GnuPlotter:1.1'
-    implementation project(":JRTP-1-12-2-patch")
+    implementation project(":patch-1-12-2")
     compileOnly 'org.popcraft:chunky-common:1.2.2'
     compileOnly 'org.popcraft:ChunkyBorder:1.0.5'
     compileOnly 'com.github.Brettflan:WorldBorder:c0d1772418'
