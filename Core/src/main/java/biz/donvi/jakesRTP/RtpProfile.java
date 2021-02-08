@@ -7,6 +7,7 @@ import org.bukkit.configuration.ConfigurationSection;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -74,9 +75,6 @@ public class RtpProfile {
     public final boolean              canUseLocQueue;
     //</editor-fold>
 
-    RtpProfile(final ConfigurationSection config, String name, Map<String, DistributionSettings> distributions)
-    throws JrtpBaseException { this(config, name, distributions, DEFAULT_SETTINGS); }
-
     /**
      * Creates an RtpSettings object. This primarily deals with reading in data from a YAML config,
      * and saving all the data as something more accessible for the plugin.
@@ -115,15 +113,16 @@ public class RtpProfile {
         infoLog(nameInLog + infoStringDestinationWorld(false));
 
         // Call From Worlds
-        callFromWorlds = new ArrayList<>();
+        ArrayList<World> tempCallFromWorlds = new ArrayList<>();
         for (String callFromWorld : config.getStringList("call-from-worlds"))
             for (World testByWorld : plugin.getServer().getWorlds())
-                if (!callFromWorlds.contains(testByWorld) &&
+                if (!tempCallFromWorlds.contains(testByWorld) &&
                     Pattern.compile(callFromWorld).matcher(testByWorld.getName()).matches()
-                ) callFromWorlds.add(testByWorld);
-        if (callFromWorlds.size() == 0)
-            if (defaults.callFromWorlds != null) callFromWorlds.addAll(defaults.callFromWorlds);
-            else callFromWorlds.add(landingWorld);
+                ) tempCallFromWorlds.add(testByWorld);
+        if (tempCallFromWorlds.size() == 0)
+            if (defaults.callFromWorlds != null) tempCallFromWorlds.addAll(defaults.callFromWorlds);
+            else tempCallFromWorlds.add(landingWorld);
+        callFromWorlds = Collections.unmodifiableList(tempCallFromWorlds);
 
         for (String s : infoStringsCallFromWorlds(false)) infoLog(nameInLog + s);
 
