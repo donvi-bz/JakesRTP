@@ -49,8 +49,8 @@ I explain how the config works, and how to do multiple configs.
 ## The configs (and all their documentation)
 
 * The [main config](JakesRTP-Core/src/main/resources/config.yml)
-* Some info on [profiles/rtpSettings and distributions](doc/profiles.md)
-* The default [rtpSettings](JakesRTP-Core/src/main/resources/rtpSettings/default-settings.yml) config
+* Some info on [profiles/rtpProfile and distributions](doc/profiles.md)
+* The default [rtpProfile](JakesRTP-Core/src/main/resources/rtpProfile/default-settings.yml) config
 * Two different default distribution profiles
     * [one](JakesRTP-Core/src/main/resources/distributions/default-symmetric.yml) for circles and squares
     * [another](JakesRTP-Core/src/main/resources/distributions/default-rectangle.yml) for rectangles
@@ -71,7 +71,7 @@ Go [here](doc/commands.md) for a more detailed explination.
     * description: Allows the use of the base "/rtp" command
     * default: true
 * jakesrtp.usebyname:
-    * description: Allows players to give a rtpSettings name after rtp as such: "/rtp \<settingsName>"
+    * description: Allows players to give a rtpProfile name after rtp as such: "/rtp \<settingsName>"
     * default: false
 * jakesrtp.rtpondeath
     * description: If rtp-on-death is enabled, players with this node will be respawn in a random location

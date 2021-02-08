@@ -18,12 +18,28 @@ import static biz.donvi.jakesRTP.MessageStyles.DebugDisplayLines.*;
 import static biz.donvi.jakesRTP.MessageStyles.enabledOrDisabled;
 import static biz.donvi.jakesRTP.RandomTeleporter.EXPLICIT_PERM_PREFIX;
 
-public class RtpSettings {
+public class RtpProfile {
 
     /**
      * An instance of RtpSettings with all the default values.
      */
-    static final RtpSettings DEFAULT_SETTINGS = new RtpSettings();
+    static final RtpProfile DEFAULT_SETTINGS = new RtpProfile(
+        "__INTERNAL_DEFAULT_SETTINGS__",
+        true,
+        false,
+        1,
+        null, null, /* DO NOT USE | NULL NOT SAFE */
+        null, /* DO NOT USE | NULL NOT SAFE */
+        new CoolDownTracker(30), // DO NOT USE
+        0, true, true,
+        32, 255,
+        2, 2,
+        10,
+        10,
+        LocCheckProfiles.AUTO,
+        new String[0],
+        0
+    );
 
     /**
      * A map of config worlds and their respective location cache as a queue. This is also the only storage
@@ -58,7 +74,7 @@ public class RtpSettings {
     public final boolean              canUseLocQueue;
     //</editor-fold>
 
-    RtpSettings(final ConfigurationSection config, String name, Map<String, DistributionSettings> distributions)
+    RtpProfile(final ConfigurationSection config, String name, Map<String, DistributionSettings> distributions)
     throws JrtpBaseException { this(config, name, distributions, DEFAULT_SETTINGS); }
 
     /**
@@ -69,9 +85,9 @@ public class RtpSettings {
      * @throws JrtpBaseException if any data can not be loaded.
      */
     @SuppressWarnings("ConstantConditions")
-    RtpSettings(
+    RtpProfile(
         final ConfigurationSection config, String name, Map<String, DistributionSettings> distributions,
-        RtpSettings defaults
+        RtpProfile defaults
     ) throws JrtpBaseException {
         this.name = name;
         String nameInLog = "[" + this.name + "] ";
@@ -173,33 +189,51 @@ public class RtpSettings {
 
     }
 
-    /**
-     * Creates the "Default" RtpSettings object. This object holds all the plugin-level default values for the config.
-     * This is for internal use only. This constructor should only need to be called once (on startup).
-     */
-    private RtpSettings() {
-        name = "__INTERNAL_DEFAULT_SETTINGS__";
-        commandEnabled = true;
-        requireExplicitPermission = false;
-        priority = 1;
-        landingWorld = null; // DO NOT USE
-        callFromWorlds = null; // DO NOT USE
-        distribution = null; // DO NOT USE
-        coolDown = new CoolDownTracker(30); // DO NOT USE
-        warmup = 0;
-        warmupCancelOnMove = true;
-        warmupCountDown = true;
-        lowBound = 32;
-        highBound = 255;
-        checkRadiusXZ = 2;
-        checkRadiusVert = 2;
-        maxAttempts = 10;
-        cacheLocationCount = 10;
-        checkProfile = LocCheckProfiles.AUTO;
-        commandsToRun = new String[0];
-        cost = 0;
-        warmupEnabled = false; //DO NOT USE
-        canUseLocQueue = false; //DO NOT USE
+    private RtpProfile(
+        String name,
+        boolean commandEnabled,
+        boolean requireExplicitPermission,
+        float priority,
+        World landingWorld,
+        List<World> callFromWorlds,
+        DistributionSettings distribution,
+        CoolDownTracker coolDown,
+        int warmup,
+        boolean warmupCancelOnMove,
+        boolean warmupCountDown,
+        int lowBound,
+        int highBound,
+        int checkRadiusXZ,
+        int checkRadiusVert,
+        int maxAttempts,
+        int cacheLocationCount,
+        LocCheckProfiles checkProfile,
+        String[] commandsToRun,
+        double cost
+    ) {
+        this.name = name;
+        this.commandEnabled = commandEnabled;
+        this.requireExplicitPermission = requireExplicitPermission;
+        this.priority = priority;
+        this.landingWorld = landingWorld;
+        this.callFromWorlds = callFromWorlds;
+        this.distribution = distribution;
+        this.coolDown = coolDown;
+        this.warmup = warmup;
+        this.warmupCancelOnMove = warmupCancelOnMove;
+        this.warmupCountDown = warmupCountDown;
+        this.lowBound = lowBound;
+        this.highBound = highBound;
+        this.checkRadiusXZ = checkRadiusXZ;
+        this.checkRadiusVert = checkRadiusVert;
+        this.maxAttempts = maxAttempts;
+        this.cacheLocationCount = cacheLocationCount;
+        this.checkProfile = checkProfile;
+        this.commandsToRun = commandsToRun;
+        this.cost = cost;
+        warmupEnabled = warmup > 0;
+        canUseLocQueue = distribution.center != DistributionSettings.CenterTypes.PLAYER_LOCATION &&
+                         cacheLocationCount > 0;
     }
 
     public List<String> infoStringAll(boolean mcFormat, boolean full) {

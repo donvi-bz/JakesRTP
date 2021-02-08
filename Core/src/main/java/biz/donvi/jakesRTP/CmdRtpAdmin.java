@@ -83,7 +83,7 @@ public class CmdRtpAdmin extends DynamicArgsMap implements TabExecutor {
     private List<String> getConfigNames() {
         if (getConfigNamesResults == null || getConfigNamesResults.key < System.currentTimeMillis()) {
             ArrayList<String> settingsNames = new ArrayList<>();
-            for (RtpSettings settings : JakesRtpPlugin.plugin.getRandomTeleporter().getRtpSettings()) {
+            for (RtpProfile settings : JakesRtpPlugin.plugin.getRandomTeleporter().getRtpSettings()) {
                 settingsNames.add(settings.name);
             }
             getConfigNamesResults = new Pair<>(System.currentTimeMillis() + 1000, settingsNames);
@@ -100,7 +100,7 @@ public class CmdRtpAdmin extends DynamicArgsMap implements TabExecutor {
                 msg.append(line).append('\n');
             sender.sendMessage(msg.toString());
         } else try {
-            RtpSettings settings = theRandomTeleporter.getRtpSettingsByName(args[0]);
+            RtpProfile settings = theRandomTeleporter.getRtpSettingsByName(args[0]);
             for (String message : settings.infoStringAll(true, true))
                 sender.sendMessage(message);
         } catch (Exception e) {

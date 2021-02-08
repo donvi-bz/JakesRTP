@@ -32,7 +32,7 @@ public class LocationCacheFiller implements Runnable {
             infoLog("[J-RTP] LCF Started.");
             while (keepRunning && isPluginLoaded())
                 try {
-                    for (RtpSettings settings : getCurrentRtpSettings()) {
+                    for (RtpProfile settings : getCurrentRtpSettings()) {
                         if (!keepRunning) break;
                         else pluginMain().getRandomTeleporter().fillQueue(settings);
                     }
@@ -74,9 +74,9 @@ public class LocationCacheFiller implements Runnable {
      *
      * @return An array of the current {@code RtpSettings} for the plugin.
      */
-    private RtpSettings[] getCurrentRtpSettings() {
+    private RtpProfile[] getCurrentRtpSettings() {
         //noinspection ConstantConditions
-        return pluginReference.get().getRandomTeleporter().getRtpSettings().toArray(new RtpSettings[0]);
+        return pluginReference.get().getRandomTeleporter().getRtpSettings().toArray(new RtpProfile[0]);
     }
 
     /**

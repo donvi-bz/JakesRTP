@@ -30,7 +30,7 @@ public class CmdRtp implements TabExecutor {
                 Player player = (Player) sender;
                 if (args.length == 1 && !sender.hasPermission("jakesrtp.usebyname"))
                     return false;
-                RtpSettings relSettings = args.length == 0
+                RtpProfile relSettings = args.length == 0
                     ? randomTeleporter.getRtpSettingsByWorldForPlayer(player)
                     : randomTeleporter.getRtpSettingsByNameForPlayer(player, args[0]);
                 if (player.hasPermission("jakesrtp.nocooldown") // If the player has permission to skip cooldown
@@ -71,7 +71,7 @@ public class CmdRtp implements TabExecutor {
         return true;
     }
 
-    private Runnable makeRunnable(final Player player, final RtpSettings rtpSettings, boolean calculatedWarmup) {
+    private Runnable makeRunnable(final Player player, final RtpProfile rtpProfile, boolean calculatedWarmup) {
         return new Runnable() {
             private final BukkitScheduler scheduler = player.getServer().getScheduler();
             private final Location startLoc = player.getLocation().clone();
@@ -86,11 +86,11 @@ public class CmdRtp implements TabExecutor {
                     // If There should be no warmup, we teleport the user immediately.
                 else if (!warmup) teleport();
                     // If we want the user to stand still AND they move, we cancel this runnable / future rtp.
-                else if (rtpSettings.warmupCancelOnMove && startLoc.distance(player.getLocation()) > 1) cancel();
+                else if (rtpProfile.warmupCancelOnMove && startLoc.distance(player.getLocation()) > 1) cancel();
                     // If we have waited enough time, we teleport the user.
-                else if (timeDifInSeconds() >= rtpSettings.warmup) teleport();
+                else if (timeDifInSeconds() >= rtpProfile.warmup) teleport();
                     // If we got to this point, the user still has to wait, and if wanted, we let them know how long.
-                else if (rtpSettings.warmupCountDown) countDown();
+                else if (rtpProfile.warmupCountDown) countDown();
                 // If none of these were called, we just silently wait until the next time run() is called.
             }
 
@@ -99,30 +99,30 @@ public class CmdRtp implements TabExecutor {
             private void countDown() {
                 player.sendMessage(Messages.
                     WARMUP_TELEPORTING_IN_X.format(
-                    rtpSettings.warmup - timeDifInSeconds()
+                    rtpProfile.warmup - timeDifInSeconds()
                 ));
             }
 
             private void teleport() {
                 try {
-                    if (rtpSettings.cost > 0 && plugin.getEconomy().getBalance(player) < rtpSettings.cost) {
+                    if (rtpProfile.cost > 0 && plugin.getEconomy().getBalance(player) < rtpProfile.cost) {
                         player.sendMessage(Messages.ECON_NO_LONGER_ENOUGH_MONEY.format());
                         return;
                     }
                     // Do the teleport action
                     new RandomTeleportAction(
                         randomTeleporter,
-                        rtpSettings,
+                        rtpProfile,
                         player.getLocation(),
                         true,
                         true,
                         randomTeleporter.logRtpOnCommand, "Rtp-from-command triggered!"
                     ).teleportAsync(player);
                     // Log in the cooldown list
-                    rtpSettings.coolDown.log(player.getName(), System.currentTimeMillis());
+                    rtpProfile.coolDown.log(player.getName(), System.currentTimeMillis());
                     // Charge the player
-                    if (rtpSettings.cost > 0) {
-                        EconomyResponse er = plugin.getEconomy().withdrawPlayer(player, rtpSettings.cost);
+                    if (rtpProfile.cost > 0) {
+                        EconomyResponse er = plugin.getEconomy().withdrawPlayer(player, rtpProfile.cost);
                         if (er.transactionSuccess()) player.sendMessage(Messages.ECON_YOU_WERE_CHARGED_X.format(
                             plugin.getEconomy().format(er.amount),
                             plugin.getEconomy().format(er.balance)));

@@ -53,12 +53,12 @@ public class CmdForceRtp extends DynamicArgsMap implements TabExecutor {
             sender.sendMessage(Messages.PLAYER_NOT_FOUND.format(args[0]));
             return;
         }
-        RtpSettings rtpSettings = randomTeleporter.getRtpSettingsByName(args[1]);
+        RtpProfile rtpProfile = randomTeleporter.getRtpSettingsByName(args[1]);
 
         // ↑ Check step | Teleport step ↓
 
         new RandomTeleportAction(
-            randomTeleporter, rtpSettings, playerToTp.getLocation(), true, true,
+            randomTeleporter, rtpProfile, playerToTp.getLocation(), true, true,
             randomTeleporter.logRtpOnForceCommand, "Rtp-from-force-command triggered!"
         ).teleportAsync(playerToTp);
     }

@@ -20,7 +20,7 @@ import static biz.donvi.jakesRTP.JakesRtpPlugin.infoLog;
 public class RandomTeleportAction {
 
     public final RandomTeleporter randomTeleporter;
-    public final RtpSettings      rtpSettings;
+    public final RtpProfile       rtpProfile;
     public final Location         callFromLoc;
     public final boolean          takeFromQueue;
     public final boolean          timed;
@@ -45,7 +45,7 @@ public class RandomTeleportAction {
      * or if you just want the location, use {@link #requestLocation()} (which does not require a player).
      *
      * @param randomTeleporter The randomTeleporter instance that does the heavy lifting.
-     * @param rtpSettings      The settings to respect while finding the location.
+     * @param rtpProfile      The settings to respect while finding the location.
      * @param callFromLoc      The initial location.
      * @param takeFromQueue    Take a location from the queue (if possible).
      * @param timed            Should we time this?
@@ -53,11 +53,11 @@ public class RandomTeleportAction {
      * @param logMessage       A prefix to the standard log message. Helpful for which bit of code called this.
      */
     public RandomTeleportAction(
-        RandomTeleporter randomTeleporter, RtpSettings rtpSettings, Location callFromLoc,
+        RandomTeleporter randomTeleporter, RtpProfile rtpProfile, Location callFromLoc,
         boolean takeFromQueue, boolean timed, boolean log, String logMessage
     ) {
         this.randomTeleporter = randomTeleporter;
-        this.rtpSettings = rtpSettings;
+        this.rtpProfile = rtpProfile;
         this.callFromLoc = callFromLoc;
         this.takeFromQueue = takeFromQueue;
         this.timed = timed;
@@ -168,12 +168,12 @@ public class RandomTeleportAction {
         else used = true;
         if (timed) timeStart = System.currentTimeMillis();
         landingLoc = randomTeleporter.getRtpLocation(
-            rtpSettings,
+            rtpProfile,
             callFromLoc,
             takeFromQueue);
         this.player = player;
         //<editor-fold desc="setPlaceholders();">
-        if (rtpSettings.commandsToRun.length != 0) {
+        if (rtpProfile.commandsToRun.length != 0) {
             placeholders.put("location", locationAsString(landingLoc, 1, false));
             placeholders.put("world", Objects.requireNonNull(landingLoc.getWorld()).getName());
             placeholders.put("x", String.valueOf(landingLoc.getBlockX()));
@@ -211,8 +211,8 @@ public class RandomTeleportAction {
                 logMessage +
                 "Player did not teleport.");
         rtpCount++;
-        if (rtpSettings.commandsToRun.length != 0)
-            for (String command : rtpSettings.commandsToRun)
+        if (rtpProfile.commandsToRun.length != 0)
+            for (String command : rtpProfile.commandsToRun)
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), fillPlaceholders(command, placeholders));
     }
 
