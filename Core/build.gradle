@@ -42,9 +42,9 @@ artifacts {
 task copyToMainOut(type: Copy) {
     dependsOn(tasks.build)
     delete file("../build-output-final/").listFiles()
-    from file("build/libs/JakesRTP-Core-${project.version}-all.jar")
+    from file("build/libs/Core-${project.version}-all.jar")
     into file("../build-output-final")
-    rename 'Core-', 'v'
+    rename 'Core-', 'JakesRTP-v'
     rename '-all', ''
 }
 
