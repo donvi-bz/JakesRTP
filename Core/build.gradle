@@ -51,7 +51,7 @@ task copyToMainOut(type: Copy) {
 task prepareTestServer(type: Copy) {
     dependsOn(tasks.copyToMainOut)
     delete file("../testServer/plugins/JakesRTP.jar")
-    from file("build/libs/JakesRTP-Core-${project.version}-all.jar")
+    from file("../build-output-final/JakesRTP-v${project.version}.jar")
     into file("../testServer/plugins/")
-    rename '-.*all', ''
+    rename '-.*\\.', '\\.'
 }

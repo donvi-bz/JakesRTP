@@ -231,7 +231,8 @@ public class RtpProfile {
         this.commandsToRun = commandsToRun;
         this.cost = cost;
         warmupEnabled = warmup > 0;
-        canUseLocQueue = distribution.center != DistributionSettings.CenterTypes.PLAYER_LOCATION &&
+        canUseLocQueue = distribution != null &&
+                         distribution.center != DistributionSettings.CenterTypes.PLAYER_LOCATION &&
                          cacheLocationCount > 0;
     }
 
