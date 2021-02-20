@@ -1,5 +1,8 @@
+![Spiget Version](https://img.shields.io/spiget/version/80201?color=blue&label=Current%20Version%20%28Spigot%29)
+![Spiget Downloads](https://img.shields.io/spiget/downloads/80201?label=Downloads%20%28Spigot%29)
+![bStats Servers](https://img.shields.io/bstats/servers/9843?label=Current%20Servers)
+![bStats Players](https://img.shields.io/bstats/players/9843?label=Current%20Players)  
 <sup>_A Spigot/Paper Plugin | Native Minecraft Version: 1.16_</sup>
-
 # Jake's Random Teleporter `[J-RTP]`
 
 What does it do? • Teleports a player to a random location by when they type `/rtp` or `/wild`, or when they join the
