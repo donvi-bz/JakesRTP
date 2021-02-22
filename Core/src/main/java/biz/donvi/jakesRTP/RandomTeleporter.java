@@ -34,13 +34,13 @@ public class RandomTeleporter {
     public final RtpProfile firstJoinSettings;
     // On death settings
     public final boolean    onDeathRtp;
-    public final boolean     onDeathRespectBeds;
-    public final boolean     onDeathRespectAnchors;
+    public final boolean    onDeathRespectBeds;
+    public final boolean    onDeathRespectAnchors;
     public final boolean    onDeathRequirePermission;
     public final RtpProfile onDeathSettings;
     // Misc settings
     public final boolean    queueEnabled;
-    public final int         asyncWaitTimeout;
+    public final int        asyncWaitTimeout;
 
     // Logging settings
     public final boolean
@@ -305,7 +305,7 @@ public class RandomTeleporter {
      *
      * @param callFromLoc A location representing where the call originated from. This is used to get either the world
      *                    spawn, or player location for the position offset
-     * @param rtpProfile The relevant settings for RTP
+     * @param rtpProfile  The relevant settings for RTP
      * @return The first location to check the safety of, which may end up being the final teleport location
      */
     @SuppressWarnings("ConstantConditions")
@@ -350,7 +350,7 @@ public class RandomTeleporter {
      * A fail-safe is included to throw an exception if too many unsuccessful attempts have been made.
      * This method can bypass explicit permission checks.
      *
-     * @param rtpProfile   The specific RtpSettings to get the location with.
+     * @param rtpProfile    The specific RtpSettings to get the location with.
      * @param callFromLoc   The location that the call originated from. Used to find the world spawn,
      *                      or player's current location.
      * @param takeFromQueue Should we attempt to take the location from the queue before finding one on the spot?

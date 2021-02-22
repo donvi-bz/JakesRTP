@@ -57,10 +57,8 @@ public class CmdRtp implements TabExecutor {
                         } else player.sendMessage(Messages.ECON_NOT_ENOUGH_MONEY.format(
                             relSettings.cost, plugin.getEconomy().getBalance(player)));
                     } else player.sendMessage(Messages.WARMUP_RTP_ALREADY_CALLED.format());
-                } else player.sendMessage(Messages.
-                    NEED_WAIT_COOLDOWN.format(
-                    relSettings.coolDown.timeLeftWords(player.getName())
-                ));
+                } else player.sendMessage(Messages.NEED_WAIT_COOLDOWN.format(
+                    relSettings.coolDown.timeLeftWords(player.getName())));
             }
         } catch (JrtpBaseException.NotPermittedException npe) {
             sender.sendMessage(Messages.NP_GENERIC.format(npe.getMessage()));

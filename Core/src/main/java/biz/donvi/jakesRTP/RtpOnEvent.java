@@ -11,7 +11,7 @@ import org.bukkit.plugin.RegisteredListener;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
 
-import static biz.donvi.jakesRTP.GeneralUtil.*;
+import static biz.donvi.jakesRTP.GeneralUtil.isAnchorSpawn;
 
 public class RtpOnEvent implements Listener {
 
