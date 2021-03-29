@@ -1,0 +1,76 @@
+# - - - - - - - - - - - - - - -
+# - Messages File - Hungarian -
+# - - - - - - - - - - - - - - -
+# All messages sent in game by this plugin are stored here (and in the future in other files for other languages as well).
+# This file should not be edited directly, but instead used as a reference for writing message overrides in
+#   `language-settings.yml`.
+# All messages will have a brief description, and an explanation of what each placeholder represents.
+# # # # # # # # # # # # # # # # #
+
+# For when an RTP action is denied such as trying to rtp in a world that does not allow rtp.
+#   {0} - The reason the action was denied.
+not-permitted-generic: 'Nem tudtunk elteleportálni, ok: {0}'
+# For when an RTP action is denied because an issue occurred. Ex: an exception occurs while waiting for an rtp location.
+#   {0} - The message from the exception that caused this message to appear.
+#   Note: This is always followed in console by a stack trace (which can not be configured)
+not-permitted-major-error: 'Hiba. Nem tudtunk elteleportálni, ok: {0} \nKérlek nézd meg a konzolt/szólj adminnak.'
+# For when the reason an action is denied is that rtp is not enabled in the world.
+#   {0} - An identifier that helps with debugging
+not-enabled-in-this-world: 'RTP ebben a világbna nem engedélyezett. {0}'
+# For no rtpSettings are found with a given name
+#   {0} - The given name
+no-settings-found-with-name: 'Nincs RTP beállítás {0} névvel.'
+# For no rtpSettings are found with a given name WHEN SEARCHED BY A SPECIFIC PLAYER
+# This will both be displayed when the rtpSettings with the given name do not exist, or the player who ran
+#   the `/rtp <settingsName>` command did not have permission to use the settings found.
+#   {0} - The given name
+no-settings-found-with-name-for-player: 'Nem találtunk RTP beállítást {0} néven.'
+# For when too many attempts are made by the plugin to find a point with no success.
+too-many-failed-attempts: 'Túl sok hibás próbálkozás!'
+# For any time the plugin expects a player's name but does not receive the name of a player.
+#   {0} - The name given that did not match a player.
+player-not-found: 'Játékos {0} nem található.'
+# For when a world name is expected but not received.
+#   {0} - The given name that matched no world names.
+world-not-found: 'Nincs {0} néven világ generálva.'
+# For when a given rtpSettings is expected to contain the given world, but does not.
+#   {0} - The rtpSetting's name
+#   {1} - The world's name
+rtp-settings-no-contain-world: 'Input mismatch: RtpSettings "{0}" does not contain the world "{1}" as one of its enabled worlds.'
+# For when a given rtpSettings can only land people in one world but another world is requested instead.
+#   {0} - The rtpSetting's name
+#   {1} - The only valid world name
+rtp-settings-must-use-world: 'Input mismatch: RtpSettings "{0}" can only teleport people in world "{1}"'
+# For when a player needs to wait for a cooldown before running the command again.
+#   {0} - The cooldown time (uses READABLE-TIME as defined below)
+need-to-wait-for-cooldown: 'Hupsz! Még várnod kell {0} másodpercet.'
+# For when a player is waiting  for the warmup before teleporting. (Only gets used if `warmup.time` is greater than 0)
+#   {0} - The number of seconds remaining
+teleporting-in-x-seconds: 'Teleportálás {0} másodpercen belül...'
+# For when a player walks during their rtp warmup canceling it. (Only gets used if `warmup.time` is greater than 0)
+moved-during-warmup: 'Mozogtál, a teleportálás megszakítva.'
+# For when a player is waiting on the warmup and calls `/rtp` again. (Only gets used if `warmup.time` is greater than 0)
+rtp-called-while-in-warmup: 'Már vársz egy Random Teleport bemelegítőre!'
+# For when something costs money, but the player does not have enough.
+#   {0} - The cost
+#   {1} - The player's balance
+not-enough-money: 'Nincs elég pénzed ehhez. Ár: {0}. Egyenleg: {1}.'
+# For when the player had enough money to run the command, but does not have enough by the time they get charged.
+# This will only really happen if a player tries to get around paying by emptying their balance before the warmup is over.
+no-longer-enough-money: 'Már nincs elég pénzed ehhez.'
+# For when a player is charged.
+#   {0} - The amount charged
+#   {1} - The amount they player has left
+you-were-charged-x: 'Fizettél {0}, mostmár csak {1} tartózkodik az egyenlegeden.'
+# READABLE-TIME - This is a special case message. Whenever a time needs to be displayed, it will use this for
+#   formatting. Also, each 'word' will only be displayed if the associated number value is greater than 0.
+# Example: 8675 seconds will be formatted as such: `2 hours, 24 minutes, 35 seconds.` Note the absence of days.
+readable-time: '{0}{1}{2}{3}'
+readable-time-word-days:    '{0} nap, '
+readable-time-word-hours:   '{0} óra, '
+readable-time-word-minutes: '{0} perc, '
+readable-time-word-seconds: '{0} másodperc.'
+
+# Translation done by
+# Name:   Bowie @ www.rivalsnetwork.hu
+# Discord:  discord.io/rivalsnetwork

@@ -28,8 +28,7 @@ public final class GeneralUtil {
     public static final Pattern SLASH_N_REGEX_DOUBLE            = Pattern.compile("\\\\n");
     public static final Pattern LEGACY_COLOR_REGEX_W_LOOKBEHIND = Pattern.compile("(?<!&)&([0-9a-fk-orx])");
     public static final Pattern LEGACY_COLOR_REGEX_DOUBLE       = Pattern.compile("&&([0-9a-fk-orx])");
-    public static final Pattern HEX_COLOR_REGEX                 = Pattern.compile(
-        "\\{#([\\da-fA-F])([\\da-fA-F])([\\da-fA-F])([\\da-fA-F])([\\da-fA-F])([\\da-fA-F])}");
+    public static final Pattern HEX_COLOR_REGEX                 = Pattern.compile("\\{#[\\da-fA-F]{6}}");
 
     /**
      * Returns a string representing the given location with generic formatting, leaving out the pitch and yaw,
@@ -176,11 +175,12 @@ public final class GeneralUtil {
      */
     public static boolean isAnchorSpawn(PlayerRespawnEvent event) { return anchorSupport && event.isAnchorSpawn(); }
 
-    private static boolean anchorSupport = PaperLib.getMinecraftVersion() >= 16;
+    private static final boolean anchorSupport = PaperLib.getMinecraftVersion() >= 16;
 
     /**
      * Just lists out the items in a list. Doesn't say "and" or "or" at the end, its just a simple
      * comma separated list. Kinda like this: A, B, C, D
+     *
      * @param items The items to list
      * @return The items as comma separated list.
      */
