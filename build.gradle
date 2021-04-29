@@ -4,7 +4,7 @@ subprojects {
     apply plugin: 'java-library'
 
     group = 'biz.donvi'
-    project.version = '0.13.8'
+    project.version = '0.13.10'
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
