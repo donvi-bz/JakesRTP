@@ -28,7 +28,8 @@ public final class GeneralUtil {
     public static final Pattern SLASH_N_REGEX_DOUBLE            = Pattern.compile("\\\\n");
     public static final Pattern LEGACY_COLOR_REGEX_W_LOOKBEHIND = Pattern.compile("(?<!&)&([0-9a-fk-orx])");
     public static final Pattern LEGACY_COLOR_REGEX_DOUBLE       = Pattern.compile("&&([0-9a-fk-orx])");
-    public static final Pattern HEX_COLOR_REGEX                 = Pattern.compile("\\{#[\\da-fA-F]{6}}");
+    public static final Pattern HEX_COLOR_REGEX                 = Pattern.compile(
+        "\\{#([\\da-fA-F])([\\da-fA-F])([\\da-fA-F])([\\da-fA-F])([\\da-fA-F])([\\da-fA-F])}");
 
     /**
      * Returns a string representing the given location with generic formatting, leaving out the pitch and yaw,
