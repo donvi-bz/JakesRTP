@@ -4,12 +4,16 @@ import org.bukkit.Location;
 import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.WorldBorder;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.popcraft.chunky.shape.Shape;
 import org.popcraft.chunkyborder.BorderData;
 import org.popcraft.chunkyborder.ChunkyBorder;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 
 public class WorldBorderPluginHook {
 
@@ -24,15 +28,16 @@ public class WorldBorderPluginHook {
         this.hook = findHook();
 
         // And after the hook is (potentially) loaded...
-        if (hasHook()) JakesRtpPlugin.infoLog(
-            "It looks like your using the world border plugin '" + hook.name() + "'.\n" +
-            "Random teleport locations will always end up inside any world border.");
+        if (hasHook()) {
+            JakesRtpPlugin.infoLog("It looks like your using the world border plugin '" + hook.name() + "'.");
+            JakesRtpPlugin.infoLog("Random teleport locations will always end up inside any world border.");
+        }
     }
 
     private PluginSpecificHook findHook() {
         PluginSpecificHook potentialHook;
         // Repeat this ↓ for each potential hook
-        if ((potentialHook = new ChunkyBorderHook()).hasInstance()) return potentialHook;
+        if ((potentialHook = new ChunkyBorderHook()).isUsable()) return potentialHook;
         // No hook?
         return new DefaultAsHook();
     }
@@ -40,7 +45,7 @@ public class WorldBorderPluginHook {
     public boolean hasHook() {return !(hook instanceof DefaultAsHook);}
 
     public boolean isInside(Location loc) {
-        if (hook == null) return true;
+        if (hook == null || !hook.isUsable()) return true;
         else return hook.isInside(loc);
     }
 
@@ -56,7 +61,32 @@ public class WorldBorderPluginHook {
 
         public abstract boolean isInside(Location loc);
 
-        public boolean hasInstance() { return server.getPluginManager().getPlugin(name()) != null; }
+        private Plugin instance = null;
+        public Plugin instance() {
+            if (instance == null) instance = server.getPluginManager().getPlugin(name());
+            return instance;
+        }
+
+        public boolean hasInstance() { return instance() != null; }
+
+        private int[] version = null;
+        public int[] getVersion() {
+            if (!hasInstance()) return null;
+            if (version == null) {
+                String[] versionParts = instance().getDescription().getVersion().split("\\.");
+                version = new int[versionParts.length];
+                for(int i = 0; i < versionParts.length; i++) version[i] = Integer.parseInt(versionParts[i]);
+            }
+            return version;
+        }
+
+        /**
+         * Method to tell if the plugin hook is usable.
+         * OVERRIDE THIS TO ADD CUSTOM CODE FOR EACH PLUGIN AS NECESSARY
+         * @return True if the plugin is usable, false otherwise.
+         */
+        public boolean isUsable() { return hasInstance() && !noLongerUsable; }
+        protected boolean noLongerUsable = false; // Set if some incompatability is found later down the line
 
         public abstract Map<String, DistributionSettings> generateDistributions();
     }
@@ -104,6 +134,12 @@ public class WorldBorderPluginHook {
         @Override
         protected String name() { return "ChunkyBorder"; }
 
+//        @Override
+//        public boolean isUsable() {
+//            //FLAG Horrible line of code, MUST CHANGE AFTER NEW CHUNKYBORDER API IS OUT
+//            return !Arrays.equals(getVersion(), new int[]{1,0,38});
+//        }
+
         @Override
         public boolean isInside(Location loc) {
             //noinspection ConstantConditions // A world from the server will never not have a name
@@ -119,17 +155,24 @@ public class WorldBorderPluginHook {
         @Override
         public Map<String, DistributionSettings> generateDistributions() {
             Map<String, DistributionSettings> distributions = new HashMap<>();
-            for (Map.Entry<String, BorderData> set : getInstance().getBorders().entrySet()) {
-                BorderData bd = set.getValue();
-                distributions.put(
-                    DIST_NAME_PREFIX + set.getKey(),
-                    new DistributionSettings(
-                        new DistributionShape.Rectangle(
-                            bd.getRadiusX(),
-                            bd.getRadiusZ()),
-                        bd.getCenterX(),
-                        bd.getCenterZ())
-                );
+            try {
+                for (Map.Entry<String, BorderData> set : getInstance().getBorders().entrySet()) {
+                    BorderData bd = set.getValue();
+                    distributions.put(
+                        DIST_NAME_PREFIX + set.getKey(),
+                        new DistributionSettings(
+                            new DistributionShape.Rectangle(
+                                bd.getRadiusX(),
+                                bd.getRadiusZ()),
+                            bd.getCenterX(),
+                            bd.getCenterZ())
+                    );
+                }
+            } catch (NoSuchMethodError e) {
+                noLongerUsable = true;
+                JakesRtpPlugin.log(Level.WARNING, "Turns out there was an error with world border compatibility...");
+                JakesRtpPlugin.log(Level.WARNING, "No guarantees will be made about points being within the border.");
+                e.printStackTrace();
             }
             return distributions;
         }
