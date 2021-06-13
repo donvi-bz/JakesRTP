@@ -134,12 +134,6 @@ public class WorldBorderPluginHook {
         @Override
         protected String name() { return "ChunkyBorder"; }
 
-//        @Override
-//        public boolean isUsable() {
-//            //FLAG Horrible line of code, MUST CHANGE AFTER NEW CHUNKYBORDER API IS OUT
-//            return !Arrays.equals(getVersion(), new int[]{1,0,38});
-//        }
-
         @Override
         public boolean isInside(Location loc) {
             //noinspection ConstantConditions // A world from the server will never not have a name
@@ -162,10 +156,10 @@ public class WorldBorderPluginHook {
                         DIST_NAME_PREFIX + set.getKey(),
                         new DistributionSettings(
                             new DistributionShape.Rectangle(
-                                bd.getRadiusX(),
-                                bd.getRadiusZ()),
-                            bd.getCenterX(),
-                            bd.getCenterZ())
+                                (int) bd.getRadiusX(),
+                                (int) bd.getRadiusZ()),
+                            (int) bd.getCenterX(),
+                            (int) bd.getCenterZ())
                     );
                 }
             } catch (NoSuchMethodError e) {

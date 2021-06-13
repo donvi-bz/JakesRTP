@@ -6,6 +6,10 @@ import org.bukkit.ChunkSnapshot;
 import org.bukkit.Location;
 import org.bukkit.Material;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+
 public class SafeLocationUtils {
 
     public static final SafeLocationUtils util;
@@ -59,10 +63,14 @@ public class SafeLocationUtils {
             case VINE:
             case GRASS:
             case TALL_GRASS:
+            case GLOW_LICHEN:
+            case MOSS_CARPET:
+            case GLOW_BERRIES:
                 return true;
             case WATER:
             case LAVA:
             case CAVE_AIR:
+            case POWDER_SNOW:
             default:
                 return false;
         }
@@ -88,6 +96,10 @@ public class SafeLocationUtils {
             case KELP:
             case TALL_SEAGRASS:
             case LILY_PAD:
+            case SMALL_DRIPLEAF:
+            case BIG_DRIPLEAF:
+            case BIG_DRIPLEAF_STEM:
+            case POINTED_DRIPSTONE:
                 return false;
             case GRASS_BLOCK:
             case STONE:
@@ -112,6 +124,8 @@ public class SafeLocationUtils {
             case JUNGLE_LEAVES:
             case OAK_LEAVES:
             case SPRUCE_LEAVES:
+            case AZALEA_LEAVES:
+            case FLOWERING_AZALEA_LEAVES:
                 return true;
             default:
                 return false;

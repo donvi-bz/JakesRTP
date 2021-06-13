@@ -10,14 +10,14 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'org.spigotmc:spigot-api:1.16.2-R0.1-SNAPSHOT'
-    implementation 'io.papermc:paperlib:1.0.4'
+    compileOnly 'org.spigotmc:spigot-api:1.17-R0.1-SNAPSHOT'
+    implementation 'io.papermc:paperlib:1.0.6'
     implementation 'biz.donvi:ArgsChecker:1'
     implementation 'biz.donvi:EvenDistribution:1.1.1'
     implementation 'biz.donvi:GnuPlotter:1.1'
-    implementation project(":patch-1-12-2")
+//    implementation project(":patch-1-12-2")
     compileOnly 'org.popcraft:chunky-common:1.2.86'
-    compileOnly 'org.popcraft:ChunkyBorder:1.0.5'
+    compileOnly 'org.popcraft:chunkyborder:1.0.38'
     compileOnly 'com.github.Brettflan:WorldBorder:c0d1772418'
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7'
 }
