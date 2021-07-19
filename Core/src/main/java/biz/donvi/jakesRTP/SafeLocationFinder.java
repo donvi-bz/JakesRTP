@@ -112,8 +112,8 @@ public abstract class SafeLocationFinder {
         //   Two for air space, one for foot space.
         for (int i = 0; i < range; i++) {
             // Only check for safety if were within the valid range, otherwise only move the temp position
-            if (loc.getY() < lowBound) break; // We are too low and will never make it back to a valid height
-            if (loc.getY() < highBound) { // We are at a valid height. Do stuff...
+            if (tempLoc.getY() < lowBound) break; // We are too low and will never make it back to a valid height
+            if (tempLoc.getY() < highBound) { // We are at a valid height. Do stuff...
                 Material mat = getLocMaterial(tempLoc);
                 // If either of these conditions are reached, it is not worth checking
                 //   the remaining spaces because the combined result will fail.

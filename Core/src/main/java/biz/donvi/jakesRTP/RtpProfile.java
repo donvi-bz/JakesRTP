@@ -127,10 +127,9 @@ public class RtpProfile {
         for (String s : infoStringsCallFromWorlds(false)) infoLog(nameInLog + s);
 
         // Distribution
-        if (defaults.distribution != null) {
-            distribution = defaults.distribution;
-        } else {
-            String distName = config.getString("distribution");
+        String distName = config.getString("distribution", null);
+        if (distName == null) distribution = defaults.distribution;
+        else {
             if (distName.equalsIgnoreCase("world-border"))
                 distName += "_" + landingWorld.getName();
             distribution = distributions.get(distName);
