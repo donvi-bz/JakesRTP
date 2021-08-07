@@ -34,7 +34,7 @@ public class LocationCacheFiller implements Runnable {
                 try {
                     for (RtpProfile settings : getCurrentRtpSettings()) {
                         if (!keepRunning) break;
-                        else pluginMain().getRandomTeleporter().fillQueue(settings);
+                        else if (settings.canUseLocQueue) pluginMain().getRandomTeleporter().fillQueue(settings);
                     }
                     patientlyWait(recheckTime);
                 } catch (JrtpBaseException ex) {
@@ -86,7 +86,7 @@ public class LocationCacheFiller implements Runnable {
         if (!keepRunning) return;
         try {
             wait(milliseconds);
-        } catch (InterruptedException ignored) { }
+        } catch (InterruptedException ignored) {}
     }
 
     /**

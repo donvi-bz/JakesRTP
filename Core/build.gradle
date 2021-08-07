@@ -20,6 +20,7 @@ dependencies {
     compileOnly 'org.popcraft:chunkyborder:1.0.38'
     compileOnly 'com.github.Brettflan:WorldBorder:c0d1772418'
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7'
+    compileOnly 'com.github.TechFortress:GriefPrevention:16.17.1'
 }
 
 processResources {

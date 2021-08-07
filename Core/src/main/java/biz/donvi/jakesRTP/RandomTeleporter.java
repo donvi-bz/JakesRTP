@@ -94,7 +94,7 @@ public class RandomTeleporter {
                             defaultsFrom = getDefaultsFrom == null
                                 ? RtpProfile.DEFAULT_SETTINGS
                                 : getRtpSettingsByName(getDefaultsFrom);
-                        } catch (JrtpBaseException e) { continue; }
+                        } catch (JrtpBaseException e) {continue;}
                         this.rtpSettings.add(
                             new RtpProfile(
                                 settingsFile.value,
@@ -170,7 +170,7 @@ public class RandomTeleporter {
      *
      * @return The ArrayList of RtpSettings.
      */
-    public ArrayList<RtpProfile> getRtpSettings() { return rtpSettings; }
+    public ArrayList<RtpProfile> getRtpSettings() {return rtpSettings;}
 
     /**
      * Gets the list of RtpSettings names.
@@ -310,39 +310,29 @@ public class RandomTeleporter {
      */
     @SuppressWarnings("ConstantConditions")
     private Location getPotentialRtpLocation(Location callFromLoc, RtpProfile rtpProfile) throws JrtpBaseException {
-        Location potentialLocation;
-        int[] xz, xzOffset;
+        // This (the xz) is where the random position comes from. The random position is based off the shape from
+        // the distribution settings. The position then needs to be centered based on the centering criteria.
+        int[] xz = rtpProfile.distribution.shape.getCords();
+        // The offset is the centering criteria. Since we may need player / world specific locations, we do this here.
+        int[] xzOffset = switch (rtpProfile.distribution.center) {
+            case PLAYER_LOCATION -> new int[]{
+                (int) callFromLoc.getX(),
+                (int) callFromLoc.getZ()};
+            case WORLD_SPAWN -> new int[]{
+                (int) callFromLoc.getWorld().getSpawnLocation().getX(),
+                (int) callFromLoc.getWorld().getSpawnLocation().getZ()};
+            default -> new int[]{
+                rtpProfile.distribution.centerX,
+                rtpProfile.distribution.centerZ};
+        };
+        // Combind and return.
+        return new Location(
+            callFromLoc.getWorld(),
+            xz[0] + xzOffset[0],
+            255,
+            xz[1] + xzOffset[1]
+        );
 
-        switch (rtpProfile.distribution.center) {
-            case PLAYER_LOCATION:
-                xzOffset = new int[]{
-                    (int) callFromLoc.getX(),
-                    (int) callFromLoc.getZ()};
-                break;
-            case WORLD_SPAWN:
-                xzOffset = new int[]{
-                    (int) callFromLoc.getWorld().getSpawnLocation().getX(),
-                    (int) callFromLoc.getWorld().getSpawnLocation().getZ()};
-                break;
-            case PRESET_VALUE:
-            default:
-                xzOffset = new int[]{
-                    rtpProfile.distribution.centerX,
-                    rtpProfile.distribution.centerZ};
-        }
-        int attempts = 0;
-        do {
-            xz = rtpProfile.distribution.shape.getCords();
-            potentialLocation = new Location(
-                callFromLoc.getWorld(),
-                xz[0] + xzOffset[0],
-                255,
-                xz[1] + xzOffset[1]
-            );
-            if (++attempts > 100) // maybe set this as a static variable? (removed to-do because minor)
-                throw new JrtpBaseException(Messages.NP_R_TOO_MANY_FAILED_ATTEMPTS.format() + " ~GP-RTP-L");
-        } while (!isInWorldBorder(potentialLocation)); // Yeah, re-guessing, I know :(
-        return potentialLocation;
     }
 
     /**
@@ -384,12 +374,39 @@ public class RandomTeleporter {
         // If we need to find a NEW location (meaning we can't use the queue), go here.
         Location potentialRtpLocation;
         int randAttemptCount = 0;
+        int failedToWorldBorder = 0, failedToClaimedLand = 0, failedToSafetyCheck = 0;
+        boolean locationBad, temp = false;
         do {
             potentialRtpLocation = getPotentialRtpLocation(callFromLoc, rtpProfile);
-            if (randAttemptCount++ > rtpProfile.maxAttempts)
-                throw new JrtpBaseException(Messages.NP_R_TOO_MANY_FAILED_ATTEMPTS.format());
-        } while (
-            Bukkit.isPrimaryThread() ?
+            if (++randAttemptCount > rtpProfile.maxAttempts)
+                throw new JrtpBaseException(
+                    Messages.NP_R_TOO_MANY_FAILED_ATTEMPTS.format() + "\n[" +
+                    "FailedToWorldBorder: " + failedToWorldBorder + ", " +
+                    "FailedToClaims: " + failedToClaimedLand + ", " +
+                    "FailedToSafty: " + failedToSafetyCheck + "]");
+            //<editor-fold desc="Super verbose checking (and running `tryAndMakeSafe() method)">
+            // Currently, I ASSUME that the `tryAndMakeSafe()` is by far the most expensive method, so I do the easy
+            //   checks before (so we can avoid trying to make it safe) but then we also have to check them again at
+            //   the end since `tryAndMakeSafe()` may move the location.
+            // This next bit of code is going to be VERY verbose. Once one thing sets `locationBad` to true, we can
+            //   skip everything else. The reason for the verbosity is so that we can log *why* the check failed. The
+            //   general flow of the if statement goes like this: "If the location still looks safe, run this next
+            //   check, and if it fails, mark the location as unsafe". Each of these if blocks MUST contain the
+            //   `locationBad = temp` assignment because EVERY time we make it inside, the safty state of the location
+            //   has changed!
+            locationBad = false;
+            //noinspection ConstantConditions // It's for readability’s sake. Just let it be.
+            if (!locationBad && (temp = isOutsideWorldBorder(potentialRtpLocation))) {
+                // 1: To be inside the world border (easy-op. do first)
+                locationBad = temp;
+                failedToWorldBorder++;
+            }
+            if (!locationBad && (temp = isInsideClaimedLand(potentialRtpLocation))) {
+                // 2: To NOT be inside claimed land  (easy-op. do first)
+                locationBad = temp;
+                failedToClaimedLand++;
+            }
+            if (!locationBad && (temp = (Bukkit.isPrimaryThread() ?
                 !new SafeLocationFinderBukkitThread(
                     potentialRtpLocation,
                     rtpProfile.checkRadiusXZ,
@@ -404,7 +421,24 @@ public class RandomTeleporter {
                     rtpProfile.lowBound,
                     rtpProfile.highBound,
                     asyncWaitTimeout
-                ).tryAndMakeSafe(rtpProfile.checkProfile));
+                ).tryAndMakeSafe(rtpProfile.checkProfile)))) {
+                // 3: For the location to actually be safe.
+                // DON'T' FORGET, THIS MAY MOVE THE LOCATION
+                locationBad = temp;
+                failedToSafetyCheck++;
+            }
+            if (!locationBad && (temp = isOutsideWorldBorder(potentialRtpLocation))) {
+                // 1: To be inside the world border (loc may have been moved. do again)
+                locationBad = temp;
+                failedToWorldBorder++;
+            }
+            if (!locationBad && (temp = isInsideClaimedLand(potentialRtpLocation))) {
+                // 2: To NOT be inside claimed land (loc may have been moved. do again)
+                locationBad = temp;
+                failedToClaimedLand++;
+            }
+            //</editor-fold>
+        } while (locationBad);
         return potentialRtpLocation;
 
     }
@@ -415,8 +449,12 @@ public class RandomTeleporter {
     \* ================================================== */
 
     //<editor-fold desc="Misc ← Workers">
-    private boolean isInWorldBorder(Location loc) {
-        return (worldBorderPluginHook.isInside(loc));
+    private boolean isOutsideWorldBorder(Location loc) {
+        return !worldBorderPluginHook.isInside(loc);
+    }
+
+    private boolean isInsideClaimedLand(Location loc) {
+        return claimsManager.isInside(loc);
     }
 
     /**

@@ -1,6 +1,7 @@
 package biz.donvi.jakesRTP;
 
 import biz.donvi.argsChecker.Util;
+import biz.donvi.jakesRTP.claimsIntegrations.ClaimsManager;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
@@ -29,6 +30,7 @@ public final class JakesRtpPlugin extends JavaPlugin {
     static Map<String, Object>   cmdMap;
     static LocationCacheFiller   locFinderRunnable;
     static WorldBorderPluginHook worldBorderPluginHook;
+    static ClaimsManager         claimsManager;
 
     private static       Logger logger;
     private static final String LANG_SETTINGS_FILE_NAME = "language-settings.yml";
@@ -57,6 +59,7 @@ public final class JakesRtpPlugin extends JavaPlugin {
         logger = plugin.getLogger();
         cmdMap = new Yaml().load(this.getClassLoader().getResourceAsStream("commandTree.yml"));
         worldBorderPluginHook = new WorldBorderPluginHook(getServer());
+        claimsManager = new ClaimsManager(this);
 
         hasEconomy = setupEconomy();
         loadConfigs(); // Loads the default configs if no configs are there
@@ -87,7 +90,7 @@ public final class JakesRtpPlugin extends JavaPlugin {
     \* ================================================== */
 
 
-    void reloadCommands(){
+    void reloadCommands() {
         HandlerList.unregisterAll(this);
         getCommand("rtp-admin").setExecutor(new CmdRtpAdmin(Util.getImpliedMap(cmdMap, "rtp-admin")));
     }
@@ -263,13 +266,13 @@ public final class JakesRtpPlugin extends JavaPlugin {
     \* ================================================== */
 
     //<editor-fold desc="Getters">
-    public Economy getEconomy() { return economy; }
+    public Economy getEconomy() {return economy;}
 
-    public boolean canUseEconomy() { return hasEconomy; }
+    public boolean canUseEconomy() {return hasEconomy;}
 
-    public String getCurrentConfigVersion() { return getConfig().getString("config-version"); }
+    public String getCurrentConfigVersion() {return getConfig().getString("config-version");}
 
-    public RandomTeleporter getRandomTeleporter() { return theRandomTeleporter; }
+    public RandomTeleporter getRandomTeleporter() {return theRandomTeleporter;}
     //</editor-fold>
 
     /* ================================================== *\

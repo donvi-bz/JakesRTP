@@ -9,11 +9,6 @@ public class DistributionSettings {
     public final int               centerX;
     public final int               centerZ;
 
-    DistributionSettings(DistributionShape shape, CenterTypes centerTypes) {
-        this.shape = shape;
-        center = centerTypes;
-        centerX  = centerZ = 0;
-    }
 
     DistributionSettings(DistributionShape shape, int centerX, int centerZ) {
         this.shape = shape;
@@ -30,19 +25,11 @@ public class DistributionSettings {
             throw new JrtpBaseException.ConfigurationException("Configuration shape not properly defined.");
         }
         switch (shapeString) {
-            case "square":
-                shape = new DistributionShape.Square(settings);
-                break;
-            case "circle":
-                shape = new DistributionShape.Circle(settings);
-                break;
-            case "rectangle":
-                shape = new DistributionShape.Rectangle(settings);
-                break;
-            default:
-                throw new JrtpBaseException.ConfigurationException(
-                    "Distribution shape not properly defined: " + shapeString
-                );
+            case "square" -> shape = new DistributionShape.Square(settings);
+            case "circle" -> shape = new DistributionShape.Circle(settings);
+            case "rectangle" -> shape = new DistributionShape.Rectangle(settings);
+            default -> throw new JrtpBaseException.ConfigurationException(
+                "Distribution shape not properly defined: " + shapeString);
         }
         try {
             char centerChar = settings.getString("center.option").toLowerCase().charAt(0);

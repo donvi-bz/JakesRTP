@@ -13,6 +13,8 @@ abstract class DistributionShape {
 
     public abstract String shape();
 
+    public abstract int getArea();
+
     public abstract int[] getCords();
 
     public abstract List<String> infoStrings(boolean mcFormat);
@@ -59,12 +61,17 @@ abstract class DistributionShape {
     }
 
     public static class Circle extends Symmetric {
-        public Circle(int rMax, int rMin) { super(rMax, rMin); }
+        public Circle(int rMax, int rMin) {super(rMax, rMin);}
 
-        public Circle(ConfigurationSection settings) { super(settings); }
+        public Circle(ConfigurationSection settings) {super(settings);}
 
         @Override
-        public String shape() { return "Circle"; }
+        public String shape() {return "Circle";}
+
+        @Override
+        public int getArea() {
+            return (int) Math.floor(Math.PI * radiusMax * radiusMax - Math.PI * radiusMin * radiusMin);
+        }
 
         @Override
         public int[] getCords() {
@@ -75,12 +82,17 @@ abstract class DistributionShape {
     }
 
     public static class Square extends Symmetric {
-        public Square(int rMax, int rMin) { super(rMax, rMin); }
+        public Square(int rMax, int rMin) {super(rMax, rMin);}
 
-        public Square(ConfigurationSection settings) { super(settings); }
+        public Square(ConfigurationSection settings) {super(settings);}
 
         @Override
-        public String shape() { return "Square"; }
+        public String shape() {return "Square";}
+
+        @Override
+        public int getArea() {
+            return 4 * (radiusMax * radiusMax - radiusMin * radiusMin);
+        }
 
         @Override
         public int[] getCords() {
@@ -124,7 +136,12 @@ abstract class DistributionShape {
         }
 
         @Override
-        public String shape() { return "Rectangle"; }
+        public String shape() {return "Rectangle";}
+
+        @Override
+        public int getArea() {
+            return xRadius * zRadius * 4 - (gapEnabled ? gapXRadius * gapZRadius * 4 : 0);
+        }
 
         @Override
         public int[] getCords() {

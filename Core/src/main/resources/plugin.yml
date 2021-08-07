@@ -6,10 +6,15 @@ version: '${version}'
 api-version: '1.13'
 
 softdepend:
+  # Needed for multi-world support
   - 'Multiverse-Core'
+  # Needed for economy support
+  - 'Vault'
+  # For world-border support
   - 'ChunkyBorder'
   - 'WorldBorder'
-  - 'Vault'
+  # For claims support
+  - 'GriefPrevention'
 
 commands:
   jrtpdebug:

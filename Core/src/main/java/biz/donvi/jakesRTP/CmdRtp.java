@@ -47,7 +47,7 @@ public class CmdRtp implements TabExecutor {
                             final Runnable execRtp = makeRunnable(player, relSettings, warmup);
                             if (warmup) { // If there is a warmup, schedule the runnable
                                 final int taskID = sender
-                                    .getServer().getScheduler() // Get the task ID so we can cancel it later.
+                                    .getServer().getScheduler() // Get the task ID so that we can cancel it later.
                                     .scheduleSyncRepeatingTask(plugin, execRtp, 2, 20);
                                 if (taskID == -1) // This should only really happen during shutdown.
                                     throw new JrtpBaseException("Could not schedule rtp-after-warmup.");
