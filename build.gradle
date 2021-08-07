@@ -6,8 +6,8 @@ subprojects {
     group = 'biz.donvi'
     project.version = '0.14.0'
 
-    sourceCompatibility = 15
-    targetCompatibility = 15
+    sourceCompatibility = 16
+    targetCompatibility = 16
 
     tasks.withType(JavaCompile) {
         options.encoding = 'UTF-8'
@@ -17,5 +17,9 @@ subprojects {
     repositories {
         mavenLocal()
         maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+    }
+
+    tasks.withType(Copy).all {
+        duplicatesStrategy 'include'
     }
 }

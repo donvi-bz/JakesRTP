@@ -96,6 +96,8 @@ public class SafeLocationUtils {
             case KELP:
             case TALL_SEAGRASS:
             case LILY_PAD:
+            case BAMBOO:
+            case BAMBOO_SAPLING:
             case SMALL_DRIPLEAF:
             case BIG_DRIPLEAF:
             case BIG_DRIPLEAF_STEM:
