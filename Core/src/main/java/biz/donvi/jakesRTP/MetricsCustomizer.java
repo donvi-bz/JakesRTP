@@ -1,6 +1,9 @@
 package biz.donvi.jakesRTP;
 
+import biz.donvi.jakesRTP.claimsIntegrations.ClaimsManager;
+
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
@@ -45,6 +48,8 @@ class MetricsCustomizer {
         addAdvancedPie("rtp-cost", r::getRtpSettings,
                        settings -> String.valueOf(settings.cost)); // TODO ADD TO bSTATS
 
+        addDrillDownPie_specific();
+
         m.addCustomChart(new Metrics.SingleLineChart("rtp-per-unit", RandomTeleportAction::getAndClearRtpCount));
     }
 
@@ -57,6 +62,32 @@ class MetricsCustomizer {
             Map<String, Integer> pie = new HashMap<>();
             for (T t : iterateOver.call()) pie.merge(toCount.apply(t), 1, Integer::sum);
             return pie;
+        }));
+    }
+
+    private void addDrillDownPie_specific() {
+        m.addCustomChart(new Metrics.DrilldownPie("location-restrictor-support", () -> {
+            // Stuff for the graph itself.
+            boolean isUsed;
+            Map<String, Map<String, Integer>> outerMap = new HashMap<>();
+            Map<String, Integer> innerMap = new HashMap<>();
+            // Stuff specifically for the `if` statement
+            ClaimsManager cm = JakesRtpPlugin.claimsManager;
+            List<String> names = cm == null ? null : cm.enabledLocationRestrictors();
+            // The `if` statement
+            if (cm == null) { // This feature is forcibly disabled
+                isUsed = false;
+                innerMap.put("Disabled", 1);
+            } else if (names.size() == 0) { // Not forcibly disabled, but no things are being used
+                isUsed = false;
+                innerMap.put("No supporting plugins found", 1);
+            } else { // This means we have support ENABLED and there ARE loaded support things
+                isUsed = true;
+                for (String name : names)
+                    innerMap.put(name, 1);
+            }
+            outerMap.put(isUsed ? "Used" : "Not Used", innerMap);
+            return outerMap;
         }));
     }
 }

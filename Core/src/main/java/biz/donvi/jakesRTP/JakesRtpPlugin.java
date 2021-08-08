@@ -31,7 +31,7 @@ public final class JakesRtpPlugin extends JavaPlugin {
     static Map<String, Object>   cmdMap;
     static LocationCacheFiller   locFinderRunnable;
     static WorldBorderPluginHook worldBorderPluginHook;
-    static ClaimsManager         claimsManager;
+    static ClaimsManager         claimsManager = null;
 
     private static       Logger logger;
     private static final String LANG_SETTINGS_FILE_NAME = "language-settings.yml";

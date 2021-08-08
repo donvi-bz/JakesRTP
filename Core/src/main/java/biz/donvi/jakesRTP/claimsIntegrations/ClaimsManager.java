@@ -7,6 +7,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.logging.Level;
@@ -16,6 +17,7 @@ public class ClaimsManager {
     protected final Plugin               ownerPlugin;
     protected final Logger               logger;
     protected       LocationRestrictor[] locationRestrictors;
+    protected       List<String>         locationRestrictorNames;
     protected       ConfigurationSection configurationSection;
 
 
@@ -25,6 +27,13 @@ public class ClaimsManager {
         locationRestrictors = tryMakeLocationRestrictor();
         configurationSection = configSection;
 
+    }
+
+    public List<String> enabledLocationRestrictors() {
+        List<String> names = new ArrayList<>();
+        for(LocationRestrictor restrictor : locationRestrictors)
+            names.add(restrictor.supporterPlugin().getName());
+        return names;
     }
 
     public boolean isInside(Location loc) {
