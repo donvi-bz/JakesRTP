@@ -51,6 +51,14 @@ location-cache-filler:
   between-time: 0
   async-wait-timeout: 10
 
+#### land-claim-support
+# Should the plugin prevent people from landing in claimed land?
+#   force-disable-all: If set to true, no support will ever be loaded. If false, then the other options are respected.
+#   grief-prevention : Support for the GriefPrevention plugin. Players will not land in claims.
+land-claim-support:
+  force-disable-all: false
+  grief-prevention: true
+
 #### logging
 # Which messages do you want to log? You can ignore log messages for settings that are disabled.
 #   rtp-on-player-join  : Obvious

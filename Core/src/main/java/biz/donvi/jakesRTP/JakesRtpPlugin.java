@@ -4,6 +4,7 @@ import biz.donvi.argsChecker.Util;
 import biz.donvi.jakesRTP.claimsIntegrations.ClaimsManager;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -59,7 +60,6 @@ public final class JakesRtpPlugin extends JavaPlugin {
         logger = plugin.getLogger();
         cmdMap = new Yaml().load(this.getClassLoader().getResourceAsStream("commandTree.yml"));
         worldBorderPluginHook = new WorldBorderPluginHook(getServer());
-        claimsManager = new ClaimsManager(this);
 
         hasEconomy = setupEconomy();
         loadConfigs(); // Loads the default configs if no configs are there
@@ -68,6 +68,8 @@ public final class JakesRtpPlugin extends JavaPlugin {
         loadRandomTeleporter(); // Loads the random teleporter
         loadLocationCacheFiller(); // Loads the location cache filler
 
+        if (!getConfig().getBoolean("land-claim-support.force-disable-all", false))
+            claimsManager = new ClaimsManager(this, getConfig().getConfigurationSection("land-claim-support"));
         new MetricsCustomizer(this, new Metrics(this, 9843));
         infoLog("Loading complete.");
     }
@@ -111,7 +113,7 @@ public final class JakesRtpPlugin extends JavaPlugin {
         } catch (IOException e) {
             logger.log(Level.WARNING, "Could not copy default rtpSetting.");
         }
-        try {// For the rtpSettings...
+        try {// For the distributions...
             toDistSettings = Paths.get(this.getDataFolder().getPath(), "distributions");
             if (!Files.exists(toDistSettings))
                 Files.createDirectory(toDistSettings);
