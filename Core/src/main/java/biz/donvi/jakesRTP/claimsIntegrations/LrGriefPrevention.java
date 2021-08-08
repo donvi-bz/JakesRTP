@@ -8,24 +8,20 @@ import org.bukkit.plugin.Plugin;
 
 import static org.bukkit.Bukkit.getServer;
 
-public class CmGriefPrevention implements LocationRestrictor {
-    public static final String PluginName = "GriefPrevention";
-
-    protected Plugin          ownerPlugin;
+public class LrGriefPrevention implements LocationRestrictor {
     protected GriefPrevention cmPlugin;
 
-    public CmGriefPrevention(Plugin ownerPlugin, GriefPrevention cmPlugin) {
-        this.ownerPlugin = ownerPlugin;
+    public LrGriefPrevention(GriefPrevention cmPlugin) {
         this.cmPlugin = cmPlugin;
     }
 
     @Override
-    public Plugin claimPlugin() {return cmPlugin;}
+    public Plugin supporterPlugin() {return cmPlugin;}
 
     private Claim lastClaim = null;
 
     @Override
-    public boolean isInside(Location location) {
+    public boolean denyLandingAtLocation(Location location) {
         Claim currentClaim = cmPlugin.dataStore.getClaimAt(location, true, lastClaim);
         if (currentClaim == null) {
             return false;

@@ -7,8 +7,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public interface LocationRestrictor {
 
-    public Plugin claimPlugin();
+    public Plugin supporterPlugin();
 
-    public boolean isInside(Location location);
+    public boolean denyLandingAtLocation(Location location);
 
 }

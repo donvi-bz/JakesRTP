@@ -4,7 +4,6 @@ import biz.donvi.argsChecker.Util;
 import biz.donvi.jakesRTP.claimsIntegrations.ClaimsManager;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -21,6 +20,7 @@ import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static biz.donvi.jakesRTP.claimsIntegrations.LrWorldGuard.registerWorldGuardFlag;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public final class JakesRtpPlugin extends JavaPlugin {
@@ -49,6 +49,12 @@ public final class JakesRtpPlugin extends JavaPlugin {
 
     private boolean locCache = false;
     //</editor-fold>
+
+    @Override
+    public void onLoad() {
+        if (getServer().getPluginManager().getPlugin("WorldGuard") != null)
+            registerWorldGuardFlag(this);
+    }
 
     @SuppressWarnings("ConstantConditions")
     @Override

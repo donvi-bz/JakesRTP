@@ -4,9 +4,11 @@ plugins {
 }
 
 repositories {
+    mavenCentral()
     maven { url 'https://papermc.io/repo/repository/maven-public/' }
     maven { url 'https://repo.codemc.io/repository/maven-public/' }
     maven { url 'https://jitpack.io' }
+    maven { url "https://maven.enginehub.org/repo/" }
 }
 
 dependencies {
@@ -21,6 +23,7 @@ dependencies {
     compileOnly 'com.github.Brettflan:WorldBorder:c0d1772418'
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7'
     compileOnly 'com.github.TechFortress:GriefPrevention:16.17.1'
+    compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.5'
 }
 
 processResources {

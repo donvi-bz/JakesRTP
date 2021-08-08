@@ -58,6 +58,7 @@ location-cache-filler:
 land-claim-support:
   force-disable-all: false
   grief-prevention: true
+  world-guard: true
 
 #### logging
 # Which messages do you want to log? You can ignore log messages for settings that are disabled.
