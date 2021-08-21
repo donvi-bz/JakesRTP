@@ -92,3 +92,5 @@ max-attempts: # If the random location, and all (by default 125) close spots are
   value: 10   #   how many attempts can we make? Minimum: 1; Default: 10
 preparations: # Preparing spots to teleport to. Note: These will be ignored if the center is players location.
   cache-locations: 10 # The number of safe rtp spots to hold on to. For best performance, keep this larger than 2.
+prefer-sync-tp: # Players can be teleported either synchronously or asynchronously. Sync is faster, but can (not always)
+  command: false #  produce lag-spikes that are felt by other players. Async is slower, but only for the person rtp-ing.

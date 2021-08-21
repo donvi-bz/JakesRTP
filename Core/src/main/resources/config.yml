@@ -14,6 +14,7 @@ config-version: 2.0
 ## Notes:
 # The rtpSettings given for `settings` MUST be set to a valid rtpSettings file defined in the folder `/rtpSettings`.
 # The world given for `world` MUST be listed as an `enabled-world` in the given rtpSettings.
+# If you give a player the `jakesrtp.nofirstjoinrtp` permission, this will not affect them.
 rtp-on-first-join:
   enabled: false
   settings: 'default-settings'

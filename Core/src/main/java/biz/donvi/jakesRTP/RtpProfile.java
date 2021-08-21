@@ -37,6 +37,7 @@ public class RtpProfile {
         2, 2,
         10,
         10,
+        false,
         LocCheckProfiles.AUTO,
         new String[0],
         0
@@ -67,6 +68,7 @@ public class RtpProfile {
     public final int                  checkRadiusVert;
     public final int                  maxAttempts;
     public final int                  cacheLocationCount;
+    public final boolean preferSyncTpOnCommand;
     public final LocCheckProfiles     checkProfile;
     public final String[]             commandsToRun;
     public final double               cost; // Will be 0 if we can't use economy
@@ -173,6 +175,10 @@ public class RtpProfile {
         maxAttempts = config.getInt("max-attempts.value", defaults.maxAttempts);
         infoLog(nameInLog + infoStringMaxAttempts(false));
 
+        // Prefer sync tp - on command
+        preferSyncTpOnCommand = config.getBoolean("prefer-sync-tp.command", defaults.preferSyncTpOnCommand);
+        infoLog(nameInLog + infoStringPreferSyncTpOnCommand(false));
+
         // Location Caching
         cacheLocationCount = config.getInt("preparations.cache-locations", defaults.cacheLocationCount);
         checkProfile = config.getString("location-checking-profile", null) == null
@@ -205,6 +211,7 @@ public class RtpProfile {
         int checkRadiusVert,
         int maxAttempts,
         int cacheLocationCount,
+        boolean preferSyncTpOnCommand,
         LocCheckProfiles checkProfile,
         String[] commandsToRun,
         double cost
@@ -226,6 +233,7 @@ public class RtpProfile {
         this.checkRadiusVert = checkRadiusVert;
         this.maxAttempts = maxAttempts;
         this.cacheLocationCount = cacheLocationCount;
+        this.preferSyncTpOnCommand = preferSyncTpOnCommand;
         this.checkProfile = checkProfile;
         this.commandsToRun = commandsToRun;
         this.cost = cost;
@@ -361,6 +369,10 @@ public class RtpProfile {
 
     public String infoStringMaxAttempts(boolean mcFormat) {
         return LVL_01_SET.format(mcFormat, "Max attempts set to", maxAttempts);
+    }
+
+    public String infoStringPreferSyncTpOnCommand(boolean mcFormat) {
+        return LVL_01_SET.format(mcFormat, "Prefer sync tp on command", preferSyncTpOnCommand);
     }
 
     public String infoStringLocationCaching(boolean mcFormat) {

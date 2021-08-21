@@ -110,14 +110,17 @@ public class CmdRtp implements TabExecutor {
                         return;
                     }
                     // Do the teleport action
-                    new RandomTeleportAction(
+                    var rtpAction = new RandomTeleportAction(
                         randomTeleporter,
                         rtpProfile,
                         player.getLocation(),
                         true,
                         true,
                         randomTeleporter.logRtpOnCommand, "Rtp-from-command triggered!"
-                    ).teleportAsync(player);
+                    );
+                    if (rtpProfile.preferSyncTpOnCommand)
+                         rtpAction.teleportSync (player);
+                    else rtpAction.teleportAsync(player);
                     // Log in the cooldown list
                     rtpProfile.coolDown.log(player.getName(), System.currentTimeMillis());
                     // Charge the player

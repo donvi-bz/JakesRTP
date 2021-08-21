@@ -48,6 +48,11 @@ permissions:
   jakesrtp.rtpondeath:
     description: 'If rtp-on-death is enabled, players with this node will be respawn in a random location'
     default: false
+  jakesrtp.nofirstjoinrtp:
+    descriptopn: >
+      If rtp-on-first-join is enabled, then players who have this permission before they join the server will NOT be
+      randomly teleported. If rtp-on-first-join is disabled, this permission does nothing.
+    default: false
   jakesrtp.nocooldown:
     description: 'Allows the user to ignore the cool-down timer'
     default: op

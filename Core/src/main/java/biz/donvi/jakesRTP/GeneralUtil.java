@@ -174,7 +174,7 @@ public final class GeneralUtil {
      * @param event PlayerRespawnEvent event to check.
      * @return Was this a 1.16+ respawn anchor spawn?
      */
-    public static boolean isAnchorSpawn(PlayerRespawnEvent event) { return anchorSupport && event.isAnchorSpawn(); }
+    public static boolean isAnchorSpawn(PlayerRespawnEvent event) {return anchorSupport && event.isAnchorSpawn();}
 
     private static final boolean anchorSupport = PaperLib.getMinecraftVersion() >= 16;
 
@@ -192,5 +192,15 @@ public final class GeneralUtil {
         for (int i = 1; i < items.size(); i++)
             s.append(", ").append(items.get(i));
         return s.toString();
+    }
+
+
+    public static long uselessLong = 0; // Quite literally useless. Never used anywhere.
+
+    public static String timeDifLog() { // Okay, that's a lie, it's used in this method.
+        long time = System.currentTimeMillis(); // But this method is not used anywhere.
+        long dif = time - uselessLong;
+        uselessLong = time;
+        return time + " " + dif;
     }
 }

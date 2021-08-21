@@ -31,7 +31,11 @@ public class RtpOnEvent implements Listener {
      */
     @EventHandler(priority = EventPriority.HIGHEST)
     public void playerJoin(PlayerJoinEvent event) {
-        if (!randomTeleporter.firstJoinRtp || event.getPlayer().hasPlayedBefore()) return;
+        // If any of these are true, no nothing.
+        if (!randomTeleporter.firstJoinRtp ||  // Rtp-on-first-join is DISABLED
+            event.getPlayer().hasPlayedBefore() || // The player HAS played
+            event.getPlayer().hasPermission("jakesrtp.nofirstjoinrtp") // The player is exempt
+        ) return;
         try {
             assert randomTeleporter.firstJoinSettings != null;
             assert randomTeleporter.firstJoinSettings.landingWorld != null;
