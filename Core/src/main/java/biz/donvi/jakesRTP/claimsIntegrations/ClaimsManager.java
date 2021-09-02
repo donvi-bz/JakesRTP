@@ -2,6 +2,7 @@ package biz.donvi.jakesRTP.claimsIntegrations;
 
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import me.william278.husktowns.HuskTowns;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.Plugin;
@@ -64,6 +65,15 @@ public class ClaimsManager {
             Plugin plugin;
             if ((plugin = tryGetPlugin(pluginName)) != null) {
                 restrictors.add(new LrWorldGuard((WorldGuardPlugin) plugin));
+                return true;
+            } else return false;
+        });
+
+        // HuskTowns support!
+        generalPluginLoader("husk-towns", "HuskTowns", (pluginName) -> {
+            Plugin plugin;
+            if ((plugin = tryGetPlugin(pluginName)) != null) {
+                restrictors.add(new LrHuskTowns((HuskTowns) plugin));
                 return true;
             } else return false;
         });
