@@ -1,15 +1,14 @@
 package biz.donvi.jakesRTP.claimsIntegrations;
 
-import me.william278.husktowns.HuskTowns;
 import me.william278.husktowns.HuskTownsAPI;
 import org.bukkit.Location;
 import org.bukkit.plugin.Plugin;
 
 public class LrHuskTowns implements LocationRestrictor {
 
-    protected HuskTowns cmPlugin;
+    protected Plugin cmPlugin;
 
-    public LrHuskTowns(HuskTowns cmPlugin) {
+    public LrHuskTowns(Plugin cmPlugin) {
         this.cmPlugin = cmPlugin;
     }
 

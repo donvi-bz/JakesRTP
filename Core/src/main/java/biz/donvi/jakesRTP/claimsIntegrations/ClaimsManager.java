@@ -2,13 +2,11 @@ package biz.donvi.jakesRTP.claimsIntegrations;
 
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
-import me.william278.husktowns.HuskTowns;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.logging.Level;
@@ -69,11 +67,11 @@ public class ClaimsManager {
             } else return false;
         });
 
-        // HuskTowns support!
+        //HuskTowns support!
         generalPluginLoader("husk-towns", "HuskTowns", (pluginName) -> {
             Plugin plugin;
             if ((plugin = tryGetPlugin(pluginName)) != null) {
-                restrictors.add(new LrHuskTowns((HuskTowns) plugin));
+                restrictors.add(new LrHuskTowns(plugin));
                 return true;
             } else return false;
         });
