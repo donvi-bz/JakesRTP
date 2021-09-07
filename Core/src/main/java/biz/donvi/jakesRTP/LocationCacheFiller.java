@@ -3,8 +3,10 @@ package biz.donvi.jakesRTP;
 import org.bukkit.Bukkit;
 
 import java.lang.ref.WeakReference;
+import java.util.logging.Level;
 
 import static biz.donvi.jakesRTP.JakesRtpPlugin.infoLog;
+import static biz.donvi.jakesRTP.JakesRtpPlugin.log;
 
 
 public class LocationCacheFiller implements Runnable {
@@ -30,21 +32,31 @@ public class LocationCacheFiller implements Runnable {
         try {
             SimpleLagTimer.blockingTimer(pluginMain(), 5000);
             infoLog("[J-RTP] LCF Started.");
-            while (keepRunning && isPluginLoaded())
+            int issueCounter = 0, issueCounterMax = 10;
+            while (keepRunning && isPluginLoaded()) {
+                RtpProfile settingsForErrReport = null;
                 try {
                     for (RtpProfile settings : getCurrentRtpSettings()) {
+                        settingsForErrReport = settings;
                         if (!keepRunning) break;
                         else if (settings.canUseLocQueue) pluginMain().getRandomTeleporter().fillQueue(settings);
                     }
-                    patientlyWait(recheckTime);
+                    if (issueCounter > 0) issueCounter--;
                 } catch (JrtpBaseException ex) {
+                    issueCounter++;
                     if (ex instanceof JrtpBaseException.PluginDisabledException) throw ex;
                     if (ex instanceof JrtpBaseException.NotPermittedException)
                         infoLog("An exception has occurred that should be impossible to occur. Please report this.");
-                    else
+                    else if (issueCounter < issueCounterMax)
                         infoLog("Something has gone wrong, but this is most likely not an issue.");
+                    else
+                        infoLog("Something has gone wrong multiple times, you may want to report this.");
+
+                    log(Level.WARNING, "Error filling cache for " + settingsForErrReport.name + ".");
                     ex.printStackTrace();
                 }
+                patientlyWait(recheckTime);
+            }
         } catch (JrtpBaseException.PluginDisabledException ignored) {
             infoLog("[J-RTP] Plugin disabled while finding a location. Location scrapped.");
         } catch (ReferenceNonExistentException ignored) {
