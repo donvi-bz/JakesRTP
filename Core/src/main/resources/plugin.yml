@@ -16,6 +16,7 @@ softdepend:
   # For claims support
   - 'GriefPrevention'
   - 'WorldGuard'
+  - 'HuskTowns'
 
 commands:
   jrtpdebug:

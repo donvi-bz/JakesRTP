@@ -7,7 +7,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.logging.Level;
@@ -64,6 +63,15 @@ public class ClaimsManager {
             Plugin plugin;
             if ((plugin = tryGetPlugin(pluginName)) != null) {
                 restrictors.add(new LrWorldGuard((WorldGuardPlugin) plugin));
+                return true;
+            } else return false;
+        });
+
+        //HuskTowns support!
+        generalPluginLoader("husk-towns", "HuskTowns", (pluginName) -> {
+            Plugin plugin;
+            if ((plugin = tryGetPlugin(pluginName)) != null) {
+                restrictors.add(new LrHuskTowns(plugin));
                 return true;
             } else return false;
         });

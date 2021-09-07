@@ -1,12 +1,9 @@
 package biz.donvi.jakesRTP.claimsIntegrations;
 
-import biz.donvi.jakesRTP.JakesRtpPlugin;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import org.bukkit.Location;
 import org.bukkit.plugin.Plugin;
-
-import static org.bukkit.Bukkit.getServer;
 
 public class LrGriefPrevention implements LocationRestrictor {
     protected GriefPrevention cmPlugin;
