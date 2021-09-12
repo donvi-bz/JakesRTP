@@ -61,7 +61,7 @@ public class SafeLocationFinderOtherThread extends SafeLocationFinder {
 
     @Override
     protected void dropToGround() throws JrtpBaseException.PluginDisabledException, TimeoutException {
-        SafeLocationUtils.util.dropToGround(loc, lowBound, getChunkForLocation(loc));
+        SafeLocationUtils.util.dropToGround(loc, lowBound, highBound, getChunkForLocation(loc));
     }
 
     @Override

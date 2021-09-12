@@ -184,6 +184,7 @@ public class RtpProfile {
         checkProfile = config.getString("location-checking-profile", null) == null
             ? defaults.checkProfile
             : LocCheckProfiles.values()[config.getString("location-checking-profile").toLowerCase().charAt(0) - 'a'];
+        infoLog( nameInLog + infoStringLocationCheckProfile(false));
         commandsToRun = config.getStringList("then-execute").size() == 0
             ? defaults.commandsToRun
             : config.getStringList("then-execute").toArray(new String[0]);
@@ -268,6 +269,7 @@ public class RtpProfile {
             lines.add(infoStringVertBounds(mcFormat));
             lines.add(infoStringCheckRadius(mcFormat));
             lines.add(infoStringMaxAttempts(mcFormat));
+            lines.add(infoStringLocationCheckProfile(mcFormat));
             lines.add(infoStringLocationCaching(mcFormat));
         }
         if (!mcFormat) for (int i = 0; i < lines.size(); i++) lines.set(i, name + lines.get(i));
@@ -371,13 +373,17 @@ public class RtpProfile {
         return LVL_01_SET.format(mcFormat, "Max attempts set to", maxAttempts);
     }
 
+    public String infoStringLocationCheckProfile(boolean mcFormat) {
+        return LVL_01_SET.format(mcFormat, "Location check profile", checkProfile.toString() + " (" + (char)(checkProfile.ordinal() + 'a') + ")");
+    }
+
     public String infoStringPreferSyncTpOnCommand(boolean mcFormat) {
         return LVL_01_SET.format(mcFormat, "Prefer sync tp on command", preferSyncTpOnCommand);
     }
 
     public String infoStringLocationCaching(boolean mcFormat) {
         return canUseLocQueue
-            ? DOU_01_SET.format(mcFormat, "Location caching", "Enabled", "Num", cacheLocationCount)
+            ? DOU_01_SET.format(mcFormat, "Location caching", "Enabled", "Num", locationQueue.size() + "/" + cacheLocationCount)
             : LVL_01_SET.format(mcFormat, "Location caching", "Disabled");
     }
     //</editor-fold>

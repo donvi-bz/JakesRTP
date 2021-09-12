@@ -23,7 +23,7 @@ public class SafeLocationFinderBukkitThread extends SafeLocationFinder {
     @Override
     protected void dropToGround() {
         requireMainThread();
-        SafeLocationUtils.util.dropToGround(loc, lowBound);
+        SafeLocationUtils.util.dropToGround(loc, lowBound, highBound);
     }
 
     @Override
