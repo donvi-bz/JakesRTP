@@ -1,7 +1,8 @@
 # - - - - - - - - - - - - - -
 # - Messages File - English -
 # - - - - - - - - - - - - - -
-# All messages sent in game by this plugin are stored here (and in the future in other files for other languages as well).
+# All messages sent in game by this plugin are stored here (and in the future in other files for other languages as
+# well). (Correction: permission deny messages live in the plugin.yml file and can only be modified through there)
 # This file should not be edited directly, but instead used as a reference for writing message overrides in
 #   `language-settings.yml`.
 # All messages will have a brief description, and an explanation of what each placeholder represents.
