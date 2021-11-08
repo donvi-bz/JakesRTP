@@ -2,8 +2,9 @@
 # Currently supported languages:
 #  • English (en)
 #  • Español (es)
-#  • Magyar (hu)
 #  • Íslenska (is)
+#  • Magyar (hu)
+#  • Polskie (pl)
 # Note: You MUST type the letters in the parentheses
 language: 'en'
 
