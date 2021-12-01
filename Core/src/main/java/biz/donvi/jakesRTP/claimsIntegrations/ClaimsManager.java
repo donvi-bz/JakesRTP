@@ -7,6 +7,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.logging.Level;
@@ -20,17 +21,27 @@ public class ClaimsManager {
     protected       ConfigurationSection configurationSection;
 
 
+    /**
+     * Creates an empty (and useless) claims manager. Yeah, this is bad design,
+     * but the plugin rewrite has already started, so I'll fix it later.
+     */
+    public ClaimsManager() {
+        ownerPlugin = null;
+        logger = null;
+        locationRestrictors = new LocationRestrictor[0];
+        locationRestrictorNames = Collections.emptyList();
+    }
+
     public ClaimsManager(Plugin ownerPlugin, ConfigurationSection configSection) {
         this.ownerPlugin = ownerPlugin;
         logger = ownerPlugin.getLogger();
         locationRestrictors = tryMakeLocationRestrictor();
         configurationSection = configSection;
-
     }
 
     public List<String> enabledLocationRestrictors() {
         List<String> names = new ArrayList<>();
-        for(LocationRestrictor restrictor : locationRestrictors)
+        for (LocationRestrictor restrictor : locationRestrictors)
             names.add(restrictor.supporterPlugin().getName());
         return names;
     }

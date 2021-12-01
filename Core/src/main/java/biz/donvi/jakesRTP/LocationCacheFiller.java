@@ -34,27 +34,29 @@ public class LocationCacheFiller implements Runnable {
             infoLog("[J-RTP] LCF Started.");
             int issueCounter = 0, issueCounterMax = 10;
             while (keepRunning && isPluginLoaded()) {
-                RtpProfile settingsForErrReport = null;
-                try {
-                    for (RtpProfile settings : getCurrentRtpSettings()) {
-                        settingsForErrReport = settings;
-                        if (!keepRunning) break;
-                        else if (settings.canUseLocQueue) pluginMain().getRandomTeleporter().fillQueue(settings);
-                    }
-                    if (issueCounter > 0) issueCounter--;
-                } catch (JrtpBaseException ex) {
-                    issueCounter++;
-                    if (ex instanceof JrtpBaseException.PluginDisabledException) throw ex;
-                    if (ex instanceof JrtpBaseException.NotPermittedException)
-                        infoLog("An exception has occurred that should be impossible to occur. Please report this.");
-                    else if (issueCounter < issueCounterMax)
-                        infoLog("Something has gone wrong, but this is most likely not an issue.");
-                    else
-                        infoLog("Something has gone wrong multiple times, you may want to report this.");
+                for (RtpProfile settings : getCurrentRtpSettings()) {
+                    if (!keepRunning) break;
+                    else if (settings.canUseLocQueue)
+                        try {
+                            pluginMain().getRandomTeleporter().fillQueue(settings);
+                        } catch (JrtpBaseException ex) {
+                            issueCounter += 2;
+                            if (ex instanceof JrtpBaseException.PluginDisabledException) throw ex;
+                            if (ex instanceof JrtpBaseException.NotPermittedException)
+                                infoLog(
+                                    "An exception has occurred that should be impossible to occur. Please report this" +
+                                    ".");
+                            else if (issueCounter < issueCounterMax)
+                                infoLog("Something has gone wrong, but this is most likely not an issue.");
+                            else
+                                infoLog("Something has gone wrong multiple times, you may want to report this.");
 
-                    log(Level.WARNING, "Error filling cache for " + settingsForErrReport.name + ".");
-                    ex.printStackTrace();
+                            log(Level.WARNING, "Error filling cache for " + settings.name + ".");
+                            ex.printStackTrace();
+                        }
                 }
+                if (issueCounter > 0) issueCounter--;
+
                 patientlyWait(recheckTime);
             }
         } catch (JrtpBaseException.PluginDisabledException ignored) {

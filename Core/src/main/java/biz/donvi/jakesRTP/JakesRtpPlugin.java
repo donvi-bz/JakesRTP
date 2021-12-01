@@ -76,6 +76,7 @@ public final class JakesRtpPlugin extends JavaPlugin {
 
         if (!getConfig().getBoolean("land-claim-support.force-disable-all", false))
             claimsManager = new ClaimsManager(this, getConfig().getConfigurationSection("land-claim-support"));
+        else claimsManager = new ClaimsManager();
         new MetricsCustomizer(this, new Metrics(this, 9843));
         infoLog("Loading complete.");
     }

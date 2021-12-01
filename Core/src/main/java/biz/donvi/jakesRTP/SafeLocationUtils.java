@@ -224,8 +224,16 @@ public class SafeLocationUtils {
      * @param loc      The location to modify
      * @param lowBound The lowest the location can go
      */
-    void dropToGround(final Location loc, int lowBound) {
+    void dropToGround(final Location loc, int lowBound, int highBound) {
         requireMainThread();
+        // If our location was above the max height, drop us to it.
+        if (loc.getY() > highBound) loc.setY(highBound);
+        // If we start in a solid block, we need to wait until we get out of it
+        while (loc.getBlockY() > lowBound && !(
+            isSafeToBeIn(loc.getBlock().getType())
+            || isSafeToGoThrough(loc.getBlock().getType()))
+        ) loc.add(0, -1, 0);
+        // Now we are in something non-solid; we can start looking for the ground
         while (loc.getBlockY() > lowBound && (
             isSafeToBeIn(loc.getBlock().getType())
             || isSafeToGoThrough(loc.getBlock().getType()))
@@ -241,7 +249,15 @@ public class SafeLocationUtils {
      * @param lowBound The lowest the location can go
      * @param chunk    The chunk snapshot that contains the {@code Location}'s data.
      */
-    void dropToGround(final Location loc, int lowBound, ChunkSnapshot chunk) {
+    void dropToGround(final Location loc, int lowBound, int highBound, ChunkSnapshot chunk) {
+        // If our location was above the max height, drop us to it.
+        if (loc.getY() > highBound) loc.setY(highBound);
+        // If we start in a solid block, we need to wait until we get out of it
+        while (loc.getBlockY() > lowBound && !(
+            isSafeToBeIn(locMatFromSnapshot(loc, chunk))
+            || isSafeToGoThrough(locMatFromSnapshot(loc, chunk)))
+        ) loc.add(0, -1, 0);
+        // Now we are in something non-solid; we can start looking for the ground
         while (loc.getBlockY() > lowBound && (
             isSafeToBeIn(locMatFromSnapshot(loc, chunk))
             || isSafeToGoThrough(locMatFromSnapshot(loc, chunk)))

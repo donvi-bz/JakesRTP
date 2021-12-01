@@ -26,7 +26,7 @@ public class CmdRtpAdmin extends DynamicArgsMap implements TabExecutor {
         ArgsChecker argsChecker = new ArgsChecker(args);
 
         if (argsChecker.matches(true, "reload"))
-            subReload();
+            subReload(sender);
         else if (argsChecker.matches(true, "status"))
             sender.sendMessage("Incorrect usage. Try:\n/rtp-admin status <#static|name-of-config>");
         else if (argsChecker.matches(true, "status", null))
@@ -54,10 +54,11 @@ public class CmdRtpAdmin extends DynamicArgsMap implements TabExecutor {
         }
     }
 
-    private void subReload() {
+    private void subReload(CommandSender sender) {
         JakesRtpPlugin.plugin.reloadCommands();
         JakesRtpPlugin.plugin.loadRandomTeleporter();
         JakesRtpPlugin.plugin.loadLocationCacheFiller();
+        sender.sendMessage("Reloaded.");
     }
 
     private void subReloadMessages(CommandSender sender) {

@@ -383,7 +383,7 @@ public class RandomTeleporter {
                     Messages.NP_R_TOO_MANY_FAILED_ATTEMPTS.format() + "\n[" +
                     "FailedToWorldBorder: " + failedToWorldBorder + ", " +
                     "FailedToClaims: " + failedToClaimedLand + ", " +
-                    "FailedToSafty: " + failedToSafetyCheck + "]");
+                    "FailedToSafety: " + failedToSafetyCheck + "]");
             //<editor-fold desc="Super verbose checking (and running `tryAndMakeSafe() method)">
             // Currently, I ASSUME that the `tryAndMakeSafe()` is by far the most expensive method, so I do the easy
             //   checks before (so we can avoid trying to make it safe) but then we also have to check them again at
