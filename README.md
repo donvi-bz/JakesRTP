@@ -51,12 +51,12 @@ I explain how the config works, and how to do multiple configs.
 
 ## The configs (and all their documentation)
 
-* The [main config](JakesRTP-Core/src/main/resources/config.yml)
+* The [main config](Core/src/main/resources/config.yml)
 * Some info on [profiles/rtpProfile and distributions](doc/profiles.md)
-* The default [rtpProfile](JakesRTP-Core/src/main/resources/rtpProfile/default-settings.yml) config
+* The default [rtpProfile](Core/src/main/resources/rtpSettings/default-settings.yml) config
 * Two different default distribution profiles
-    * [one](JakesRTP-Core/src/main/resources/distributions/default-symmetric.yml) for circles and squares
-    * [another](JakesRTP-Core/src/main/resources/distributions/default-rectangle.yml) for rectangles
+    * [one](Core/src/main/resources/distributions/default-symmetric.yml) for circles and squares
+    * [another](Core/src/main/resources/distributions/default-rectangle.yml) for rectangles
 
 ## Commands overview
 
@@ -92,7 +92,7 @@ Go [here](doc/commands.md) for a more detailed explination.
     * description: Allows the usage of the "/rtp-admin" command.
     * default: op
 
-Go to the [plugin.yml](src/main/resources/plugin.yml) to all registered permissions and permission packs.
+Go to the [plugin.yml](Core/src/main/resources/plugin.yml) to all registered permissions and permission packs.
 
 ## Random points examples
 
