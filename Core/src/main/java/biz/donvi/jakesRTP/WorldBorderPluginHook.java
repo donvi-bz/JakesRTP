@@ -1,9 +1,6 @@
 package biz.donvi.jakesRTP;
 
-import org.bukkit.Location;
-import org.bukkit.Server;
-import org.bukkit.World;
-import org.bukkit.WorldBorder;
+import org.bukkit.*;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.popcraft.chunky.shape.Shape;
@@ -42,8 +39,8 @@ public class WorldBorderPluginHook {
             if ((potentialHook = new ChunkyBorderHook()).isUsable()) return potentialHook;
         } catch (Exception e) {
             JakesRtpPlugin.log(Level.WARNING,
-                "Caught an error while trying to register a ChunkyBorder plugin hook. " +
-                "Is it up to date? Is JRTP up to date?");
+                               "Caught an error while trying to register a ChunkyBorder plugin hook. " +
+                               "Is it up to date? Is JRTP up to date?");
             JakesRtpPlugin.log(Level.WARNING, "You may want to manually set your RTP region for the time being.");
             e.printStackTrace(); // debug
         }
@@ -147,9 +144,17 @@ public class WorldBorderPluginHook {
             return getInstance() != null && super.isUsable();
         }
 
+
+        private long         instanceTime = 0;
+        private ChunkyBorder instance = null;
+
         private ChunkyBorder getInstance() {
-            // TODO FIX THIS, ITS BROKEN
-            return (ChunkyBorderBukkit) server.getPluginManager().getPlugin(name());
+            long time = System.currentTimeMillis();
+            if (time - instanceTime > 1000 * 30) { // Hold for 30 seconds.
+                instanceTime = time;
+                instance = Bukkit.getServer().getServicesManager().load(ChunkyBorder.class);
+            }
+            return instance;
         }
 
         @Override
