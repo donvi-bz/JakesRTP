@@ -1,14 +1,12 @@
 package biz.donvi.jakesRTP;
 
-import org.bukkit.Location;
-import org.bukkit.Server;
-import org.bukkit.World;
-import org.bukkit.WorldBorder;
+import org.bukkit.*;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.popcraft.chunky.shape.Shape;
 import org.popcraft.chunkyborder.BorderData;
 import org.popcraft.chunkyborder.ChunkyBorder;
+import org.popcraft.chunkyborder.ChunkyBorderBukkit;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -35,9 +33,17 @@ public class WorldBorderPluginHook {
     }
 
     private PluginSpecificHook findHook() {
-        PluginSpecificHook potentialHook;
-        // Repeat this ↓ for each potential hook
-        if ((potentialHook = new ChunkyBorderHook()).isUsable()) return potentialHook;
+        try {
+            PluginSpecificHook potentialHook;
+            // Repeat this ↓ for each potential hook
+            if ((potentialHook = new ChunkyBorderHook()).isUsable()) return potentialHook;
+        } catch (Exception e) {
+            JakesRtpPlugin.log(Level.WARNING,
+                               "Caught an error while trying to register a ChunkyBorder plugin hook. " +
+                               "Is it up to date? Is JRTP up to date?");
+            JakesRtpPlugin.log(Level.WARNING, "You may want to manually set your RTP region for the time being.");
+            e.printStackTrace(); // debug
+        }
         // No hook?
         return new DefaultAsHook();
     }
@@ -49,7 +55,7 @@ public class WorldBorderPluginHook {
         else return hook.isInside(loc);
     }
 
-    public Map<String, DistributionSettings> generateDistributions() { return hook.generateDistributions(); }
+    public Map<String, DistributionSettings> generateDistributions() {return hook.generateDistributions();}
 
     /* ================================================== *\
                     All the simple subclasses
@@ -62,20 +68,22 @@ public class WorldBorderPluginHook {
         public abstract boolean isInside(Location loc);
 
         private Plugin instance = null;
+
         public Plugin instance() {
             if (instance == null) instance = server.getPluginManager().getPlugin(name());
             return instance;
         }
 
-        public boolean hasInstance() { return instance() != null; }
+        public boolean hasInstance() {return instance() != null;}
 
         private int[] version = null;
+
         public int[] getVersion() {
             if (!hasInstance()) return null;
             if (version == null) {
                 String[] versionParts = instance().getDescription().getVersion().split("\\.");
                 version = new int[versionParts.length];
-                for(int i = 0; i < versionParts.length; i++) version[i] = Integer.parseInt(versionParts[i]);
+                for (int i = 0; i < versionParts.length; i++) version[i] = Integer.parseInt(versionParts[i]);
             }
             return version;
         }
@@ -83,9 +91,11 @@ public class WorldBorderPluginHook {
         /**
          * Method to tell if the plugin hook is usable.
          * OVERRIDE THIS TO ADD CUSTOM CODE FOR EACH PLUGIN AS NECESSARY
+         *
          * @return True if the plugin is usable, false otherwise.
          */
-        public boolean isUsable() { return hasInstance() && !noLongerUsable; }
+        public boolean isUsable() {return hasInstance() && !noLongerUsable;}
+
         protected boolean noLongerUsable = false; // Set if some incompatability is found later down the line
 
         public abstract Map<String, DistributionSettings> generateDistributions();
@@ -129,10 +139,26 @@ public class WorldBorderPluginHook {
 
     class ChunkyBorderHook extends PluginSpecificHook {
 
-        private ChunkyBorder getInstance() { return (ChunkyBorder) server.getPluginManager().getPlugin(name()); }
+        @Override
+        public boolean isUsable() {
+            return getInstance() != null && super.isUsable();
+        }
+
+
+        private long         instanceTime = 0;
+        private ChunkyBorder instance = null;
+
+        private ChunkyBorder getInstance() {
+            long time = System.currentTimeMillis();
+            if (time - instanceTime > 1000 * 30) { // Hold for 30 seconds.
+                instanceTime = time;
+                instance = Bukkit.getServer().getServicesManager().load(ChunkyBorder.class);
+            }
+            return instance;
+        }
 
         @Override
-        protected String name() { return "ChunkyBorder"; }
+        protected String name() {return "ChunkyBorder";}
 
         @Override
         public boolean isInside(Location loc) {
@@ -145,6 +171,7 @@ public class WorldBorderPluginHook {
                 : borderData.getBorder();
             return shape == null || shape.isBounding(loc.getX(), loc.getZ());
         }
+
 
         @Override
         public Map<String, DistributionSettings> generateDistributions() {
