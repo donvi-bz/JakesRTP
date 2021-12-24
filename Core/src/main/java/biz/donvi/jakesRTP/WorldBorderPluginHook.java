@@ -149,6 +149,9 @@ public class WorldBorderPluginHook {
         private ChunkyBorder instance = null;
 
         private ChunkyBorder getInstance() {
+            if (instanceTime == 0 && Bukkit.getServer().getPluginManager().getPlugin("ChunkyBorder") == null) {
+                return null;
+            }
             long time = System.currentTimeMillis();
             if (time - instanceTime > 1000 * 30) { // Hold for 30 seconds.
                 instanceTime = time;
