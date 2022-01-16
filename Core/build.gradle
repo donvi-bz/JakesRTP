@@ -5,6 +5,7 @@ plugins {
 
 repositories {
     mavenCentral()
+    mavenLocal()
     maven { url 'https://papermc.io/repo/repository/maven-public/' }
     maven { url 'https://repo.codemc.io/repository/maven-public/' }
     maven { url 'https://jitpack.io' }
@@ -16,8 +17,8 @@ dependencies {
     compileOnly 'org.spigotmc:spigot-api:1.17-R0.1-SNAPSHOT'
     implementation 'io.papermc:paperlib:1.0.6'
     implementation 'biz.donvi:ArgsChecker:1.0'
-    implementation 'biz.donvi:EvenDistribution:1.1.1'
-    implementation 'biz.donvi:GnuPlotter:1.2'
+    implementation 'biz.donvi:EvenDistribution:1.0'//1.1.1
+//    implementation 'biz.donvi:GnuPlotter:1.2'
 //    implementation project(":patch-1-12-2")
     compileOnly 'us.dynmap:dynmap-api:3.1'
     compileOnly 'org.popcraft:chunky-common:1.2.86'
@@ -47,19 +48,19 @@ artifacts {
     archives shadowJar
 }
 
-task copyToMainOut(type: Copy) {
-    dependsOn(tasks.build)
-    delete file("../build-output-final/").listFiles()
-    from file("build/libs/Core-${project.version}-all.jar")
-    into file("../build-output-final")
-    rename 'Core-', 'JakesRTP-v'
-    rename '-all', ''
-}
-
-task prepareTestServer(type: Copy) {
-    dependsOn(tasks.copyToMainOut)
-    delete file("../testServer/plugins/JakesRTP.jar")
-    from file("../build-output-final/JakesRTP-v${project.version}.jar")
-    into file("../testServer/plugins/")
-    rename '-.*\\.', '\\.'
-}
+//task copyToMainOut(type: Copy) {
+//    dependsOn(tasks.build)
+//    delete file("../build-output-final/").listFiles()
+//    from file("build/libs/Core-${project.version}-all.jar")
+//    into file("../build-output-final")
+//    rename 'Core-', 'JakesRTP-v'
+//    rename '-all', ''
+//}
+//
+//task prepareTestServer(type: Copy) {
+//    dependsOn(tasks.copyToMainOut)
+//    delete file("../testServer/plugins/JakesRTP.jar")
+//    from file("../build-output-final/JakesRTP-v${project.version}.jar")
+//    into file("../testServer/plugins/")
+//    rename '-.*\\.', '\\.'
+//}

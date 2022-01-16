@@ -1,13 +1,18 @@
 package biz.donvi.jakesRTP;
 
 import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.plugin.RegisteredListener;
 
+import java.util.HashMap;
+import java.util.UUID;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
 
@@ -78,10 +83,16 @@ public class RtpOnEvent implements Listener {
             (!randomTeleporter.onDeathRespectBeds || !event.isBedSpawn()) &&
             (!randomTeleporter.onDeathRespectAnchors || !isAnchorSpawn(event))
         ) try {
+            Player player = event.getPlayer();
+            Location location = player.getLocation();
+            World world = location.getWorld();
+            if (world == null) return;
+            RtpProfile rtpProfile = randomTeleporter.DeathRtpProfileforWorld(world);
+            if (rtpProfile == null) return;
             Location landingLoc = new RandomTeleportAction(
                 randomTeleporter,
-                randomTeleporter.onDeathSettings,
-                event.getPlayer().getLocation(),
+                rtpProfile,
+                location,
                 true, true,
                 randomTeleporter.logRtpOnRespawn, "Rtp-on-respawn triggered!"
             ).requestLocation();
@@ -99,7 +110,6 @@ public class RtpOnEvent implements Listener {
         if (properLoc == null || locIntEqual(properLoc, actualLoc)) return;
         handlerLogging(event.getHandlers().getRegisteredListeners(), "rtp-on-death", "PlayerRespawnEvent");
     }
-
 
     private static void handlerLogging(RegisteredListener[] registeredListeners, String settingName, String eventName) {
         int i = 0, us = 0;
