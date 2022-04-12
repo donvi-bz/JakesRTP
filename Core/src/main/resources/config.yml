@@ -61,6 +61,7 @@ land-claim-support:
   grief-prevention: true
   world-guard: true
   husk-towns: true
+  lands: true
 
 #### logging
 # Which messages do you want to log? You can ignore log messages for settings that are disabled.

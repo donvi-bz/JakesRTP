@@ -17,6 +17,7 @@ softdepend:
   - 'GriefPrevention'
   - 'WorldGuard'
   - 'HuskTowns'
+  - 'Lands'
 
 commands:
   jrtpdebug:
