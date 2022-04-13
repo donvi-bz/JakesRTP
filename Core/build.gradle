@@ -28,6 +28,7 @@ dependencies {
     compileOnly 'com.github.TechFortress:GriefPrevention:16.17.1'
     compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.5'
     compileOnly 'com.github.WiIIiam278:HuskTowns:1.5.3'
+    compileOnly "com.github.angeschossen:LandsAPI:6.0.2"
 }
 
 processResources {
