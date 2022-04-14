@@ -4,6 +4,7 @@ import biz.donvi.jakesRTP.GeneralUtil.Pair;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.WorldBorder;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -450,7 +451,14 @@ public class RandomTeleporter {
 
     //<editor-fold desc="Misc ← Workers">
     private boolean isOutsideWorldBorder(Location loc) {
-        return !worldBorderPluginHook.isInside(loc);
+//        return !worldBorderPluginHook.isInside(loc);
+        World world = loc.getWorld();
+        if (world == null) world = Bukkit.getWorlds().get(0); // default to overworld if world is null?
+        WorldBorder border = world.getWorldBorder();
+        double radius = border.getSize() / 2;
+        Location center = border.getCenter();
+
+        return center.distanceSquared(loc) >= (radius * radius);
     }
 
     private boolean isInsideClaimedLand(Location loc) {
