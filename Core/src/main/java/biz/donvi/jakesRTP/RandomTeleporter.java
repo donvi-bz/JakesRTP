@@ -37,7 +37,8 @@ public class RandomTeleporter {
     public final boolean    onDeathRespectBeds;
     public final boolean    onDeathRespectAnchors;
     public final boolean    onDeathRequirePermission;
-    public final RtpProfile onDeathSettings;
+//    public final RtpProfile onDeathSettings;
+    public final Map<String, RtpProfile> worldDeathSettings;
     // Misc settings
     public final boolean    queueEnabled;
     public final int        asyncWaitTimeout;
@@ -136,13 +137,23 @@ public class RandomTeleporter {
         if (onDeathRtp = globalConfig.getBoolean("rtp-on-death.enabled", false)) {
             onDeathRespectBeds = globalConfig.getBoolean("rtp-on-death.respect-beds", true);
             onDeathRespectAnchors = globalConfig.getBoolean("rtp-on-death.respect-anchors", true);
-            onDeathSettings = getRtpSettingsByName(globalConfig.getString("rtp-on-death.settings"));
+//            onDeathSettings = getRtpSettingsByName(globalConfig.getString("rtp-on-death.settings"));
+            worldDeathSettings = new HashMap<>();
+            for (World world : Bukkit.getWorlds()) {
+                String worldName = world.getName();
+                try {
+                    RtpProfile rtpProfile = getRtpSettingsByName(globalConfig.getString("rtp-on-death.settings." + worldName));
+                    worldDeathSettings.put(worldName, rtpProfile);
+                } catch (JrtpBaseException ignored) {
+                }
+            }
             onDeathRequirePermission = globalConfig.getBoolean("rtp-on-death.require-permission", true);
         } else {
             onDeathRespectBeds = false;
             onDeathRespectAnchors = false;
             onDeathRequirePermission = false;
-            onDeathSettings = null;
+//            onDeathSettings = null;
+            worldDeathSettings = new HashMap<>();
         }
         queueEnabled = globalConfig.getBoolean("location-cache-filler.enabled", true);
         if (queueEnabled)
@@ -532,8 +543,9 @@ public class RandomTeleporter {
         ArrayList<String> lines = new ArrayList<>();
         lines.add(LVL_01_SET.format(mcFormat, "RTP on death", enabledOrDisabled(onDeathRtp)));
         if (onDeathRtp) {
-            lines.add(LVL_02_SET.format(mcFormat, "Settings to use", onDeathSettings.name));
-            lines.add(LVL_02_SET.format(mcFormat, "Settings landing world", onDeathSettings.landingWorld.getName()));
+            // TODO - get per world settings
+//            lines.add(LVL_02_SET.format(mcFormat, "Settings to use", onDeathSettings.name));
+//            lines.add(LVL_02_SET.format(mcFormat, "Settings landing world", onDeathSettings.landingWorld.getName()));
             lines.add(LVL_02_SET.format(mcFormat, "Respect beds", enabledOrDisabled(onDeathRespectBeds)));
             lines.add(LVL_02_SET.format(mcFormat, "Respect anchors", enabledOrDisabled(onDeathRespectAnchors)));
             lines.add(LVL_02_SET.format(mcFormat, "Require Permission", onDeathRequirePermission
@@ -559,4 +571,14 @@ public class RandomTeleporter {
         return lines;
     }
     //</editor-fold>
+
+    // Semi Vanilla start
+    public RtpProfile DeathRtpProfileforWorld(World world) {
+        String worldName = world.getName();
+        if (worldDeathSettings.containsKey(worldName))
+            return worldDeathSettings.get(worldName);
+        return null;
+    }
+    // Semi Vanilla end
+
 }
