@@ -1,0 +1,79 @@
+# - - - - - - - - - - - - - -
+# - - 语言文件 - 中文(简体) - -
+# - - - Made By DJelly4K - - -
+# - - Contact me on Discord - -
+# - - - - @DJelly4K#1117 - - - -
+# - - - - - - - - - - - - - -
+# All messages sent in game by this plugin are stored here (and in the future in other files for other languages as
+# well). (Correction: permission deny messages live in the plugin.yml file and can only be modified through there)
+# This file should not be edited directly, but instead used as a reference for writing message overrides in
+#   `language-settings.yml`.
+# All messages will have a brief description, and an explanation of what each placeholder represents.
+# # # # # # # # # # # # # # # # #
+
+# For when an RTP action is denied such as trying to rtp in a world that does not allow rtp.
+#   {0} - The reason the action was denied.
+not-permitted-generic: '无法进行随机传送, 原因: {0}'
+# For when an RTP action is denied because an issue occurred. Ex: an exception occurs while waiting for an rtp location.
+#   {0} - The message from the exception that caused this message to appear.
+#   Note: This is always followed in console by a stack trace (which can not be configured)
+not-permitted-major-error: '错误. 无法进行随机传送, 原因: {0} \n请前往终端查看详细日志.'
+# For when the reason an action is denied is that rtp is not enabled in the world.
+#   {0} - An identifier that helps with debugging
+not-enabled-in-this-world: '此世界未启用随机传送. {0}'
+# For no rtpSettings are found with a given name
+#   {0} - The given name
+no-settings-found-with-name: '无法找到 {0} 设置项'
+# For no rtpSettings are found with a given name WHEN SEARCHED BY A SPECIFIC PLAYER
+# This will both be displayed when the rtpSettings with the given name do not exist, or the player who ran
+#   the `/rtp <settingsName>` command did not have permission to use the settings found.
+#   {0} - The given name
+no-settings-found-with-name-for-player: '无法找到 {0} 设置项'
+# For when too many attempts are made by the plugin to find a point with no success.
+too-many-failed-attempts: '多次尝试失败.'
+# For any time the plugin expects a player's name but does not receive the name of a player.
+#   {0} - The name given that did not match a player.
+player-not-found: '无法找到玩家 {0}'
+# For when a world name is expected but not received.
+#   {0} - The given name that matched no world names.
+world-not-found: '无法找到世界 {0}'
+# For when a given rtpSettings is expected to contain the given world, but does not.
+#   {0} - The rtpSetting's name
+#   {1} - The world's name
+rtp-settings-no-contain-world: '输入不匹配: 随机传送设置 "{0}" 不包含世界 "{1}" 作为其启用的世界之一.'
+# For when a given rtpSettings can only land people in one world but another world is requested instead.
+#   {0} - The rtpSetting's name
+#   {1} - The only valid world name
+rtp-settings-must-use-world: '输入不匹配: 随机传送设置 "{0}" 只能传送世界 "{1}" 中的玩家'
+# For when a player needs to wait for a cooldown before running the command again.
+#   {0} - The cooldown time (uses READABLE-TIME as defined below)
+need-to-wait-for-cooldown:  '随机传送冷却中, 倒计时: {0}'
+# For when a player is waiting  for the warmup before teleporting. (Only gets used if `warmup.time` is greater than 0)
+#   {0} - The number of seconds remaining
+teleporting-in-x-seconds: '将在 {0} 秒后传送...'
+# For when a player walks during their rtp warmup canceling it. (Only gets used if `warmup.time` is greater than 0)
+moved-during-warmup: '你已移动, 传送已取消.'
+# For when a player is waiting on the warmup and calls `/rtp` again. (Only gets used if `warmup.time` is greater than 0)
+rtp-called-while-in-warmup: '你已经在进行随机传送操作!'
+# For when something costs money, but the player does not have enough.
+#   {0} - The cost
+#   {1} - The player's balance
+not-enough-money: '你没有足够的金币执行. 需花费: {0}. 你只有: {1}.'
+# For when the player had enough money to run the command, but does not have enough by the time they get charged.
+# This will only really happen if a player tries to get around paying by emptying their balance before the warmup is over.
+no-longer-enough-money: '你现在已没有足够的金币执行操作.'
+# For when a player is charged.
+#   {0} - The amount charged
+#   {1} - The amount they player has left
+you-were-charged-x: '你已支付 {0} , 现拥有 {1}'
+# For when an economy error happens. This will most likely not occur.
+#   {0} - The economy error text.
+economy-error: '发生经济错误: {0}'
+# READABLE-TIME - This is a special case message. Whenever a time needs to be displayed, it will use this for
+#   formatting. Also, each 'word' will only be displayed if the associated number value is greater than 0.
+# Example: 8675 seconds will be formatted as such: `2 hours, 24 minutes, 35 seconds.` Note the absence of days.
+readable-time: '{0}{1}{2}{3}'
+readable-time-word-days:    '{0} 天, '
+readable-time-word-hours:   '{0} 小时, '
+readable-time-word-minutes: '{0} 分, '
+readable-time-word-seconds: '{0} 秒.'
