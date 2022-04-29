@@ -87,12 +87,17 @@ public class ClaimsManager {
                 return true;
             } else return false;
         });
-
+        
         //Towny support!
         generalPluginLoader("towny","Towny",(pluginName) -> {
             Plugin plugin;
             if ((plugin = tryGetPlugin(pluginName)) != null) {
                 restrictors.add(new LrTowny((Towny) plugin));
+
+        generalPluginLoader("lands","Lands",(pluginName) -> {
+            Plugin plugin;
+            if ((plugin = tryGetPlugin(pluginName)) != null) {
+                restrictors.add(new LrLands(plugin,ownerPlugin));
                 return true;
             }else return false;
         });
