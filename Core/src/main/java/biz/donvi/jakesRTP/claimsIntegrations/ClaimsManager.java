@@ -1,5 +1,6 @@
 package biz.donvi.jakesRTP.claimsIntegrations;
 
+import com.palmergames.bukkit.towny.Towny;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import org.bukkit.Location;
@@ -86,6 +87,12 @@ public class ClaimsManager {
                 return true;
             } else return false;
         });
+        
+        //Towny support!
+        generalPluginLoader("towny","Towny",(pluginName) -> {
+            Plugin plugin;
+            if ((plugin = tryGetPlugin(pluginName)) != null) {
+                restrictors.add(new LrTowny((Towny) plugin));
 
         generalPluginLoader("lands","Lands",(pluginName) -> {
             Plugin plugin;
