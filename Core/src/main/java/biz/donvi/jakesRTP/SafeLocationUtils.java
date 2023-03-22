@@ -66,6 +66,7 @@ public class SafeLocationUtils {
             case GLOW_LICHEN:
             case MOSS_CARPET:
             case GLOW_BERRIES:
+            case PINK_PETALS:
                 return true;
             case WATER:
             case LAVA:
@@ -128,6 +129,8 @@ public class SafeLocationUtils {
             case SPRUCE_LEAVES:
             case AZALEA_LEAVES:
             case FLOWERING_AZALEA_LEAVES:
+            case MANGROVE_LEAVES:
+            case CHERRY_LEAVES:
                 return true;
             default:
                 return false;
